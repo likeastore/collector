@@ -1,28 +1,23 @@
 var expect = require('chai').expect;
-var engine = require('./../source/engine').engine;
+var engineFactory = require('./../source/engine');
 
 describe('engine', function () {
-	var jobs;
-	var jobExecuted = [];
+	var engine, jobs, jobExecuted;
 
-	describe('initialization', function () {
-		it('should exist', function () {
-			expect(engine).to.be.ok;
+	beforeEach(function () {
+		jobExecuted = [];
+
+		engine = engineFactory.create();
+
+		engine.on('job/executed', function (data) {
+			jobExecuted.push(data);
 		});
 	});
 
 	describe('running without jobs', function () {
-		beforeEach(function () {
-			jobs = [];
-		});
-
-		beforeEach(function () {
-			engine.on('job/executed', function (data) {
-				jobExecuted.push(data);
-			});
-		});
-
 		beforeEach(function (done) {
+			jobs = [];
+
 			engine.execute(jobs, function (err, results) {
 				expect(err).to.not.be.ok;
 				done();
@@ -31,6 +26,27 @@ describe('engine', function () {
 
 		it('should nothing be executed', function () {
 			expect(jobExecuted.length).to.equal(0);
+		});
+	});
+
+	describe('running one job', function () {
+		beforeEach(function (done) {
+			jobs = [{
+				userId: 'a@a.com',
+				service: 'github',
+				quotas: {
+					reqPerMin: 5
+				}
+			}];
+
+			engine.execute(jobs, function (err, results) {
+				expect(err).to.not.be.ok;
+				done();
+			});
+		});
+
+		it('should execute one job', function () {
+			expect(jobExecuted.length).to.equal(1);
 		});
 	});
 });
