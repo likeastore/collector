@@ -1,0 +1,32 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files (x86)\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'start' ]
+2 info using npm@1.2.14
+3 info using node@v0.8.22
+4 verbose node symlink C:\Program Files (x86)\nodejs\\node.exe
+5 verbose read json C:\Development\Projects\likeastore\collector\package.json
+6 verbose run-script [ 'prestart', 'start', 'poststart' ]
+7 info prestart likeastore-collector@0.0.1
+8 info start likeastore-collector@0.0.1
+9 verbose unsafe-perm in lifecycle true
+10 silly exec cmd "/c" "node app.js"
+11 silly cmd,/c,node app.js,C:\Development\Projects\likeastore\collector spawning
+12 info likeastore-collector@0.0.1 Failed to exec start script
+13 error likeastore-collector@0.0.1 start: `node app.js`
+13 error `cmd "/c" "node app.js"` failed with 1
+14 error Failed at the likeastore-collector@0.0.1 start script.
+14 error This is most likely a problem with the likeastore-collector package,
+14 error not with npm itself.
+14 error Tell the author that this fails on your system:
+14 error     node app.js
+14 error You can get their info via:
+14 error     npm owner ls likeastore-collector
+14 error There is likely additional logging output above.
+15 error System Windows_NT 6.2.9200
+16 error command "C:\\Program Files (x86)\\nodejs\\\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "start"
+17 error cwd C:\Development\Projects\likeastore\collector
+18 error node -v v0.8.22
+19 error npm -v 1.2.14
+20 error code ELIFECYCLE
+21 verbose exit [ 1, true ]
