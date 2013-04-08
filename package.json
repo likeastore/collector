@@ -9,7 +9,8 @@
     "express": "~3.1.0",
     "mongojs": "~0.7.3",
     "underscore": "~1.4.4",
-    "async": "~0.2.6"
+    "async": "~0.2.6",
+    "chai": "~1.5.0"
   },
   "engines": {
     "node": "0.8.x"
