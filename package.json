@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "likeastore-collector",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,10 +9,9 @@
     "express": "~3.1.0",
     "ejs": "~0.8.3",
     "mongojs": "~0.7.3",
-    "everyauth": "~0.3.1",
     "underscore": "~1.4.4",
     "async": "~0.2.6"
-  }
+  },
   "engines": {
     "node": "0.8.x"
   }
