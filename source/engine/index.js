@@ -1,32 +1,33 @@
 var _ = require('underscore');
-var events = require('events');
-var executors = require('./executors');
+var async = require('async');
+var tasksBuilder = require('./tasks/builder');
+var subscriptions = require('./../db/subscriptions');
 
 function createEngine() {
-	var emitter = new events.EventEmitter();
+	var queue = async.queue(execute, 10);
 
-	var execute = function (jobs, callback) {
-		var results = [];
-		jobs.forEach(function (job) {
-			var executor = executors.createForJob(job);
-			executor.run(function (err, executorResults) {
-				if (err) {
-					return callback(err);
-				}
-
-				results.push(executorResults);
-
-				emitter.emit('job/executed', {userId: job.userId, summary: executorResults.summary});
+	function daemon() {
+		subscriptions.all(function (err, subs) {
+			var tasks = tasksBuilder.create(subs);
+			tasks.forEach(function (t) {
+				queue.push(t);
 			});
-
 		});
+	}
 
-		return callback(null, results);
+	function execute(task, callback) {
+		return task(callback);
+	}
+
+	queue.drain = function () {
+		setTimeout(daemon, 1000);
 	};
 
-	return _.extend(emitter, {
-		execute: execute
-	});
+	return {
+		start: function () {
+			daemon();
+		}
+	};
 }
 
 module.exports = {

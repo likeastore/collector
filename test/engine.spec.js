@@ -1,52 +1,52 @@
-var expect = require('chai').expect;
-var engineFactory = require('./../source/engine');
+// var expect = require('chai').expect;
+// var engineFactory = require('./../source/engine');
 
-describe('engine', function () {
-	var engine, jobs, jobExecuted;
+// describe('engine', function () {
+// 	var engine, jobs, jobExecuted;
 
-	beforeEach(function () {
-		jobExecuted = [];
+// 	beforeEach(function () {
+// 		jobExecuted = [];
 
-		engine = engineFactory.create();
+// 		engine = engineFactory.create();
 
-		engine.on('job/executed', function (data) {
-			jobExecuted.push(data);
-		});
-	});
+// 		engine.on('job/executed', function (data) {
+// 			jobExecuted.push(data);
+// 		});
+// 	});
 
-	describe('running without jobs', function () {
-		beforeEach(function (done) {
-			jobs = [];
+// 	describe('running without jobs', function () {
+// 		beforeEach(function (done) {
+// 			jobs = [];
 
-			engine.execute(jobs, function (err, results) {
-				expect(err).to.not.be.ok;
-				done();
-			});
-		});
+// 			engine.execute(jobs, function (err, results) {
+// 				expect(err).to.not.be.ok;
+// 				done();
+// 			});
+// 		});
 
-		it('should nothing be executed', function () {
-			expect(jobExecuted.length).to.equal(0);
-		});
-	});
+// 		it('should nothing be executed', function () {
+// 			expect(jobExecuted.length).to.equal(0);
+// 		});
+// 	});
 
-	describe('running one job', function () {
-		beforeEach(function (done) {
-			jobs = [{
-				userId: 'a@a.com',
-				service: 'github',
-				quotas: {
-					reqPerMin: 5
-				}
-			}];
+// 	describe('running one job', function () {
+// 		beforeEach(function (done) {
+// 			jobs = [{
+// 				userId: 'a@a.com',
+// 				service: 'github',
+// 				quotas: {
+// 					reqPerMin: 5
+// 				}
+// 			}];
 
-			engine.execute(jobs, function (err, results) {
-				expect(err).to.not.be.ok;
-				done();
-			});
-		});
+// 			engine.execute(jobs, function (err, results) {
+// 				expect(err).to.not.be.ok;
+// 				done();
+// 			});
+// 		});
 
-		it('should execute one job', function () {
-			expect(jobExecuted.length).to.equal(1);
-		});
-	});
-});
+// 		it('should execute one job', function () {
+// 			expect(jobExecuted.length).to.equal(1);
+// 		});
+// 	});
+// });
