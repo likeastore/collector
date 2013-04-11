@@ -16,7 +16,7 @@ function createTask(sub) {
 	var connector = connectorsFactory.create(sub);
 
 	return function (callback) {
-		return connector(callback);
+		return connector(sub, callback);
 	};
 }
 

@@ -42,7 +42,7 @@ describe('tasks builder', function () {
 								perMinute: 3
 							}
 						},
-						lastExecution: moment().subtract(5, 'minutes')
+						lastExecution: moment().subtract(5, 'minutes').format()
 					}];
 
 					tasks = builder.create(subscriptions);
@@ -63,7 +63,7 @@ describe('tasks builder', function () {
 								perMinute: 3
 							}
 						},
-						lastExecution: moment().subtract(1, 'minutes')
+						lastExecution: moment().subtract(1, 'minutes').format()
 					}];
 
 					tasks = builder.create(subscriptions);
@@ -84,7 +84,7 @@ describe('tasks builder', function () {
 								perMinute: 5
 							}
 						},
-						lastExecution: moment().subtract(5, 'minutes')
+						lastExecution: moment().subtract(5, 'minutes').format()
 					}];
 
 					tasks = builder.create(subscriptions);
@@ -106,7 +106,7 @@ describe('tasks builder', function () {
 							perMinute: 5
 						}
 					},
-					lastExecution: moment().subtract(5, 'minutes')
+					lastExecution: moment().subtract(5, 'minutes').format()
 				}, {
 					userId: 'id_1',
 					service: 'twitter',
@@ -123,7 +123,7 @@ describe('tasks builder', function () {
 							perMinute: 1
 						}
 					},
-					lastExecution: moment().subtract(5, 'minutes')
+					lastExecution: moment().subtract(5, 'minutes').format()
 				}];
 
 				tasks = builder.create(subscriptions);

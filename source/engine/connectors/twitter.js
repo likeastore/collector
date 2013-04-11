@@ -1,5 +1,9 @@
-module.exports = function connector(callback) {
-	console.log('twitter connector task started...');
+var networks = require('./../../db/networks');
+var moment = require('moment');
 
-	return callback(null, {});
+module.exports = function (sub, callback) {
+	console.log('twitter connector task started for user: ' + sub.userId);
+
+	sub.lastExecution = moment().format();
+	return networks.update(sub, callback);
 };
