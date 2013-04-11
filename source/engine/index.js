@@ -9,9 +9,9 @@ function createEngine() {
 	var queue = async.queue(execute, 10);
 
 	function engineLoop() {
-		console.log('requesting all active networks...');
-
 		started = moment();
+		console.log('engine session, stated at: ' + started.format());
+		console.log('requesting all active networks...');
 		networks.all(function (err, subs) {
 			console.log('recieved ' + subs.length + ' networks.');
 
@@ -25,8 +25,6 @@ function createEngine() {
 			tasks.forEach(function (t) {
 				queue.push(t);
 			});
-
-			console.log('execution tasks pushed to queue.');
 		});
 	}
 
@@ -40,7 +38,7 @@ function createEngine() {
 		var executionTime = finished.diff(started);
 
 		console.log('all execution task are done in: ' + executionTime + ' (msec)');
-		console.log('ready for next session in 1000 (msec)');
+		console.log('ready for next session in 1000 (msec)\n');
 		setTimeout(engineLoop, 1000);
 	}
 
