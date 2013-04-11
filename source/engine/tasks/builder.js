@@ -8,8 +8,9 @@ function checkQuotas(sub) {
 
 	var requestPerMinute = sub.quotas.requests.perMinute;
 	var lastExecution = sub.lastExecution;
+	var period = 60 / requestPerMinute;
 
-	return moment().diff(lastExecution, 'minutes') > requestPerMinute;
+	return moment().diff(lastExecution, 'seconds') > period;
 }
 
 function createTask(sub) {

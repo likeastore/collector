@@ -31,69 +31,6 @@ describe('tasks builder', function () {
 					expect(tasks.length).to.equal(1);
 				});
 			});
-
-			describe('with last execution later than quota', function () {
-				beforeEach(function () {
-					subscriptions = [{
-						userId: 'id',
-						service: 'github',
-						quotas: {
-							requests: {
-								perMinute: 3
-							}
-						},
-						lastExecution: moment().subtract(5, 'minutes').format()
-					}];
-
-					tasks = builder.create(subscriptions);
-				});
-
-				it('should create one task', function () {
-					expect(tasks.length).to.equal(1);
-				});
-			});
-
-			describe('with last execution earlier than quota', function () {
-				beforeEach(function () {
-					subscriptions = [{
-						userId: 'id',
-						service: 'github',
-						quotas: {
-							requests: {
-								perMinute: 3
-							}
-						},
-						lastExecution: moment().subtract(1, 'minutes').format()
-					}];
-
-					tasks = builder.create(subscriptions);
-				});
-
-				it('should not create new task', function () {
-					expect(tasks.length).to.equal(0);
-				});
-			});
-
-			describe('with last execution exactly as quota', function () {
-				beforeEach(function () {
-					subscriptions = [{
-						userId: 'id',
-						service: 'github',
-						quotas: {
-							requests: {
-								perMinute: 5
-							}
-						},
-						lastExecution: moment().subtract(5, 'minutes').format()
-					}];
-
-					tasks = builder.create(subscriptions);
-				});
-
-				it('should not create new task', function () {
-					expect(tasks.length).to.equal(0);
-				});
-			});
 		});
 
 		describe('with several subscription', function () {
@@ -129,8 +66,97 @@ describe('tasks builder', function () {
 				tasks = builder.create(subscriptions);
 			});
 
-			it('should create 2 tasks', function () {
-				expect(tasks.length).to.equal(2);
+			it('should create 3 tasks', function () {
+				expect(tasks.length).to.equal(3);
+			});
+		});
+	});
+
+	describe('quotas calculation', function () {
+		// request per minute = 5, means connector could do request each 60 / 5 = 12 seconds
+		// if difference between current and last execution > 12 sec - create task
+
+		describe('lastExecution at the current moment', function () {
+			beforeEach(function () {
+				subscriptions = [{
+					userId: 'id_1',
+					service: 'github',
+					quotas: {
+						requests: {
+							perMinute: 5
+						}
+					},
+					lastExecution: moment().format()
+				}];
+
+				tasks = builder.create(subscriptions);
+			});
+
+			it('should not create any tasks', function () {
+				expect(tasks.length).to.equal(0);
+			});
+		});
+
+		describe('lastExecution happed 5 seconds ago', function () {
+			beforeEach(function () {
+				subscriptions = [{
+					userId: 'id_1',
+					service: 'github',
+					quotas: {
+						requests: {
+							perMinute: 5
+						}
+					},
+					lastExecution: moment().subtract(5, 'seconds').format()
+				}];
+
+				tasks = builder.create(subscriptions);
+			});
+
+			it('should not create any tasks', function () {
+				expect(tasks.length).to.equal(0);
+			});
+		});
+
+		describe('lastExecution happed 12 seconds ago', function () {
+			beforeEach(function () {
+				subscriptions = [{
+					userId: 'id_1',
+					service: 'github',
+					quotas: {
+						requests: {
+							perMinute: 5
+						}
+					},
+					lastExecution: moment().subtract(12, 'seconds').format()
+				}];
+
+				tasks = builder.create(subscriptions);
+			});
+
+			it('should not create any tasks', function () {
+				expect(tasks.length).to.equal(0);
+			});
+		});
+
+		describe('lastExecution happed 13 seconds ago', function () {
+			beforeEach(function () {
+				subscriptions = [{
+					userId: 'id_1',
+					service: 'github',
+					quotas: {
+						requests: {
+							perMinute: 5
+						}
+					},
+					lastExecution: moment().subtract(13, 'seconds').format()
+				}];
+
+				tasks = builder.create(subscriptions);
+			});
+
+			it('should create new task', function () {
+				expect(tasks.length).to.equal(1);
 			});
 		});
 	});
