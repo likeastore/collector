@@ -1,4 +1,5 @@
 var moment = require('moment');
+var connectorsFactory = require('./../connectors/factory');
 
 function checkQuotas(sub) {
 	if (!sub.quotas || !sub.lastExecution) {
@@ -12,7 +13,10 @@ function checkQuotas(sub) {
 }
 
 function createTask(sub) {
+	var connector = connectorsFactory.create(sub);
+
 	return function (callback) {
+		return connector(callback);
 	};
 }
 

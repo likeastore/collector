@@ -3,6 +3,7 @@ var http = require('http');
 var path = require('path');
 
 var app = express();
+var engine = require('./source/engine').create();
 
 app.configure(function(){
 	app.set('port', process.env.PORT || 3001);
@@ -19,8 +20,8 @@ app.configure('development', function(){
 	app.use(express.errorHandler());
 });
 
-require('./source/api/jobs')(app);
-
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function() {
 	console.log("likeastore-collector listening on port " + app.get('port'));
+
+	engine.start();
 });

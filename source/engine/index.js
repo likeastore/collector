@@ -2,21 +2,25 @@ var _ = require('underscore');
 var async = require('async');
 var moment = require('moment');
 var tasksBuilder = require('./tasks/builder');
-var subscriptions = require('./../db/subscriptions');
+var networks = require('./../db/networks');
 
 function createEngine() {
 	var started, finished;
 	var queue = async.queue(execute, 10);
 
 	function engineLoop() {
-		console.log('requesting all active subscriptions...');
+		console.log('requesting all active networks...');
 
 		started = moment();
-		subscriptions.all(function (err, subs) {
-			console.log('recieved ' + subs.length + ' subscriptions.');
+		networks.all(function (err, subs) {
+			console.log('recieved ' + subs.length + ' networks.');
 
 			var tasks = tasksBuilder.create(subs);
-			console.log('processed subscriptions, created ' + tasks.length + 'execution tasks.');
+			console.log('processed networks, created ' + tasks.length + ' execution tasks.');
+
+			if (tasks.length === 0) {
+				return drain();
+			}
 
 			tasks.forEach(function (t) {
 				queue.push(t);
@@ -30,13 +34,18 @@ function createEngine() {
 		return task(callback);
 	}
 
-	queue.drain = function () {
+	function drain() {
 		finished = moment();
 
 		var executionTime = finished.diff(started);
+
 		console.log('all execution task are done in: ' + executionTime + ' (msec)');
 		console.log('ready for next session in 1000 (msec)');
 		setTimeout(engineLoop, 1000);
+	}
+
+	queue.drain = function () {
+		drain();
 	};
 
 	return {
