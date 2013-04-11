@@ -6,12 +6,13 @@ var networks = require('./../db/networks');
 
 function createEngine() {
 	var started, finished;
-	var queue = async.queue(execute, 10);
+	var concurrency = 10;
+	var queue = async.queue(execute, concurrency);
 
 	function engineLoop() {
 		started = moment();
 		console.log('engine session, stated at: ' + started.format());
-		console.log('requesting all active networks...');
+
 		networks.all(function (err, subs) {
 			console.log('recieved ' + subs.length + ' networks.');
 
@@ -48,7 +49,6 @@ function createEngine() {
 
 	return {
 		start: function () {
-			console.log('collector engine is about to start...');
 			engineLoop();
 		}
 	};
