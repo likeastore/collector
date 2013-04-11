@@ -8,7 +8,7 @@ function createEngine() {
 	var started, finished;
 	var queue = async.queue(execute, 10);
 
-	function daemon() {
+	function engineLoop() {
 		console.log('requesting all active subscriptions...');
 
 		started = moment();
@@ -36,12 +36,13 @@ function createEngine() {
 		var executionTime = finished.diff(started);
 		console.log('all execution task are done in: ' + executionTime + ' (msec)');
 		console.log('ready for next session in 1000 (msec)');
-		setTimeout(daemon, 1000);
+		setTimeout(engineLoop, 1000);
 	};
 
 	return {
 		start: function () {
-			daemon();
+			console.log('collector engine is about to start...');
+			engineLoop();
 		}
 	};
 }
