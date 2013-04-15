@@ -4,15 +4,15 @@ var moment = require('moment');
 
 module.exports = {
 	success: function (message) {
-		console.log(this.timestamptMessage(message).green);
+		console.log(this.timestamptMessage(util.format('SUCCESS: %s', message)).green);
 	},
 
 	warning: function (message) {
-		console.log(this.timestamptMessage(message).yellow);
+		console.log(this.timestamptMessage(util.format('WARNING: %s', message)).yellow);
 	},
 
 	error: function (message) {
-		console.log(this.timestamptMessage(message).red);
+		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
 	},
 
 	info: function (message) {

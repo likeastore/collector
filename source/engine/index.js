@@ -31,7 +31,13 @@ function createEngine() {
 	}
 
 	function execute(task, callback) {
-		return task(callback);
+		return task(function(err) {
+			if (err) {
+				logger.error(err);
+			}
+
+			return callback(err);
+		});
 	}
 
 	function drain() {
