@@ -3,6 +3,7 @@ var async = require('async');
 var moment = require('moment');
 var tasksBuilder = require('./tasks/builder');
 var networks = require('./../db/networks');
+var logger = require('./../utils/logger');
 
 function createEngine() {
 	var started, finished;
@@ -11,13 +12,13 @@ function createEngine() {
 
 	function engineLoop() {
 		started = moment();
-		console.log('engine session, stated at: ' + started.format());
+		logger.success('engine session, stated at: ' + started.format());
 
 		networks.all(function (err, subs) {
-			console.log('recieved ' + subs.length + ' networks.');
+			logger.info('recieved ' + subs.length + ' networks.');
 
 			var tasks = tasksBuilder.create(subs);
-			console.log('processed networks, created ' + tasks.length + ' execution tasks.');
+			logger.info('processed networks, created ' + tasks.length + ' execution tasks.');
 
 			if (tasks.length === 0) {
 				return drain();
@@ -38,8 +39,8 @@ function createEngine() {
 
 		var executionTime = finished.diff(started);
 
-		console.log('all execution task are done in: ' + executionTime + ' (msec)');
-		console.log('ready for next session in 1000 (msec)\n');
+		logger.success('all execution task are done in: ' + executionTime + ' (msec)');
+		logger.info('ready for next session in 1000 (msec)');
 		setTimeout(engineLoop, 1000);
 	}
 
