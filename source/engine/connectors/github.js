@@ -18,7 +18,31 @@ var connnector = {
 			return callback('missing username for user: ' + sub.userId);
 		}
 
-		return callback(null, []);
+		var client = github.client(accessToken);
+		client.get('/users/' + username + '/starred', function (err, responseCode, responseBody) {
+			logger.connnector('github').info('retrieved ' + responseBody.length + ' starred repos');
+
+			if (responseCode !== 200) {
+				return callback('request failed with status: ' + responseCode);
+			}
+
+			var stars = responseBody.map(function (r) {
+				return {
+					itemId: r.id,
+					name: r.full_name,
+					authorName: r.owner.login,
+					authorUrl: r.owner.html_url,
+					authorGravatar: r.owner.gravatar_id,
+					avatarUrl: 'http://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
+					url: r.html_url,
+					date: moment(r.created_at).format(),
+					description: r.description,
+					type: 'github'
+				};
+			});
+
+			return callback(null, stars);
+		});
 	},
 
 	updateLastExecution: function (sub, callback) {
@@ -39,22 +63,23 @@ var connnector = {
 
 		this.request(sub, updateLastExecution);
 
-		function updateLastExecution(err, stars) {
+		var me = this;
+		function updateLastExecution(err, info) {
 			if (err) {
 				return callback(err);
 			}
 
-			this.updateLastExecution(sub, function(err) {
-				return updateItems(err, stars);
+			me.updateLastExecution(info, function(err) {
+				return updateItems(err, info);
 			});
 		}
 
-		function updateItems(err, stars) {
+		function updateItems(err, info) {
 			if (err) {
 				return callback(err);
 			}
 
-			this.updateItems(stars, callback);
+			me.updateItems(info, callback);
 		}
 	}
 };
