@@ -1,10 +1,21 @@
-var networks = require('./../../db/networks');
-var moment = require('moment');
+var request = require('request');
 var logger = require('./../../utils/logger');
+var moment = require('moment');
+var util = require('util');
 
-module.exports = function (sub, callback) {
-	logger.connector('twitter').info('started user: ' + sub.userId);
+function connector(state, callback) {
+	var accessToken = state.accessToken;
+	var username = state.username;
+	var log = logger.connector('twitter');
 
-	sub.lastExecution = moment().format();
-	return networks.update(sub, callback);
-};
+	if (!accessToken) {
+		return callback('missing accessToken for user: ' + state.userId);
+	}
+
+	if (!username) {
+		return callback('missing username for user: ' + state.userId);
+	}
+
+}
+
+module.exports = connector;
