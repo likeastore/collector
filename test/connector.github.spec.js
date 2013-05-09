@@ -1,18 +1,14 @@
 var expect = require('chai').expect;
 var nock = require('nock');
-var factory = require('./../source/engine/connectors/factory');
+var rewire = require('rewire');
+var loggerFake = require('./fakes/logger');
 
 describe('engine/connectors/github.js', function () {
 	var state, connector;
 
-	describe('when initializing', function () {
-		beforeEach(function () {
-			connector = factory.create({ service: 'github' });
-		});
-
-		it('should exist', function () {
-			expect(connector).to.be.ok;
-		});
+	beforeEach(function () {
+		connector = rewire('./../source/engine/connectors/github');
+		connector.__set__('logger', loggerFake);
 	});
 
 	describe('when running', function () {
@@ -24,8 +20,6 @@ describe('engine/connectors/github.js', function () {
 					userId: 'user',
 					service: 'github'
 				};
-
-				connector = factory.create(state);
 			});
 
 			beforeEach(function (done) {
@@ -47,8 +41,6 @@ describe('engine/connectors/github.js', function () {
 					accessToken: 'fakeAccessToken',
 					service: 'github'
 				};
-
-				connector = factory.create(state);
 			});
 
 			beforeEach(function (done) {
@@ -75,8 +67,6 @@ describe('engine/connectors/github.js', function () {
 						service: 'github',
 						mode: 'initial'
 					};
-
-					connector = factory.create(state);
 				});
 
 				beforeEach(function (done) {
@@ -121,8 +111,6 @@ describe('engine/connectors/github.js', function () {
 						mode: 'initial',
 						page: 2
 					};
-
-					connector = factory.create(state);
 				});
 
 				beforeEach(function (done) {
@@ -167,8 +155,6 @@ describe('engine/connectors/github.js', function () {
 						mode: 'initial',
 						page: 3
 					};
-
-					connector = factory.create(state);
 				});
 
 				beforeEach(function (done) {
@@ -215,8 +201,6 @@ describe('engine/connectors/github.js', function () {
 					service: 'github',
 					mode: 'normal'
 				};
-
-				connector = factory.create(state);
 			});
 
 			beforeEach(function (done) {

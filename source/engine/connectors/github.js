@@ -19,7 +19,7 @@ function connector(state, callback) {
 
 	initState(state);
 
-	//logger.connector('github').info('prepearing request in (' + state.mode + ') mode.');
+	logger.connector('github').info('prepearing request in (' + state.mode + ') mode.');
 
 	var uri = formatRequestUri(username, accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
