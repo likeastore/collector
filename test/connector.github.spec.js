@@ -62,6 +62,58 @@ describe('engine/connectors/github.js', function () {
 			});
 		});
 
-	});
+		describe('in initial mode (three pages)', function () {
+			describe('first run', function () {
+				it ('still in initial mode', function () {
 
+				});
+
+				it ('retrieves data from first page', function () {
+
+				});
+
+				it ('updates state', function () {
+
+				});
+			});
+
+			describe('second run', function () {
+				it ('still in initial mode', function () {
+
+				});
+
+				it ('retrieves data from second page', function () {
+
+				});
+
+				it ('updates state', function () {
+
+				});
+			});
+
+			describe('third run', function () {
+				it ('goes to normal mode', function () {
+
+				});
+
+				it ('no data on third page', function () {
+
+				});
+
+				it ('updates state', function () {
+
+				});
+			});
+		});
+
+		describe('in normal mode', function () {
+			it ('retrieves data if any', function () {
+
+			});
+
+			it ('updates state', function () {
+
+			});
+		});
+	});
 });
