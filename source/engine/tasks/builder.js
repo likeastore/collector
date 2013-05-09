@@ -24,7 +24,7 @@ function createTask(sub) {
 function create(subscriptions) {
 	var tasks = [];
 	subscriptions.forEach(function (s) {
-		checkQuotas(s) && tasks.push(createTask(s));
+		!s.skip && checkQuotas(s) && tasks.push(createTask(s));
 	});
 
 	return tasks;

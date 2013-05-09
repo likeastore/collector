@@ -4,7 +4,7 @@ var connectors = require('./connectors');
 
 function executor(connector) {
 	return function (state, callback) {
-		connector(state, function (err, state, items) {
+		connector(state, function (err, state, fetched) {
 			if (err) {
 				return callback(err);
 			}
@@ -16,7 +16,7 @@ function executor(connector) {
 				}
 
 				// update items
-				items.update(items, callback);
+				items.update(fetched, callback);
 			});
 		});
 	};
