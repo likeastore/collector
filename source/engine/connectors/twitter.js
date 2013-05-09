@@ -49,7 +49,9 @@ function connector(state, callback) {
 		var base = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
 		return state.maxId ?
 			util.format('%s&max_id=%s', base, state.maxId) :
-			base;
+			state.mode === 'normal' ?
+				util.format('%s&since_id=%s', base, state.sinceId) :
+				base;
 	}
 
 	function initState(state) {
@@ -79,7 +81,7 @@ function connector(state, callback) {
 	function updateState(state, favorites) {
 		state.lastExecution = moment().format();
 
-		if (state.mode === 'initial' && !state.sinceId) {
+		if (state.mode === 'initial' && !state.sinceId && favorites.length > 0) {
 			state.sinceId = favorites[0].itemId;
 		}
 

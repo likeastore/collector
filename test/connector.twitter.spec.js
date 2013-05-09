@@ -126,7 +126,7 @@ describe('engine/connectors/twitter.js', function () {
 				});
 			});
 
-			describe.only('second run', function () {
+			describe('second run', function () {
 				beforeEach(function () {
 					state = {
 						userId: 'userId',
@@ -175,11 +175,93 @@ describe('engine/connectors/twitter.js', function () {
 			});
 
 			describe('third run', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						accessToken: 'fakeAccessToken',
+						accessTokenSecret: 'fakeAccessToken',
+						username: 'fakeTwitterUser',
+						service: 'twitter',
+						sinceId: '332570459445018627',
+						maxId: '332542318055919614'
+					};
+				});
+
+				beforeEach(function (done) {
+					nock('https://api.twitter.com')
+						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&max_id=332542318055919614')
+						.reply(200, []);
+
+					connector(state, function (err, state, favorites) {
+						updatedState = state;
+						returnedFavorites = favorites;
+
+						done();
+					});
+				});
+
+				it ('goes to normal mode', function () {
+					expect(updatedState.mode).to.equal('normal');
+				});
+
+				it ('retrieves no data', function () {
+					expect(returnedFavorites.length).to.equal(0);
+				});
+
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
+
+					it('removes maxId from state', function () {
+						expect(updatedState.maxId).to.not.be.ok;
+					});
+				});
 
 			});
 		});
 
 		describe('in normal mode', function () {
+			var updatedState, returnedFavorites;
+
+			beforeEach(function () {
+				state = {
+					userId: 'userId',
+					accessToken: 'fakeAccessToken',
+					accessTokenSecret: 'fakeAccessToken',
+					username: 'fakeTwitterUser',
+					service: 'twitter',
+					sinceId: '332570459445018627',
+					mode: 'normal'
+				};
+			});
+
+			beforeEach(function (done) {
+				nock('https://api.twitter.com')
+					.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&since_id=332570459445018627')
+					.replyWithFile(200, __dirname + '/replies/twitter.connector.normal.json');
+
+				connector(state, function (err, state, favorites) {
+					updatedState = state;
+					returnedFavorites = favorites;
+
+					done();
+				});
+			});
+
+			it ('retrieves data if any', function () {
+				expect(returnedFavorites.length).to.equal(2);
+			});
+
+			describe ('updates state', function () {
+				it ('with lastExecution', function () {
+					expect(updatedState.lastExecution).to.be.ok;
+				});
+
+				it('still in normal mode', function () {
+					expect(updatedState.mode).to.equal('normal');
+				});
+			});
 
 		});
 	});

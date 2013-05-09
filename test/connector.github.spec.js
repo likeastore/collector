@@ -182,7 +182,7 @@ describe('engine/connectors/github.js', function () {
 						expect(updatedState.lastExecution).to.be.ok;
 					});
 
-					it('with next page', function () {
+					it('removes page from state', function () {
 						expect(updatedState.page).to.not.be.ok;
 					});
 				});
