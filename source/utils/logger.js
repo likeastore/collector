@@ -19,7 +19,7 @@ module.exports = {
 		console.log(this.timestamptMessage(message));
 	},
 
-	connnector: function (name) {
+	connector: function (name) {
 		var me = this;
 
 		return {
