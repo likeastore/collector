@@ -25,14 +25,14 @@ function connector(state, callback) {
 	var uri = formatRequestUri(username, accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
-	request({uri: uri, headers: headers}, function (err, response, body) {
+	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
 		if (err) {
 			return callback('request failed: ' + err);
 		}
 
 		log.info('rate limit remaining: ' + response.headers['x-rate-limit-remaining'] + ' for user: ' + state.userId);
 
-		return handleResponse(response, JSON.parse(body || '[]'));
+		return handleResponse(response, body);
 	});
 
 	function initState(state) {

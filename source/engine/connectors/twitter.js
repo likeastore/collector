@@ -21,7 +21,10 @@ function connector(state, callback) {
 		return callback('missing username for user: ' + state.userId);
 	}
 
-	var url = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
+	initState(state);
+
+	var uri = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
+	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	var oauth = {
 		consumer_key: 'dgwuxgGb07ymueGJF0ug',
@@ -32,18 +35,55 @@ function connector(state, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode.');
 
-	request({url: url, oauth: oauth, json: true}, function (err, response, body) {
+	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
 		if (err) {
 			return callback('request failed: ' + err);
 		}
 
 		log.info('rate limit remaining: ' + response.headers['x-rate-limit-remaining'] + ' for user: ' + state.userId);
 
-		return handleResponse(response, JSON.parse(body || '[]'));
+		return handleResponse(response, body);
 	});
 
-	function handleResponse(response, body) {
+	function initState(state) {
+		if (!state.mode) {
+			state.mode = 'initial';
+		}
+	}
 
+	function handleResponse(response, body) {
+		var favorites = body.map(function (fav) {
+			return {
+				itemId: fav.id,
+				userId: state.userId,
+				date: moment(fav.created_at).format(),
+				description: fav.text,
+				avatarUrl: fav.user.profile_image_url,
+				source: 'http://twitter.com/' + fav.user.screen_name,
+				retweets: fav.retweet_count,
+				favorites: fav.favorite_count,
+				type: 'twitter'
+			};
+		});
+
+		return callback(null, updateState(state, favorites), favorites);
+	}
+
+	function updateState(state, favorites) {
+		state.lastExecution = moment().format();
+
+		if (state.mode === 'initial' && !state.sinceId) {
+			state.sinceId = favorites[0].itemId;
+		}
+
+		if (state.mode === 'initial' && favorites.length > 0) {
+			state.maxId = favorites[favorites.length - 1].itemId;
+		} else {
+			state.mode = 'normal';
+			delete state.maxId;
+		}
+
+		return state;
 	}
 }
 

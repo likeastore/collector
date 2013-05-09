@@ -64,8 +64,7 @@ describe('engine/connectors/github.js', function () {
 						userId: 'userId',
 						username: 'fakeGithubUser',
 						accessToken: 'fakeAccessToken',
-						service: 'github',
-						mode: 'initial'
+						service: 'github'
 					};
 				});
 
