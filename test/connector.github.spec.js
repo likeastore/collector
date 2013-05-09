@@ -158,16 +158,48 @@ describe('engine/connectors/github.js', function () {
 			});
 
 			describe('third run', function () {
-				it ('goes to normal mode', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						username: 'fakeGithubUser',
+						accessToken: 'fakeAccessToken',
+						service: 'github',
+						mode: 'initial',
+						page: 3
+					};
 
+					connector = factory.create(state);
+				});
+
+				beforeEach(function (done) {
+					nock('https://api.github.com')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=3')
+						.reply(200, []);
+
+					connector(state, function (err, state, stars) {
+						updatedState = state;
+						returnedStars = stars;
+
+						done();
+					});
+				});
+
+				it ('goes to normal mode', function () {
+					expect(updatedState.mode).to.equal('normal');
 				});
 
 				it ('no data on third page', function () {
-
+					expect(returnedStars.length).to.equal(0);
 				});
 
-				it ('updates state', function () {
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
 
+					it('with next page', function () {
+						expect(updatedState.page).to.not.be.ok;
+					});
 				});
 			});
 		});

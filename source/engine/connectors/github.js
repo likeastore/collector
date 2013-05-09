@@ -53,6 +53,9 @@ function connector(state, callback) {
 		state.lastExecution = moment().format();
 		if (state.mode === 'initial' && fetchedData) {
 			state.page += 1;
+		} else {
+			state.mode = 'normal';
+			delete state.page;
 		}
 
 		return state;
