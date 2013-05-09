@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 var moment = require('moment');
 var builder = require('./../source/engine/tasks/builder');
 
-describe('tasks builder', function () {
+describe('engine/tasks/builder.js', function () {
 	var subscriptions, tasks;
 	describe('empty list of subscriptions', function () {
 		beforeEach(function () {

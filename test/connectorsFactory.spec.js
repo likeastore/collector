@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var factory = require('./../source/engine/connectors/factory');
 
-describe('connectors factory', function () {
+describe('engine/connectors/factory.js', function () {
 	var subscription, task;
 
 	describe('for github', function () {
