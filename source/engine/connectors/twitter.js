@@ -35,7 +35,7 @@ function connector(state, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode.');
 
-	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
+	request({uri: uri, headers: headers, oauth: oauth, json: true}, function (err, response, body) {
 		if (err) {
 			return callback('request failed: ' + err);
 		}
