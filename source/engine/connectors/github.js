@@ -8,6 +8,7 @@ var API = 'https://api.github.com';
 function connector(state, callback) {
 	var accessToken = state.accessToken;
 	var username = state.username;
+	var log = logger.connector('github');
 
 	if (!accessToken) {
 		return callback('missing accessToken for user: ' + state.userId);
@@ -19,7 +20,7 @@ function connector(state, callback) {
 
 	initState(state);
 
-	logger.connector('github').info('prepearing request in (' + state.mode + ') mode.');
+	log.info('prepearing request in (' + state.mode + ') mode.');
 
 	var uri = formatRequestUri(username, accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
@@ -63,6 +64,8 @@ function connector(state, callback) {
 				type: 'github'
 			};
 		});
+
+		log.info('retrieved ' + stars.length + ' stars');
 
 		return callback(null, updateState(state, stars.length > 0), stars);
 	}

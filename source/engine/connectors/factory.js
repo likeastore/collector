@@ -1,13 +1,33 @@
-function create(sub) {
-	if (sub.service === 'github') {
-		return require('./github');
-	}
+var networks = require('./../../db/networks');
+var items = require('./../../db/items');
+var connectors = require('./connectors');
 
-	if (sub.service === 'twitter') {
-		return require('./twitter');
-	}
+function executor(connector) {
+	return function (state, callback) {
+		connector(state, function (err, state, items) {
+			if (err) {
+				return callback(err);
+			}
 
-	return null;
+			// update state
+			networks.update(state, function (err) {
+				if (err) {
+					return callback(err);
+				}
+
+				// update items
+				items.update(items, callback);
+			});
+		});
+	};
+}
+
+function getConnector(state) {
+	return connectors[state.service];
+}
+
+function create(state) {
+	return executor(getConnector(state));
 }
 
 module.exports = {
