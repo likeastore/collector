@@ -23,7 +23,7 @@ function connector(state, callback) {
 
 	initState(state);
 
-	var uri = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
+	var uri = formatRequestUri(username, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	var oauth = {
@@ -45,6 +45,13 @@ function connector(state, callback) {
 		return handleResponse(response, body);
 	});
 
+	function formatRequestUri(username, state) {
+		var base = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
+		return state.maxId ?
+			util.format('%s&max_id=%s', base, state.maxId) :
+			base;
+	}
+
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';
@@ -54,7 +61,7 @@ function connector(state, callback) {
 	function handleResponse(response, body) {
 		var favorites = body.map(function (fav) {
 			return {
-				itemId: fav.id,
+				itemId: fav.id_str,
 				userId: state.userId,
 				date: moment(fav.created_at).format(),
 				description: fav.text,

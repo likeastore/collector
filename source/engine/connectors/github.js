@@ -55,7 +55,7 @@ function connector(state, callback) {
 	function handleResponse(response, body) {
 		var stars = body.map(function (r) {
 			return {
-				itemId: r.id,
+				itemId: r.id.toString(),
 				userId: state.userId,
 				name: r.full_name,
 				authorName: r.owner.login,
