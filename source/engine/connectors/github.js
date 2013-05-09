@@ -16,9 +16,9 @@ function connector(state, callback) {
 		return callback('missing username for user: ' + state.userId);
 	}
 
-	state.page = state.page || 1;
+	initState(state);
 
-	var uri = util.format('%s/users/%s/starred?access_token=%s&page=%s', API, username, accessToken, state.page);
+	var uri = formatRequestUri(username, accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	request({uri: uri, headers: headers}, function (err, response, body) {
@@ -29,6 +29,18 @@ function connector(state, callback) {
 		var responseBody = JSON.parse(body);
 		return handleResponse(response, responseBody);
 	});
+
+	function initState(state) {
+		if (state.mode === 'initial' && !state.page) {
+			state.page = 1;
+		}
+	}
+
+	function formatRequestUri(username, accessToken, state) {
+		return state.mode === 'initial' ?
+			util.format('%s/users/%s/starred?access_token=%s&page=%s', API, username, accessToken, state.page) :
+			util.format('%s/users/%s/starred?access_token=%s', API, username, accessToken);
+	}
 
 	function handleResponse(response, body) {
 		var stars = body.map(function (r) {

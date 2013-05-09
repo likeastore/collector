@@ -82,7 +82,7 @@ describe('engine/connectors/github.js', function () {
 				beforeEach(function (done) {
 					nock('https://api.github.com')
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=1')
-						.replyWithFile(200, __dirname + '/replies/github.connector.page1.json');
+						.replyWithFile(200, __dirname + '/replies/github.connector.init.json');
 
 					connector(state, function (err, state, stars) {
 						updatedState = state;
@@ -128,7 +128,7 @@ describe('engine/connectors/github.js', function () {
 				beforeEach(function (done) {
 					nock('https://api.github.com')
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=2')
-						.replyWithFile(200, __dirname + '/replies/github.connector.page1.json');
+						.replyWithFile(200, __dirname + '/replies/github.connector.init.json');
 
 					connector(state, function (err, state, stars) {
 						updatedState = state;
@@ -205,12 +205,45 @@ describe('engine/connectors/github.js', function () {
 		});
 
 		describe('in normal mode', function () {
-			it ('retrieves data if any', function () {
+			var updatedState, returnedStars;
 
+			beforeEach(function () {
+				state = {
+					userId: 'userId',
+					username: 'fakeGithubUser',
+					accessToken: 'fakeAccessToken',
+					service: 'github',
+					mode: 'normal'
+				};
+
+				connector = factory.create(state);
 			});
 
-			it ('updates state', function () {
+			beforeEach(function (done) {
+				nock('https://api.github.com')
+					.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken')
+					.replyWithFile(200, __dirname + '/replies/github.connector.normal.json');
 
+				connector(state, function (err, state, stars) {
+					updatedState = state;
+					returnedStars = stars;
+
+					done();
+				});
+			});
+
+			it ('retrieves data if any', function () {
+				expect(returnedStars.length).to.equal(2);
+			});
+
+			describe ('updates state', function () {
+				it ('with lastExecution', function () {
+					expect(updatedState.lastExecution).to.be.ok;
+				});
+
+				it('still in normal mode', function () {
+					expect(updatedState.mode).to.equal('normal');
+				});
 			});
 		});
 	});
