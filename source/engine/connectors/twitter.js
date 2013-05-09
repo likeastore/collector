@@ -75,6 +75,8 @@ function connector(state, callback) {
 			};
 		});
 
+		log.info('retrieved ' + favorites.length + ' favorites');
+
 		return callback(null, updateState(state, favorites), favorites);
 	}
 
@@ -82,6 +84,10 @@ function connector(state, callback) {
 		state.lastExecution = moment().format();
 
 		if (state.mode === 'initial' && !state.sinceId && favorites.length > 0) {
+			state.sinceId = favorites[0].itemId;
+		}
+
+		if (state.mode === 'normal' && favorites.length > 0) {
 			state.sinceId = favorites[0].itemId;
 		}
 
