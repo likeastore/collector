@@ -34,11 +34,33 @@ describe('engine/connectors/twitter.js', function () {
 			});
 		});
 
+		describe('and accessTokenSecret is missing', function () {
+			beforeEach(function () {
+				state = {
+					userId: 'user',
+					accessToken: 'fakeAccessToken',
+					service: 'twitter'
+				};
+			});
+
+			beforeEach(function (done) {
+				connector(state, function (err, state, stars) {
+					error = err;
+					done();
+				});
+			});
+
+			it('should fail with error', function () {
+				expect(error).to.equal('missing accessTokenSecret for user: ' + state.userId);
+			});
+		});
+
 		describe('and username is missing', function () {
 			beforeEach(function () {
 				state = {
 					userId: 'userId',
 					accessToken: 'fakeAccessToken',
+					accessTokenSecret: 'fakeAccessToken',
 					service: 'twitter'
 				};
 			});
