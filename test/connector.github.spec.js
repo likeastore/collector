@@ -71,7 +71,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
-						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=1')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100&page=1')
 						.replyWithFile(200, __dirname + '/replies/github.connector.init.json');
 
 					connector(state, function (err, state, stars) {
@@ -115,7 +115,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
-						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=2')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100&page=2')
 						.replyWithFile(200, __dirname + '/replies/github.connector.init.json');
 
 					connector(state, function (err, state, stars) {
@@ -159,7 +159,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
-						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=3')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100&page=3')
 						.reply(200, []);
 
 					connector(state, function (err, state, stars) {
@@ -205,7 +205,7 @@ describe('engine/connectors/github.js', function () {
 
 			beforeEach(function (done) {
 				nock('https://api.github.com')
-					.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken')
+					.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
 					.replyWithFile(200, __dirname + '/replies/github.connector.normal.json');
 
 				connector(state, function (err, state, stars) {

@@ -44,9 +44,10 @@ function connector(state, callback) {
 	}
 
 	function formatRequestUri(username, accessToken, state) {
+		var base = util.format('%s/users/%s/starred?access_token=%s&per_page=100', API, username, accessToken);
 		return state.mode === 'initial' || state.page ?
-			util.format('%s/users/%s/starred?access_token=%s&page=%s', API, username, accessToken, state.page) :
-			util.format('%s/users/%s/starred?access_token=%s', API, username, accessToken);
+			util.format('%s&page=%s', base, state.page) :
+			base;
 	}
 
 	function handleResponse(response, body) {
