@@ -30,11 +30,10 @@ function connector(state, callback) {
 		token_secret: accessTokenSecret
 	};
 
-	console.log(url);
-	console.log(oauth);
+	log.info('prepearing request in (' + state.mode + ') mode.');
 
 	request({url: url, oauth: oauth, json: true}, function (err, response, body) {
-		console.log(body);
+		log.info('rate limit remaining: ' + response.headers['x-rate-limit-remaining'] + ' for user: ' + state.userId);
 	});
 }
 

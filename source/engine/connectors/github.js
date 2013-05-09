@@ -30,6 +30,8 @@ function connector(state, callback) {
 			return callback('request failed: ' + err);
 		}
 
+		log.info('rate limit remaining: ' + response.headers['x-rate-limit-remaining'] + ' for user: ' + state.userId);
+
 		return handleResponse(response, JSON.parse(body || '[]'));
 	});
 
@@ -54,6 +56,7 @@ function connector(state, callback) {
 		var stars = body.map(function (r) {
 			return {
 				itemId: r.id,
+				userId: state.userId,
 				name: r.full_name,
 				authorName: r.owner.login,
 				authorUrl: r.owner.html_url,
