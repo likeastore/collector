@@ -112,16 +112,48 @@ describe('engine/connectors/github.js', function () {
 			});
 
 			describe('second run', function () {
-				it ('still in initial mode', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						username: 'fakeGithubUser',
+						accessToken: 'fakeAccessToken',
+						service: 'github',
+						mode: 'initial',
+						page: 2
+					};
 
+					connector = factory.create(state);
+				});
+
+				beforeEach(function (done) {
+					nock('https://api.github.com')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=2')
+						.replyWithFile(200, __dirname + '/replies/github.connector.page1.json');
+
+					connector(state, function (err, state, stars) {
+						updatedState = state;
+						returnedStars = stars;
+
+						done();
+					});
+				});
+
+				it ('still in initial mode', function () {
+					expect(updatedState.mode).to.equal('initial');
 				});
 
 				it ('retrieves data from second page', function () {
-
+					expect(returnedStars.length).to.equal(30);
 				});
 
-				it ('updates state', function () {
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
 
+					it('with next page', function () {
+						expect(updatedState.page).to.equal(3);
+					});
 				});
 			});
 
