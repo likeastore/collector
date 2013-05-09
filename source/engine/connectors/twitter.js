@@ -5,6 +5,7 @@ var util = require('util');
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
+	var accessTokenSecret = state.accessTokenSecret;
 	var username = state.username;
 	var log = logger.connector('twitter');
 
@@ -12,10 +13,29 @@ function connector(state, callback) {
 		return callback('missing accessToken for user: ' + state.userId);
 	}
 
+	if (!accessTokenSecret) {
+		return callback('missing accessTokenSecret for user: ' + state.userId);
+	}
+
 	if (!username) {
 		return callback('missing username for user: ' + state.userId);
 	}
 
+	var url = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
+
+	var oauth = {
+		consumer_key: 'dgwuxgGb07ymueGJF0ug',
+		consumer_secret: 'eusoZYiUldYqtI2SwK9MJNbiygCWOp9lQX7i5gnpWU',
+		token: accessToken,
+		token_secret: accessTokenSecret
+	};
+
+	console.log(url);
+	console.log(oauth);
+
+	request({url: url, oauth: oauth, json: true}, function (err, response, body) {
+		console.log(body);
+	});
 }
 
 module.exports = connector;
