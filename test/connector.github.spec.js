@@ -1,4 +1,5 @@
 var expect = require('chai').expect;
+var nock = require('nock');
 var factory = require('./../source/engine/connectors/factory');
 
 describe('engine/connectors/github.js', function () {
@@ -42,8 +43,8 @@ describe('engine/connectors/github.js', function () {
 		describe('and username is missing', function () {
 			beforeEach(function () {
 				state = {
-					userId: 'user',
-					accessToken: 'accessToken',
+					userId: 'userId',
+					accessToken: 'fakeAccessToken',
 					service: 'github'
 				};
 
@@ -62,18 +63,51 @@ describe('engine/connectors/github.js', function () {
 			});
 		});
 
-		describe('in initial mode (three pages)', function () {
-			describe('first run', function () {
-				it ('still in initial mode', function () {
+		describe('in initial mode', function () {
+			var updatedState, returnedStars;
 
+			describe('first run', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						username: 'fakeGithubUser',
+						accessToken: 'fakeAccessToken',
+						service: 'github',
+						mode: 'initial'
+					};
+
+					connector = factory.create(state);
+				});
+
+				beforeEach(function (done) {
+					nock('https://api.github.com')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&page=1')
+						.replyWithFile(200, __dirname + '/replies/github.connector.page1.json');
+
+					connector(state, function (err, state, stars) {
+						updatedState = state;
+						returnedStars = stars;
+
+						done();
+					});
+				});
+
+				it ('still in initial mode', function () {
+					expect(updatedState.mode).to.equal('initial');
 				});
 
 				it ('retrieves data from first page', function () {
-
+					expect(returnedStars.length).to.equal(30);
 				});
 
-				it ('updates state', function () {
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
 
+					it('with next page', function () {
+						expect(updatedState.page).to.equal(2);
+					});
 				});
 			});
 
