@@ -46,7 +46,7 @@ function connector(state, callback) {
 	});
 
 	function formatRequestUri(username, state) {
-		var base = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200';
+		var base = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200&include_entities=false';
 		return state.maxId ?
 			util.format('%s&max_id=%s', base, state.maxId) :
 			state.mode === 'normal' ?

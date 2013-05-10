@@ -93,7 +93,7 @@ describe('engine/connectors/twitter.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
-						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200')
+						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false')
 						.replyWithFile(200, __dirname + '/replies/twitter.connector.init.json');
 
 					connector(state, function (err, state, favorites) {
@@ -140,7 +140,7 @@ describe('engine/connectors/twitter.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
-						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&max_id=332542318055919617')
+						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&max_id=332542318055919617')
 						.replyWithFile(200, __dirname + '/replies/twitter.connector.second.json');
 
 					connector(state, function (err, state, favorites) {
@@ -189,7 +189,7 @@ describe('engine/connectors/twitter.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
-						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&max_id=332542318055919614')
+						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&max_id=332542318055919614')
 						.reply(200, []);
 
 					connector(state, function (err, state, favorites) {
@@ -238,7 +238,7 @@ describe('engine/connectors/twitter.js', function () {
 
 			beforeEach(function (done) {
 				nock('https://api.twitter.com')
-					.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&since_id=332570459445018627')
+					.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&since_id=332570459445018627')
 					.replyWithFile(200, __dirname + '/replies/twitter.connector.normal.json');
 
 				connector(state, function (err, state, favorites) {
