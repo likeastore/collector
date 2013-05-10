@@ -92,7 +92,7 @@ function connector(state, callback) {
 		}
 
 		if (state.mode === 'initial' && favorites.length > 0) {
-			state.maxId = favorites[favorites.length - 1].itemId;
+			state.maxId = decrementStringId(favorites[favorites.length - 1].itemId);
 		} else {
 			state.mode = 'normal';
 			delete state.maxId;
@@ -100,6 +100,24 @@ function connector(state, callback) {
 
 		return state;
 	}
+
+	// http://stackoverflow.com/questions/9717488/using-since-id-and-max-id-in-twitter-api
+	function decrementStringId (n) {
+		n = n.toString();
+		var result = n;
+		var i = n.length-1;
+		while (i > -1) {
+			if (n[i] === '0') {
+				result = result.substring(0, i) + '9' + result.substring(i + 1);
+				i--;
+			} else {
+				result = result.substring(0, i) + (parseInt(n[i], 10) - 1).toString() + result.substring(i + 1);
+				return result;
+			}
+		}
+		return result;
+	}
+
 }
 
 module.exports = connector;

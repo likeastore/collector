@@ -120,8 +120,8 @@ describe('engine/connectors/twitter.js', function () {
 						expect(updatedState.sinceId).to.equal('332570459445018627');
 					});
 
-					it('initialize maxId with last retrieved favorite id', function () {
-						expect(updatedState.maxId).to.equal('332542318055919617');
+					it('initialize maxId with last retrieved favorite id - 1', function () {
+						expect(updatedState.maxId).to.equal('332542318055919616');
 					});
 				});
 			});
@@ -168,8 +168,8 @@ describe('engine/connectors/twitter.js', function () {
 						expect(updatedState.sinceId).to.equal('332542318055919615');
 					});
 
-					it('initialize maxId with last retrieved favorite id', function () {
-						expect(updatedState.maxId).to.equal('332542318055919614');
+					it('initialize maxId with last retrieved favorite id - 1', function () {
+						expect(updatedState.maxId).to.equal('332542318055919613');
 					});
 				});
 			});
