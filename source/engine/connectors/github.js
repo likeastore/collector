@@ -30,7 +30,7 @@ function connector(state, callback) {
 			return callback('request failed: ' + err);
 		}
 
-		log.info('rate limit remaining: ' + response.headers['x-rate-limit-remaining'] + ' for user: ' + state.userId);
+		log.info('rate limit remaining: ' + response.headers['x-ratelimit-remaining'] + ' for user: ' + state.userId);
 
 		return handleResponse(response, body);
 	});
