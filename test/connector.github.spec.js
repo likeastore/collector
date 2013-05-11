@@ -97,6 +97,10 @@ describe('engine/connectors/github.js', function () {
 					it('with next page', function () {
 						expect(updatedState.page).to.equal(2);
 					});
+
+					it('with id of first retrieved item', function () {
+						expect(updatedState.sinceId).to.equal('6522993')
+					});
 				});
 			});
 
@@ -192,40 +196,83 @@ describe('engine/connectors/github.js', function () {
 		describe('in normal mode', function () {
 			var updatedState, returnedStars;
 
-			beforeEach(function () {
-				state = {
-					userId: 'userId',
-					username: 'fakeGithubUser',
-					accessToken: 'fakeAccessToken',
-					service: 'github',
-					mode: 'normal'
-				};
-			});
+			describe('no new stars', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						username: 'fakeGithubUser',
+						accessToken: 'fakeAccessToken',
+						service: 'github',
+						mode: 'normal',
+						sinceId: '6522993'
+					};
+				});
 
-			beforeEach(function (done) {
-				nock('https://api.github.com')
-					.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
-					.replyWithFile(200, __dirname + '/replies/github.connector.normal.json');
+				beforeEach(function (done) {
+					nock('https://api.github.com')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
+						.replyWithFile(200, __dirname + '/replies/github.connector.normal.nonew.json');
 
-				connector(state, function (err, state, stars) {
-					updatedState = state;
-					returnedStars = stars;
+					connector(state, function (err, state, stars) {
+						updatedState = state;
+						returnedStars = stars;
 
-					done();
+						done();
+					});
+				});
+
+				it ('retrieves no data', function () {
+					expect(returnedStars.length).to.equal(0);
+				});
+
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
+
+					it('still in normal mode', function () {
+						expect(updatedState.mode).to.equal('normal');
+					});
 				});
 			});
 
-			it ('retrieves data if any', function () {
-				expect(returnedStars.length).to.equal(2);
-			});
-
-			describe ('updates state', function () {
-				it ('with lastExecution', function () {
-					expect(updatedState.lastExecution).to.be.ok;
+			describe('new stars appeared', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						username: 'fakeGithubUser',
+						accessToken: 'fakeAccessToken',
+						service: 'github',
+						mode: 'normal',
+						sinceId: '6522993'
+					};
 				});
 
-				it('still in normal mode', function () {
-					expect(updatedState.mode).to.equal('normal');
+				beforeEach(function (done) {
+					nock('https://api.github.com')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
+						.replyWithFile(200, __dirname + '/replies/github.connector.normal.new.json');
+
+					connector(state, function (err, state, stars) {
+						updatedState = state;
+						returnedStars = stars;
+
+						done();
+					});
+				});
+
+				it ('retrieves new data', function () {
+					expect(returnedStars.length).to.equal(1);
+				});
+
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
+
+					it('still in normal mode', function () {
+						expect(updatedState.mode).to.equal('normal');
+					});
 				});
 			});
 		});

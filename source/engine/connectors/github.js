@@ -53,7 +53,7 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
-		var stars = body.map(function (r) {
+		var stars = select(body.map(function (r) {
 			return {
 				itemId: r.id.toString(),
 				userId: state.userId,
@@ -67,15 +67,21 @@ function connector(state, callback) {
 				description: r.description,
 				type: 'github'
 			};
-		});
+		}));
 
 		log.info('retrieved ' + stars.length + ' stars');
 
-		return callback(null, updateState(state, stars.length > 0), stars);
+		return callback(null, updateState(state, stars), stars);
 	}
 
-	function updateState(state, fetchedData) {
+	function updateState(state, stars) {
 		state.lastExecution = moment().format();
+
+		var fetchedData = stars.length > 0;
+		if (state.mode === 'initial' && fetchedData && !state.sinceId) {
+			state.sinceId = stars[0].itemId;
+		}
+
 		if (state.mode === 'initial' && fetchedData) {
 			state.page += 1;
 		} else {
@@ -84,6 +90,27 @@ function connector(state, callback) {
 		}
 
 		return state;
+	}
+
+	function select (stars) {
+		if (stars.mode === 'initial') {
+			return stars;
+		}
+
+		return takeBefore(state.sinceId);
+
+		function takeBefore(id) {
+			var taken = [];
+			for(var i = 0, length = stars.length; i < length; i++) {
+				if (stars[i].itemId === id) {
+					break;
+				}
+
+				taken.push(stars[i]);
+			}
+
+			return taken;
+		}
 	}
 }
 
