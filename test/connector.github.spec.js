@@ -273,6 +273,10 @@ describe('engine/connectors/github.js', function () {
 					it('still in normal mode', function () {
 						expect(updatedState.mode).to.equal('normal');
 					});
+
+					it('stores sinceId', function () {
+						expect(updatedState.sinceId).to.equal('6522994');
+					});
 				});
 			});
 		});

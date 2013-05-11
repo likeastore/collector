@@ -34,6 +34,14 @@ var stateChanges = [
 			state.page = state.page + 1;
 		}
 	},
+	{
+		condition: function (state, data) {
+			return state.mode === 'normal' && data.length > 0;
+		},
+		apply: function (state, data) {
+			state.sinceId = data[0].itemId;
+		}
+	},
 	// go to normal
 	{
 		condition: function (state, data) {
