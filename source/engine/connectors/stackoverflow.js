@@ -18,13 +18,13 @@ var stateChanges = [
 			state.lastExecution = moment().format();
 		}
 	},
-	// intialize sinceId
+	// intialize fromdate
 	{
 		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0 && !state.sinceId;
+			return state.mode === 'initial' && data.length > 0 && !state.fromdate;
 		},
 		apply: function (state, data) {
-			state.sinceId = data[0].itemId;
+			state.fromdate = data[0].dateInt + 1;
 		}
 	},
 	// increment page
@@ -66,7 +66,7 @@ function connector(state, callback) {
 	}
 
 	if (!accessToken) {
-		return callback('missing username for user:' + state.userId);
+		return callback('missing accessToken for user: ' + state.userId);
 	}
 
 	initState(state);
@@ -113,6 +113,7 @@ function connector(state, callback) {
 			return {
 				itemId: fav.id_str,
 				userId: state.userId,
+				dateInt: fav.creation_date,
 				date: moment(fav.creation_date).format(),
 				description: fav.title,
 				avatarUrl: 'http://gravatar.com/' + fav.owner.email_hash,
