@@ -3,6 +3,8 @@ var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
 
+var API = 'https://api.twitter.com/1.1';
+
 function connector(state, callback) {
 	var accessToken = state.accessToken;
 	var accessTokenSecret = state.accessTokenSecret;
@@ -46,7 +48,7 @@ function connector(state, callback) {
 	});
 
 	function formatRequestUri(username, state) {
-		var base = 'https://api.twitter.com/1.1/favorites/list.json?screen_name=' + username + '&count=200&include_entities=false';
+		var base = util.format('%s/favorites/list.json?screen_name=%s&count=200&include_entities=false', API, username);
 		return state.maxId ?
 			util.format('%s&max_id=%s', base, state.maxId) :
 			state.mode === 'normal' ?
