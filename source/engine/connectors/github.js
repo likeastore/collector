@@ -2,7 +2,9 @@ var request = require('request');
 var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+
 var helpers = require('./../../utils/helpers');
+var stater = require('./../../utils/stater');
 
 var API = 'https://api.github.com';
 
@@ -120,17 +122,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + stars.length + ' stars');
 
-		return callback(null, updateState(state, stars), stars);
-	}
-
-	function updateState(state, stars) {
-		stateChanges.filter(function (change) {
-			return change.condition(state, stars);
-		}).forEach(function (change) {
-			change.apply(state, stars);
-		});
-
-		return state;
+		return callback(null, stater.updateState(state, stateChanges, stars), stars);
 	}
 
 	function select (stars) {

@@ -4,7 +4,9 @@ var MemoryStream = require('memstream').MemoryStream;
 var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+
 var helpers = require('./../../utils/helpers');
+var stater = require('./../../utils/stater');
 
 var API = 'http://api.stackoverflow.com/1.1';
 
@@ -128,17 +130,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites');
 
-		return callback(null, updateState(state, favorites), favorites);
-	}
-
-	function updateState(state, stars) {
-		stateChanges.filter(function (change) {
-			return change.condition(state, stars);
-		}).forEach(function (change) {
-			change.apply(state, stars);
-		});
-
-		return state;
+		return callback(null, stater.updateState(state, stateChanges, favorites), favorites);
 	}
 }
 

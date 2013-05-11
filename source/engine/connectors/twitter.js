@@ -2,7 +2,9 @@ var request = require('request');
 var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+
 var helpers = require('./../../utils/helpers');
+var stater = require('./../../utils/stater');
 
 var API = 'https://api.twitter.com/1.1';
 
@@ -128,17 +130,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites');
 
-		return callback(null, updateState(state, favorites), favorites);
-	}
-
-	function updateState(state, favorites) {
-		stateChanges.filter(function (change) {
-			return change.condition(state, favorites);
-		}).forEach(function (change) {
-			change.apply(state, favorites);
-		});
-
-		return state;
+		return callback(null, stater.updateState(state, stateChanges, favorites), favorites);
 	}
 }
 
