@@ -8,54 +8,6 @@ var stater = require('./../../utils/stater');
 
 var API = 'https://api.twitter.com/1.1';
 
-var stateChanges = [
-	// last execution
-	{
-		condition: function (state, data) {
-			return true;
-		},
-		apply: function (state, data) {
-			state.lastExecution = moment().format();
-		}
-	},
-	// intialize sinceId
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0 && !state.sinceId;
-		},
-		apply: function (state, data) {
-			state.sinceId = data[0].itemId;
-		}
-	},
-	// store sinceId
-	{
-		condition: function (state, data) {
-			return state.mode === 'normal' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.sinceId = data[0].itemId;
-		}
-	},
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
-		}
-	},
-	// go to normal
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length === 0;
-		},
-		apply: function (state, data) {
-			state.mode = 'normal';
-			delete state.maxId;
-		}
-	}
-];
-
 function connector(state, callback) {
 	var accessToken = state.accessToken;
 	var accessTokenSecret = state.accessTokenSecret;
@@ -80,6 +32,7 @@ function connector(state, callback) {
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	var oauth = {
+		// TODO: regenerate and put to config
 		consumer_key: 'dgwuxgGb07ymueGJF0ug',
 		consumer_secret: 'eusoZYiUldYqtI2SwK9MJNbiygCWOp9lQX7i5gnpWU',
 		token: accessToken,
@@ -130,7 +83,59 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites');
 
-		return callback(null, stater.updateState(state, stateChanges, favorites), favorites);
+		return callback(null, updateState(state, favorites), favorites);
+	}
+
+	function updateState(state, favorites) {
+		var stateChanges = [
+			// last execution
+			{
+				condition: function (state, data) {
+					return true;
+				},
+				apply: function (state, data) {
+					state.lastExecution = moment().format();
+				}
+			},
+			// intialize sinceId
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length > 0 && !state.sinceId;
+				},
+				apply: function (state, data) {
+					state.sinceId = data[0].itemId;
+				}
+			},
+			// store sinceId
+			{
+				condition: function (state, data) {
+					return state.mode === 'normal' && data.length > 0;
+				},
+				apply: function (state, data) {
+					state.sinceId = data[0].itemId;
+				}
+			},
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length > 0;
+				},
+				apply: function (state, data) {
+					state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
+				}
+			},
+			// go to normal
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length === 0;
+				},
+				apply: function (state, data) {
+					state.mode = 'normal';
+					delete state.maxId;
+				}
+			}
+		];
+
+		return stater.update(state, stateChanges, favorites);
 	}
 }
 

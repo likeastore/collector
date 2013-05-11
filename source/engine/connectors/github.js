@@ -8,54 +8,6 @@ var stater = require('./../../utils/stater');
 
 var API = 'https://api.github.com';
 
-var stateChanges = [
-	// last execution
-	{
-		condition: function (state, data) {
-			return true;
-		},
-		apply: function (state, data) {
-			state.lastExecution = moment().format();
-		}
-	},
-	// intialize sinceId
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0 && !state.sinceId;
-		},
-		apply: function (state, data) {
-			state.sinceId = data[0].itemId;
-		}
-	},
-	// increment page
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.page = state.page + 1;
-		}
-	},
-	{
-		condition: function (state, data) {
-			return state.mode === 'normal' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.sinceId = data[0].itemId;
-		}
-	},
-	// go to normal
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length === 0;
-		},
-		apply: function (state, data) {
-			state.mode = 'normal';
-			delete state.page;
-		}
-	}
-];
-
 function connector(state, callback) {
 	var accessToken = state.accessToken;
 	var username = state.username;
@@ -122,7 +74,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + stars.length + ' stars');
 
-		return callback(null, stater.updateState(state, stateChanges, stars), stars);
+		return callback(null, updateState(state, stars), stars);
 	}
 
 	function select (stars) {
@@ -133,6 +85,58 @@ function connector(state, callback) {
 		return helpers.takeWhile(stars, function (star) {
 			return star.itemId !== state.sinceId;
 		});
+	}
+
+	function updateState(state, stars) {
+		var stateChanges = [
+			// last execution
+			{
+				condition: function (state, data) {
+					return true;
+				},
+				apply: function (state, data) {
+					state.lastExecution = moment().format();
+				}
+			},
+			// intialize sinceId
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length > 0 && !state.sinceId;
+				},
+				apply: function (state, data) {
+					state.sinceId = data[0].itemId;
+				}
+			},
+			// increment page
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length > 0;
+				},
+				apply: function (state, data) {
+					state.page = state.page + 1;
+				}
+			},
+			{
+				condition: function (state, data) {
+					return state.mode === 'normal' && data.length > 0;
+				},
+				apply: function (state, data) {
+					state.sinceId = data[0].itemId;
+				}
+			},
+			// go to normal
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length === 0;
+				},
+				apply: function (state, data) {
+					state.mode = 'normal';
+					delete state.page;
+				}
+			}
+		];
+
+		return stater.update(state, stateChanges, stars);
 	}
 }
 

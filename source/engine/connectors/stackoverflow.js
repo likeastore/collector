@@ -10,55 +10,6 @@ var stater = require('./../../utils/stater');
 
 var API = 'http://api.stackoverflow.com/1.1';
 
-var stateChanges = [
-	// last execution
-	{
-		condition: function (state, data) {
-			return true;
-		},
-		apply: function (state, data) {
-			state.lastExecution = moment().format();
-		}
-	},
-	// intialize fromdate
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0 && !state.fromdate;
-		},
-		apply: function (state, data) {
-			state.fromdate = data[0].dateInt + 1;
-		}
-	},
-	// increment page
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.page = state.page + 1;
-		}
-	},
-	// go to normal
-	{
-		condition: function (state, data) {
-			return state.mode === 'initial' && data.length === 0;
-		},
-		apply: function (state, data) {
-			state.mode = 'normal';
-			delete state.page;
-		}
-	},
-	// update from date
-	{
-		condition: function (state, data) {
-			return state.mode === 'normal' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.fromdate = data[0].dateInt + 1;
-		}
-	}
-];
-
 function connector(state, callback) {
 	var username = state.username;
 	var accessToken = state.accessToken;
@@ -130,7 +81,60 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites');
 
-		return callback(null, stater.updateState(state, stateChanges, favorites), favorites);
+		return callback(null, updateState(state, favorites), favorites);
+	}
+
+	function updateState(state, favorites) {
+		var stateChanges = [
+			// last execution
+			{
+				condition: function (state, data) {
+					return true;
+				},
+				apply: function (state, data) {
+					state.lastExecution = moment().format();
+				}
+			},
+			// intialize fromdate
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length > 0 && !state.fromdate;
+				},
+				apply: function (state, data) {
+					state.fromdate = data[0].dateInt + 1;
+				}
+			},
+			// increment page
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length > 0;
+				},
+				apply: function (state, data) {
+					state.page = state.page + 1;
+				}
+			},
+			// go to normal
+			{
+				condition: function (state, data) {
+					return state.mode === 'initial' && data.length === 0;
+				},
+				apply: function (state, data) {
+					state.mode = 'normal';
+					delete state.page;
+				}
+			},
+			// update from date
+			{
+				condition: function (state, data) {
+					return state.mode === 'normal' && data.length > 0;
+				},
+				apply: function (state, data) {
+					state.fromdate = data[0].dateInt + 1;
+				}
+			}
+		];
+
+		return stater.update(state, stateChanges, favorites);
 	}
 }
 

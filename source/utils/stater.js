@@ -1,7 +1,7 @@
 var _ = require('underscore');
 
 var stater = {
-	updateState: function (current, states, data) {
+	update: function (current, states, data) {
 		var state = _.clone(current);
 
 		states.filter(function (change) {
