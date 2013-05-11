@@ -45,6 +45,15 @@ var stateChanges = [
 			state.mode = 'normal';
 			delete state.page;
 		}
+	},
+	// update from date
+	{
+		condition: function (state, data) {
+			return state.mode === 'normal' && data.length > 0;
+		},
+		apply: function (state, data) {
+			state.fromdate = data[0].dateInt + 1;
+		}
 	}
 ];
 
