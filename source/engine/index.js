@@ -47,6 +47,7 @@ function createEngine() {
 
 		logger.success('all execution task are done in: ' + executionTime + ' (msec)');
 		logger.info('ready for next session in 1000 (msec)');
+
 		setTimeout(engineLoop, 1000);
 	}
 
