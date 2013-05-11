@@ -2,8 +2,57 @@ var request = require('request');
 var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+var helpers = require('./../../utils/helpers');
 
 var API = 'https://api.twitter.com/1.1';
+
+var stateChanges = [
+	// last execution
+	{
+		condition: function (state, data) {
+			return true;
+		},
+		apply: function (state, data) {
+			state.lastExecution = moment().format();
+		}
+	},
+	// intialize sinceId
+	{
+		condition: function (state, data) {
+			return state.mode === 'initial' && data.length > 0 && !state.sinceId;
+		},
+		apply: function (state, data) {
+			state.sinceId = data[0].itemId;
+		}
+	},
+	// store sinceId
+	{
+		condition: function (state, data) {
+			return state.mode === 'normal' && data.length > 0;
+		},
+		apply: function (state, data) {
+			state.sinceId = data[0].itemId;
+		}
+	},
+	{
+		condition: function (state, data) {
+			return state.mode === 'initial' && data.length > 0;
+		},
+		apply: function (state, data) {
+			state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
+		}
+	},
+	// go to normal
+	{
+		condition: function (state, data) {
+			return state.mode === 'initial' && data.length === 0;
+		},
+		apply: function (state, data) {
+			state.mode = 'normal';
+			delete state.maxId;
+		}
+	}
+];
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
@@ -83,43 +132,14 @@ function connector(state, callback) {
 	}
 
 	function updateState(state, favorites) {
-		state.lastExecution = moment().format();
-
-		if (state.mode === 'initial' && !state.sinceId && favorites.length > 0) {
-			state.sinceId = favorites[0].itemId;
-		}
-
-		if (state.mode === 'normal' && favorites.length > 0) {
-			state.sinceId = favorites[0].itemId;
-		}
-
-		if (state.mode === 'initial' && favorites.length > 0) {
-			state.maxId = decrementStringId(favorites[favorites.length - 1].itemId);
-		} else {
-			state.mode = 'normal';
-			delete state.maxId;
-		}
+		stateChanges.filter(function (change) {
+			return change.condition(state, favorites);
+		}).forEach(function (change) {
+			change.apply(state, favorites);
+		});
 
 		return state;
 	}
-
-	// http://stackoverflow.com/questions/9717488/using-since-id-and-max-id-in-twitter-api
-	function decrementStringId (n) {
-		n = n.toString();
-		var result = n;
-		var i = n.length-1;
-		while (i > -1) {
-			if (n[i] === '0') {
-				result = result.substring(0, i) + '9' + result.substring(i + 1);
-				i--;
-			} else {
-				result = result.substring(0, i) + (parseInt(n[i], 10) - 1).toString() + result.substring(i + 1);
-				return result;
-			}
-		}
-		return result;
-	}
-
 }
 
 module.exports = connector;

@@ -6,6 +6,46 @@ var helpers = require('./../../utils/helpers');
 
 var API = 'https://api.github.com';
 
+var stateChanges = [
+	// last execution
+	{
+		condition: function (state, data) {
+			return true;
+		},
+		apply: function (state, data) {
+			state.lastExecution = moment().format();
+		}
+	},
+	// intialize sinceId
+	{
+		condition: function (state, data) {
+			return state.mode === 'initial' && data.length > 0 && !state.sinceId;
+		},
+		apply: function (state, data) {
+			state.sinceId = data[0].itemId;
+		}
+	},
+	// increment page
+	{
+		condition: function (state, data) {
+			return state.mode === 'initial' && data.length > 0;
+		},
+		apply: function (state, data) {
+			state.page = state.page + 1;
+		}
+	},
+	// go to normal
+	{
+		condition: function (state, data) {
+			return state.mode === 'initial' && data.length === 0;
+		},
+		apply: function (state, data) {
+			state.mode = 'normal';
+			delete state.page;
+		}
+	}
+];
+
 function connector(state, callback) {
 	var accessToken = state.accessToken;
 	var username = state.username;
@@ -76,19 +116,11 @@ function connector(state, callback) {
 	}
 
 	function updateState(state, stars) {
-		state.lastExecution = moment().format();
-
-		var fetchedData = stars.length > 0;
-		if (state.mode === 'initial' && fetchedData && !state.sinceId) {
-			state.sinceId = stars[0].itemId;
-		}
-
-		if (state.mode === 'initial' && fetchedData) {
-			state.page += 1;
-		} else {
-			state.mode = 'normal';
-			delete state.page;
-		}
+		stateChanges.filter(function (change) {
+			return change.condition(state, stars);
+		}).forEach(function (change) {
+			change.apply(state, stars);
+		});
 
 		return state;
 	}
