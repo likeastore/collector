@@ -36,14 +36,6 @@ var stateChanges = [
 			state.page = state.page + 1;
 		}
 	},
-	{
-		condition: function (state, data) {
-			return state.mode === 'normal' && data.length > 0;
-		},
-		apply: function (state, data) {
-			state.sinceId = data[0].itemId;
-		}
-	},
 	// go to normal
 	{
 		condition: function (state, data) {
@@ -105,7 +97,9 @@ function connector(state, callback) {
 		var base = util.format('%s/users/%s/favorites?access_token=%s&pagesize=100&sort=creation', API, username, accessToken);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
-			base;
+			state.mode === 'normal' ?
+				util.format('%s&fromdate=%s', base, state.fromdate) :
+				base;
 	}
 
 	function handleResponse(body) {

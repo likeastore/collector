@@ -103,6 +103,96 @@ describe.only('engine/connectors/stackoverflow.js', function () {
 					});
 				});
 			});
+
+			describe('second run', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'user',
+						service: 'stackoverflow',
+						username: 12345,
+						accessToken: 'fakeToken',
+						fromdate: 1332242921,
+						mode: 'initial',
+						page: 2
+					};
+				});
+
+				beforeEach(function (done) {
+					nock('http://api.stackoverflow.com')
+						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&page=2')
+						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.normal.json.gz');
+
+					connector(state, function (err, state, favorites) {
+						updatedState = state;
+						returnedFavorites = favorites;
+
+						done();
+					});
+				});
+
+				it('goes to normal', function () {
+					expect(updatedState.mode).to.equal('normal');
+				});
+
+				it('retrieves no data', function () {
+					expect(returnedFavorites.length).to.equal(0);
+				});
+
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
+
+					it('removes next page', function () {
+						expect(updatedState.page).to.not.be.ok;
+					});
+				});
+			});
 		});
+
+		describe('in normal mode', function () {
+			var updatedState, returnedFavorites;
+
+			describe('no new data', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'user',
+						service: 'stackoverflow',
+						username: 12345,
+						accessToken: 'fakeToken',
+						fromdate: 1332242921,
+						mode: 'normal'
+					};
+				});
+
+				beforeEach(function (done) {
+					nock('http://api.stackoverflow.com')
+						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&fromdate=1332242921')
+						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.normal.json.gz');
+
+					connector(state, function (err, state, favorites) {
+						updatedState = state;
+						returnedFavorites = favorites;
+
+						done();
+					});
+				});
+
+				it('retrieves no data', function () {
+					expect(returnedFavorites.length).to.equal(0);
+				});
+
+				describe ('updates state', function () {
+					it ('with lastExecution', function () {
+						expect(updatedState.lastExecution).to.be.ok;
+					});
+				});
+			});
+
+			describe('one new favorite', function () {
+
+			});
+		});
+
 	});
 });
