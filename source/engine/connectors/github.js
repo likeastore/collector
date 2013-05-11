@@ -2,6 +2,7 @@ var request = require('request');
 var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+var helpers = require('./../../utils/helpers');
 
 var API = 'https://api.github.com';
 
@@ -97,20 +98,9 @@ function connector(state, callback) {
 			return stars;
 		}
 
-		return takeBefore(state.sinceId);
-
-		function takeBefore(id) {
-			var taken = [];
-			for(var i = 0, length = stars.length; i < length; i++) {
-				if (stars[i].itemId === id) {
-					break;
-				}
-
-				taken.push(stars[i]);
-			}
-
-			return taken;
-		}
+		return helpers.takeWhile(stars, function (star) {
+			return star.itemId !== state.sinceId;
+		});
 	}
 }
 
