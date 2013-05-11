@@ -3,7 +3,7 @@ var nock = require('nock');
 var rewire = require('rewire');
 var loggerFake = require('./fakes/logger');
 
-describe.only('engine/connectors/stackoverflow.js', function () {
+describe('engine/connectors/stackoverflow.js', function () {
 	var state, connector;
 
 	beforeEach(function () {
@@ -58,7 +58,7 @@ describe.only('engine/connectors/stackoverflow.js', function () {
 		describe('in initial mode', function () {
 			var updatedState, returnedFavorites;
 
-			describe.only('first run', function () {
+			describe('first run', function () {
 				beforeEach(function () {
 					state = {
 						userId: 'user',
