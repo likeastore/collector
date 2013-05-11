@@ -114,13 +114,13 @@ function connector(state, callback) {
 	function handleResponse(body) {
 		var favorites = body.questions.map(function (fav) {
 			return {
-				itemId: fav.id_str,
+				itemId: fav.question_id.toString(),
 				userId: state.userId,
 				dateInt: fav.creation_date,
 				date: moment(fav.creation_date).format(),
 				description: fav.title,
 				avatarUrl: 'http://gravatar.com/' + fav.owner.email_hash,
-				source: 'http://stackoverflow.com/questions' + fav.question_id,
+				source: 'http://stackoverflow.com/questions/' + fav.question_id,
 				favorites: fav.favorite_count,
 				type: 'stackoverflow'
 			};

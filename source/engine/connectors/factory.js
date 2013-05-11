@@ -16,7 +16,7 @@ function executor(connector) {
 				}
 
 				// update items
-				items.update(fetched, callback);
+				fetched.length > 0 && items.update(fetched, callback);
 			});
 		});
 	};
