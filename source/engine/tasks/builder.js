@@ -1,5 +1,6 @@
 var moment = require('moment');
 var connectorsFactory = require('./../connectors/factory');
+var logger = require('./../../utils/logger');
 
 function checkQuotas(sub) {
 	if (!sub.quotas || !sub.lastExecution) {
@@ -16,7 +17,7 @@ function checkQuotas(sub) {
 function createTask(sub) {
 	var connector = connectorsFactory.create(sub);
 
-	return function (callback) {
+	return connector && function (callback) {
 		return connector(sub, callback);
 	};
 }
@@ -24,7 +25,10 @@ function createTask(sub) {
 function create(subscriptions) {
 	var tasks = [];
 	subscriptions.forEach(function (s) {
-		!s.skip && checkQuotas(s) && tasks.push(createTask(s));
+		if (!s.skip && checkQuotas(s)) {
+			var task = createTask(s);
+			task && tasks.push(task);
+		}
 	});
 
 	return tasks;

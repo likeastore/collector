@@ -1,6 +1,7 @@
 var networks = require('./../../db/networks');
 var items = require('./../../db/items');
 var connectors = require('./connectors');
+var logger = require('./../../utils/logger');
 
 function executor(connector) {
 	return function (state, callback) {
@@ -27,7 +28,13 @@ function getConnector(state) {
 }
 
 function create(state) {
-	return executor(getConnector(state));
+	var connector = getConnector(state);
+
+	if (!connector) {
+		logger.warning('missing logger for service: ' + state.service);
+	}
+
+	return connector && executor(connector);
 }
 
 module.exports = {
