@@ -119,3 +119,58 @@ This time `request.js` did not appear as magic stick. It did not provide gzip su
 ## Stater
 
 [source/utils/stater.js](/source/utils/stater.js) is utility to move connector from one state to another. It uses the list of `stateChages` which contains the function of checking state change condition and actual change functor.
+
+## Utils
+
+[source/utils/logger.js](/source/utils/logger.js) will help you for logging different application activities. To make it more readable from console, it uses [colors](https://github.com/marak/colors.js/) library.
+
+For logging connectors stuff, you can use special factory method:
+
+```js
+var log = logger.connector('github');
+log.info('retrieved ' + data.length + ' stars');
+```
+
+It also contains few functions that I used from SO answers (links are inside). One that helped me to substite ugly-looking `for-cycle` another one that helps to head with Twitter API ids [problem](http://stackoverflow.com/questions/9717488/using-since-id-and-max-id-in-twitter-api) in JavaScript.
+
+## Tests
+
+All (almost all) aspects of `collectors` functionality are covered by [unit tests](/test).
+
+There are few things that helped me to create those tests. I use [Mocha](https://github.com/visionmedia/mocha) as primary test framework, to run the tests:
+
+```
+$ mocha
+```
+
+Connectors are issuing HTTP request and unit tests have to mock it. [Nock](https://github.com/flatiron/nock) is a simple and nice library for that. Good thing is that's possible to read response content from files. All tests responses are placed in [/test/replies](/test/replies) folder. To mock HTTP request,
+
+```js
+beforeEach(function (done) {
+	nock('http://api.stackoverflow.com')
+		.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&page=1')
+		.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.init.json.gz');
+
+	connector(state, function (err, state, favorites) {
+		updatedState = state;
+		returnedFavorites = favorites;
+
+		done();
+	});
+});
+```
+
+Some modules, as connector or task builder are using logger inside. If you run the test the output would be polluted with non-required logs. Traditionally, it is solved by injection the dependency in module and being able to substitute with stub. [Rewire](https://github.com/jhnns/rewire) is a module to help.
+
+All connectors tests are stubbing logger,
+
+```js
+beforeEach(function () {
+	connector = rewire('./../source/engine/connectors/stackoverflow');
+	connector.__set__('logger', loggerFake);
+});
+```
+
+# License
+
+MIT License

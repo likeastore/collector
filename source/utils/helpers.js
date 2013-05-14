@@ -1,3 +1,4 @@
+// http://stackoverflow.com/questions/16494663/rewrite-cycle-in-functional-style
 function takeWhile(array, predicate) {
 	var pos = -1;
 	var all = array.every(function(x, n) {
