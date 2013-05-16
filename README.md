@@ -1,10 +1,10 @@
 # Collector
 
-Collector is core component of current Likeastore architecture. It gathers application data through different open API. Initially it was just dump script of calling API wrappers, processing data and storing it to MongoDB, but some it turned to be some interesting piece of code.
+Collector is core component of current *Likeastore* architecture. It gathers application data through different open API's. Initially it was just dumb script of calling API wrappers, processing data and storing it to MongoDB, but after awhile it turned to be an interesting piece of code.
 
 ## You don't need API wrapper
 
-Very good point is that in many cases of accessing some HTTP API you don't need any wrapper library. I personally was always looking for some ready to take wrapper, since I thought it would be easier. It still true, in some way - but now I see that all you actually need is [request](https://github.com/mikeal/request).
+The point is. In many cases of accessing some HTTP API you don't need any wrapper library. I personally was always looking for some ready to take wrapper, since I thought it would be easier. It still true, in some way. Now I see that all you actually need is [request](https://github.com/mikeal/request).
 
 [request](https://github.com/mikeal/request) is brilliant library. It simplifies access to HTTP recourses, having very minimal and nice interface.
 
@@ -69,14 +69,6 @@ Each connector implement access to API. All of them has some aspects, briefly go
 To authorize, github provides `access_token`. `access_token` is received after user [approves](http://developer.github.com/v3/oauth/#web-application-flow) the access the application to users data. For github API all you need to do, just to add `access_token` as query parameter to request. Simple and easy.
 
 Github API have paging and support hypermedia, response headers contains links for further recourse.
-
-```
-Status: 200 OK
-Link: <https://api.github.com/resource?page=2>; rel="next",
-      <https://api.github.com/resource?page=5>; rel="last"
-X-RateLimit-Limit: 5000
-X-RateLimit-Remaining: 4999
-```
 
 ### Twitter API
 

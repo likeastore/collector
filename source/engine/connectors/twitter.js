@@ -67,6 +67,7 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
+		console.log(body);
 		var favorites = body.map(function (fav) {
 			return {
 				itemId: fav.id_str,
