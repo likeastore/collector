@@ -42,7 +42,14 @@ function connector(state, callback) {
 			return callback(err);
 		}
 
-		log.info('rate limit remaining: ' + response.headers['x-ratelimit-current'] + ' for user: ' + state.userId);
+		var rateLimit = response.headers['x-ratelimit-current'];
+		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
+
+		if (rateLimit === 0) {
+			log.warning('rate limit exceeed for user: ' + state.userId);
+			state.rateLimitExceed = true;
+		}
+
 	}).pipe(zlib.createGunzip()).pipe(stream);
 
 	function initState(state) {
@@ -52,6 +59,10 @@ function connector(state, callback) {
 
 		if (state.mode === 'initial' && !state.page) {
 			state.page = 1;
+		}
+
+		if (state.rateLimitExceed) {
+			state.rateLimitExceed = false;
 		}
 	}
 

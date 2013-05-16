@@ -267,6 +267,36 @@ describe('engine/connectors/twitter.js', function () {
 				});
 			});
 
+			describe('when meeting rate limit', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						accessToken: 'fakeAccessToken',
+						accessTokenSecret: 'fakeAccessToken',
+						username: 'fakeTwitterUser',
+						service: 'twitter',
+						sinceId: '332570459445018627',
+						mode: 'normal'
+					};
+				});
+
+				beforeEach(function (done) {
+					nock('https://api.twitter.com')
+						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&since_id=332570459445018627')
+						.reply(200, [], {'x-rate-limit-remaining': 0});
+
+					connector(state, function (err, state, favorites) {
+						updatedState = state;
+						returnedFavorites = favorites;
+
+						done();
+					});
+				});
+
+				it ('should set rate limit exceed flag', function () {
+					expect(updatedState.rateLimitExceed).to.equal(true);
+				});
+			});
 		});
 	});
 });

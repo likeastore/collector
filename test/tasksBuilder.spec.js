@@ -3,11 +3,11 @@ var moment = require('moment');
 var builder = require('./../source/engine/tasks/builder');
 
 describe('engine/tasks/builder.js', function () {
-	var subscriptions, tasks;
-	describe('empty list of subscriptions', function () {
+	var networks, tasks;
+	describe('empty list of networks', function () {
 		beforeEach(function () {
-			subscriptions = [];
-			tasks = builder.create(subscriptions);
+			networks = [];
+			tasks = builder.create(networks);
 		});
 
 		it('should create empty list of tasks', function () {
@@ -15,16 +15,16 @@ describe('engine/tasks/builder.js', function () {
 		});
 	});
 
-	describe('not empty list of subscriptions', function () {
+	describe('not empty list of networks', function () {
 		describe('with one subscription', function () {
 			describe('without last execution', function () {
 				beforeEach(function () {
-					subscriptions = [{
+					networks = [{
 						userId: 'id',
 						service: 'github'
 					}];
 
-					tasks = builder.create(subscriptions);
+					tasks = builder.create(networks);
 				});
 
 				it('should create one task', function () {
@@ -35,7 +35,7 @@ describe('engine/tasks/builder.js', function () {
 
 		describe('with several subscription', function () {
 			beforeEach(function () {
-				subscriptions = [{
+				networks = [{
 					userId: 'id_1',
 					service: 'github',
 					quotas: {
@@ -63,7 +63,7 @@ describe('engine/tasks/builder.js', function () {
 					lastExecution: moment().subtract(5, 'minutes').format()
 				}];
 
-				tasks = builder.create(subscriptions);
+				tasks = builder.create(networks);
 			});
 
 			it('should create 3 tasks', function () {
@@ -73,12 +73,9 @@ describe('engine/tasks/builder.js', function () {
 	});
 
 	describe('quotas calculation', function () {
-		// request per minute = 5, means connector could do request each 60 / 5 = 12 seconds
-		// if difference between current and last execution > 12 sec - create task
-
 		describe('lastExecution at the current moment', function () {
 			beforeEach(function () {
-				subscriptions = [{
+				networks = [{
 					userId: 'id_1',
 					service: 'github',
 					quotas: {
@@ -89,7 +86,7 @@ describe('engine/tasks/builder.js', function () {
 					lastExecution: moment().format()
 				}];
 
-				tasks = builder.create(subscriptions);
+				tasks = builder.create(networks);
 			});
 
 			it('should not create any tasks', function () {
@@ -99,7 +96,7 @@ describe('engine/tasks/builder.js', function () {
 
 		describe('lastExecution happed 5 seconds ago', function () {
 			beforeEach(function () {
-				subscriptions = [{
+				networks = [{
 					userId: 'id_1',
 					service: 'github',
 					quotas: {
@@ -110,7 +107,7 @@ describe('engine/tasks/builder.js', function () {
 					lastExecution: moment().subtract(5, 'seconds').format()
 				}];
 
-				tasks = builder.create(subscriptions);
+				tasks = builder.create(networks);
 			});
 
 			it('should not create any tasks', function () {
@@ -120,7 +117,7 @@ describe('engine/tasks/builder.js', function () {
 
 		describe('lastExecution happed 12 seconds ago', function () {
 			beforeEach(function () {
-				subscriptions = [{
+				networks = [{
 					userId: 'id_1',
 					service: 'github',
 					quotas: {
@@ -131,7 +128,7 @@ describe('engine/tasks/builder.js', function () {
 					lastExecution: moment().subtract(12, 'seconds').format()
 				}];
 
-				tasks = builder.create(subscriptions);
+				tasks = builder.create(networks);
 			});
 
 			it('should not create any tasks', function () {
@@ -141,7 +138,7 @@ describe('engine/tasks/builder.js', function () {
 
 		describe('lastExecution happed 13 seconds ago', function () {
 			beforeEach(function () {
-				subscriptions = [{
+				networks = [{
 					userId: 'id_1',
 					service: 'github',
 					quotas: {
@@ -152,11 +149,59 @@ describe('engine/tasks/builder.js', function () {
 					lastExecution: moment().subtract(13, 'seconds').format()
 				}];
 
-				tasks = builder.create(subscriptions);
+				tasks = builder.create(networks);
 			});
 
 			it('should create new task', function () {
 				expect(tasks.length).to.equal(1);
+			});
+		});
+
+		describe('rate limit', function () {
+			describe('when enter rate limit', function () {
+				beforeEach(function () {
+					networks = [{
+						userId: 'id_1',
+						service: 'github',
+						quotas: {
+							requests: {
+								perMinute: 5,
+								repeatAfterMinutes: 15
+							}
+						},
+						rateLimitExceed: true,
+						lastExecution: moment().subtract(15, 'seconds').format()
+					}];
+
+					tasks = builder.create(networks);
+				});
+
+				it ('should not create task for it', function () {
+					expect(tasks.length).to.equal(0);
+				});
+			});
+
+			describe('when leave rate limit', function () {
+				beforeEach(function () {
+					networks = [{
+						userId: 'id_1',
+						service: 'github',
+						quotas: {
+							requests: {
+								perMinute: 5,
+								repeatAfterMinutes: 15
+							}
+						},
+						rateLimitExceed: true,
+						lastExecution: moment().subtract(16, 'minutes').format()
+					}];
+
+					tasks = builder.create(networks);
+				});
+
+				it ('should create task for it', function () {
+					expect(tasks.length).to.equal(1);
+				});
 			});
 		});
 	});

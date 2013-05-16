@@ -33,8 +33,6 @@ function connector(state, callback) {
 			return callback('request failed: ' + err);
 		}
 
-		log.info('rate limit remaining: ' + response.headers['x-ratelimit-remaining'] + ' for user: ' + state.userId);
-
 		return handleResponse(response, body);
 	});
 
@@ -46,6 +44,10 @@ function connector(state, callback) {
 		if (state.mode === 'initial' && !state.page) {
 			state.page = 1;
 		}
+
+		if (state.rateLimitExceed) {
+			state.rateLimitExceed = false;
+		}
 	}
 
 	function formatRequestUri(username, accessToken, state) {
@@ -56,6 +58,14 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
+		var rateLimit = response.headers['x-ratelimit-remaining'];
+		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.userId);
+
+		if (rateLimit === 0) {
+			log.warning('rate limit exceeed for user: ' + state.userId);
+			state.rateLimitExceed = true;
+		}
+
 		var stars = select(body.map(function (r) {
 			return {
 				itemId: r.id.toString(),

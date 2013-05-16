@@ -279,6 +279,36 @@ describe('engine/connectors/github.js', function () {
 					});
 				});
 			});
+
+			describe('when meeting rate limit', function () {
+				beforeEach(function () {
+					state = {
+						userId: 'userId',
+						username: 'fakeGithubUser',
+						accessToken: 'fakeAccessToken',
+						service: 'github',
+						mode: 'normal',
+						sinceId: '6522993'
+					};
+				});
+
+				beforeEach(function (done) {
+					nock('https://api.github.com')
+						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
+						.reply(200, [], { 'x-ratelimit-remaining': 0});
+
+					connector(state, function (err, state, stars) {
+						updatedState = state;
+						returnedStars = stars;
+
+						done();
+					});
+				});
+
+				it ('should set rate limit exceed flag', function () {
+					expect(updatedState.rateLimitExceed).to.equal(true);
+				});
+			});
 		});
 	});
 });
