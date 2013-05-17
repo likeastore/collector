@@ -53,7 +53,7 @@ function connector(state, callback) {
 		var base = util.format('%s/favorites/list.json?screen_name=%s&count=200&include_entities=false', API, username);
 		return state.maxId ?
 			util.format('%s&max_id=%s', base, state.maxId) :
-			state.mode === 'normal' ?
+			state.mode === 'normal' && state.sinceId ?
 				util.format('%s&since_id=%s', base, state.sinceId) :
 				base;
 	}
