@@ -45,7 +45,7 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-current'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
-		if (rateLimit === 0) {
+		if (rateLimit === 0 || isNaN(rateLimit)) {
 			log.warning('rate limit exceeed for user: ' + state.userId);
 			state.rateLimitExceed = true;
 		}
@@ -76,8 +76,8 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(body) {
-		if (typeof body !== 'object' && !Array.isArray(body)) {
-			return callback('Unexpected response type: ' + body);
+		if (!Array.isArray(body)) {
+			return callback({ message: 'Unexpected response type', body: body});
 		}
 
 		var favorites = body.questions.map(function (fav) {

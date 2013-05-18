@@ -6,18 +6,20 @@ var logger = require('./../../utils/logger');
 function executor(connector) {
 	return function (state, callback) {
 		connector(state, function (err, state, fetched) {
-			if (err) {
-				return callback(err);
-			}
-
+			var connectorErr = err;
 			// update state
 			networks.update(state, function (err) {
 				if (err) {
-					return callback(err);
+					logger.error({message: 'update state error', state: state, err: err});
 				}
-
 				// update items
-				items.update(fetched, callback);
+				items.update(fetched, function (err, updated) {
+					if (err) {
+						logger.error({message: 'update items error', err: err});
+					}
+
+					return callback(connectorErr, updated);
+				});
 			});
 		});
 	};

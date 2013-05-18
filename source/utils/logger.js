@@ -9,21 +9,25 @@ log.level('warning');
 
 module.exports = {
 	success: function (message) {
+		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('SUCCESS: %s', message)).green);
 		log.log('info', message);
 	},
 
 	warning: function (message) {
+		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('WARNING: %s', message)).yellow);
 		log.log('warning', message);
 	},
 
 	error: function (message) {
+		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
 		log.log('err', message);
 	},
 
 	info: function (message) {
+		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(message));
 		log.log('info', message);
 	},

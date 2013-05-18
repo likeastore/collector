@@ -33,7 +33,7 @@ function createEngine() {
 	function execute(task, callback) {
 		return task(function(err) {
 			if (err) {
-				return logger.error(err);
+				logger.error(err);
 			}
 
 			return callback(err);
