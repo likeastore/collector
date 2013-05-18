@@ -5,26 +5,27 @@ var logentries = require('node-logentries');
 var log = logentries.logger({
 	token:process.env.LOGENTRIES_TOKEN
 });
+log.level('warning');
 
 module.exports = {
 	success: function (message) {
 		console.log(this.timestamptMessage(util.format('SUCCESS: %s', message)).green);
-		log.log('success', { message: message });
+		log.log('info', message);
 	},
 
 	warning: function (message) {
 		console.log(this.timestamptMessage(util.format('WARNING: %s', message)).yellow);
-		log.log('warning', { message: message });
+		log.log('warning', message);
 	},
 
 	error: function (message) {
 		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
-		log.log('error', { message: message });
+		log.log('err', message);
 	},
 
 	info: function (message) {
 		console.log(this.timestamptMessage(message));
-		log.info({ message: message });
+		log.log('info', message);
 	},
 
 	connector: function (name) {

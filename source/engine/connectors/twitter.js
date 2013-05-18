@@ -69,6 +69,10 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
+		if (typeof body !== 'object' && !Array.isArray(body)) {
+			return callback('Unexpected response type: ' + body);
+		}
+
 		var rateLimit = +response.headers['x-rate-limit-remaining'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 

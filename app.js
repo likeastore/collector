@@ -21,7 +21,8 @@ app.configure('development', function(){
 });
 
 http.createServer(app).listen(app.get('port'), function() {
-	console.log("likeastore-collector listening on port " + app.get('port') + ' ' + process.env.NODE_ENV);
+	var env = process.env.NODE_ENV || 'development';
+	console.log("likeastore-collector listening on port " + app.get('port') + ' ' + env);
 
 	engine.start();
 });

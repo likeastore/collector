@@ -76,6 +76,10 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(body) {
+		if (typeof body !== 'object' && !Array.isArray(body)) {
+			return callback('Unexpected response type: ' + body);
+		}
+
 		var favorites = body.questions.map(function (fav) {
 			return {
 				itemId: fav.question_id.toString(),
