@@ -58,7 +58,7 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
-		var rateLimit = response.headers['x-ratelimit-remaining'];
+		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.userId);
 
 		if (rateLimit === 0) {

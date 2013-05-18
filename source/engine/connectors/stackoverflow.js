@@ -42,7 +42,7 @@ function connector(state, callback) {
 			return callback(err);
 		}
 
-		var rateLimit = response.headers['x-ratelimit-current'];
+		var rateLimit = +response.headers['x-ratelimit-current'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
 		if (rateLimit === 0) {

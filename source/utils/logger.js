@@ -24,7 +24,16 @@ module.exports = {
 
 		return {
 			info: function (message) {
-				console.log(me.timestamptMessage('connector ' + name + ': ' + message).yellow);
+				me.info('connector ' + name + ': ' + message);
+			},
+			warning: function (message) {
+				me.warning('connector ' + name + ': ' + message);
+			},
+			error: function (message) {
+				me.error('connector ' + name + ': ' + message);
+			},
+			success: function (message) {
+				me.success('connector ' + name + ': ' + message);
 			}
 		};
 	},

@@ -1,5 +1,6 @@
 var request = require('request');
 var logger = require('./../../utils/logger');
+var config = require('./../../../config')();
 var moment = require('moment');
 var util = require('util');
 
@@ -32,9 +33,8 @@ function connector(state, callback) {
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	var oauth = {
-		// TODO: regenerate and put to config
-		consumer_key: 'dgwuxgGb07ymueGJF0ug',
-		consumer_secret: 'eusoZYiUldYqtI2SwK9MJNbiygCWOp9lQX7i5gnpWU',
+		consumer_key: config.services.twitter.consumerKey,
+		consumer_secret: config.services.twitter.consumerSecret,
 		token: accessToken,
 		token_secret: accessTokenSecret
 	};
@@ -69,7 +69,7 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
-		var rateLimit = response.headers['x-rate-limit-remaining'];
+		var rateLimit = +response.headers['x-rate-limit-remaining'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
 		if (rateLimit === 0) {
