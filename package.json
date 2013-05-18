@@ -16,7 +16,8 @@
     "nock": "~0.18.0",
     "request": "~2.21.0",
     "rewire": "~1.1.3",
-    "memstream": "0.0.1"
+    "memstream": "0.0.1",
+    "node-logentries": "~0.1.0"
   },
   "engines": {
     "node": "0.8.x"
