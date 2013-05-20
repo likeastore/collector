@@ -89,7 +89,7 @@ function connector(state, callback) {
 				description: fav.text,
 				avatarUrl: fav.user.profile_image_url,
 				authorName: fav.user.screen_name,
-				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id),
+				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
 				retweets: fav.retweet_count,
 				favorites: fav.favorite_count,
 				type: 'twitter'
