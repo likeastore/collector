@@ -76,8 +76,8 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(body) {
-		if (!Array.isArray(body)) {
-			return callback({ message: 'Unexpected response type', body: body});
+		if (!Array.isArray(body.questions)) {
+			return callback({ message: 'Unexpected response type', body: body.questions});
 		}
 
 		var favorites = body.questions.map(function (fav) {

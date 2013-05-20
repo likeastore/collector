@@ -5,8 +5,14 @@ var logger = require('./../../utils/logger');
 
 function executor(connector) {
 	return function (state, callback) {
+		var currentState = state;
 		connector(state, function (err, state, fetched) {
+			if (err) {
+				logger.error({message: 'connector exec error', state: state, err: err});
+			}
+
 			var connectorErr = err;
+			state = state || currentState;
 			// update state
 			networks.update(state, function (err) {
 				if (err) {
