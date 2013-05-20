@@ -1,5 +1,5 @@
 var db = require('./dbConnector').db;
-var logger = require('./../db/utils/logger');
+var logger = require('./../utils/logger');
 
 module.exports = {
 	update: function (items, callback) {
