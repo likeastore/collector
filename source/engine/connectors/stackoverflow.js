@@ -87,7 +87,8 @@ function connector(state, callback) {
 				dateInt: fav.creation_date,
 				date: moment(fav.creation_date).format(),
 				description: fav.title,
-				avatarUrl: 'http://gravatar.com/' + fav.owner.email_hash + '?d=mm',
+				authorName: fav.owner.display_name,
+				avatarUrl: 'http://gravatar.com/avatar/' + fav.owner.email_hash + '?d=mm',
 				source: 'http://stackoverflow.com/questions/' + fav.question_id,
 				favorites: fav.favorite_count,
 				type: 'stackoverflow'
