@@ -88,7 +88,8 @@ function connector(state, callback) {
 				date: moment(fav.created_at).format(),
 				description: fav.text,
 				avatarUrl: fav.user.profile_image_url,
-				source: 'http://twitter.com/' + fav.user.screen_name,
+				authorName: fav.user.screen_name,
+				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id),
 				retweets: fav.retweet_count,
 				favorites: fav.favorite_count,
 				type: 'twitter'
