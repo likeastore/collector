@@ -46,7 +46,7 @@ function connector(state, callback) {
 		}
 
 		if (state.rateLimitExceed) {
-			state.rateLimitExceed = false;
+			delete state.rateLimitExceed;
 		}
 	}
 
