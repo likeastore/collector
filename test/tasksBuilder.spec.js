@@ -203,6 +203,29 @@ describe('engine/tasks/builder.js', function () {
 					expect(tasks.length).to.equal(1);
 				});
 			});
+
+			describe('when leave rate limit 2', function () {
+				beforeEach(function () {
+					networks = [{
+						userId: 'id_1',
+						service: 'github',
+						quotas: {
+							requests: {
+								perMinute: 5,
+								repeatAfterMinutes: 15
+							}
+						},
+						rateLimitExceed: true,
+						lastExecution: '2013-05-20T18:36:30+00:00'
+					}];
+
+					tasks = builder.create(networks);
+				});
+
+				it ('should create task for it', function () {
+					expect(tasks.length).to.equal(1);
+				});
+			});
 		});
 	});
 });

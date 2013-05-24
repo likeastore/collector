@@ -11,7 +11,13 @@ function checkQuotas(state) {
 	var lastExecution = state.lastExecution;
 	var period = 60 / requestPerMinute;
 
-	return moment().diff(lastExecution, 'seconds') > period;
+	var result = moment().diff(lastExecution, 'seconds') > period;
+
+	if (!result) {
+		logger.warning('checkQuotas for service [' + state.service + '] of user ' + state.userId + ' is false.');
+	}
+
+	return result;
 }
 
 function checkRateLimit(state) {
@@ -24,7 +30,13 @@ function checkRateLimit(state) {
 	var lastExecution = state.lastExecution;
 	var period = 60 * repeatAfterMinutes;
 
-	return !exceed || moment().diff(lastExecution, 'seconds') > period;
+	var result = !exceed || moment().diff(lastExecution, 'seconds') > period;
+
+	if (!result) {
+		logger.warning('checkRateLimit for service [' + state.service + '] of user ' + state.userId + ' is false.');
+	}
+
+	return result;
 }
 
 function createTask(state) {
