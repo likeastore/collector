@@ -11,10 +11,11 @@ function checkQuotas(state) {
 	var lastExecution = state.lastExecution;
 	var period = 60 / requestPerMinute;
 
-	var result = moment().diff(lastExecution, 'seconds') > period;
+	var passed = moment().diff(lastExecution, 'seconds');
+	var result =  passed > period;
 
 	if (!result) {
-		logger.warning('checkQuotas for service [' + state.service + '] of user ' + state.userId + ' is false.');
+		logger.warning('checkQuotas for service [' + state.service + '] of user ' + state.userId + ' is false. passed (sec) ' + passed + ' period (sec) ' + period );
 	}
 
 	return result;
@@ -26,14 +27,15 @@ function checkRateLimit(state) {
 	}
 
 	var exceed = state.rateLimitExceed;
-	var repeatAfterMinutes = state.quotas.requests.repeatAfterMinutes;
+	var repeatAfterMinutes = state.quotas.repeatAfterMinutes;
 	var lastExecution = state.lastExecution;
 	var period = 60 * repeatAfterMinutes;
 
-	var result = !exceed || moment().diff(lastExecution, 'seconds') > period;
+	var passed = moment().diff(lastExecution, 'seconds');
+	var result = !exceed || passed > period;
 
 	if (!result) {
-		logger.warning('checkRateLimit for service [' + state.service + '] of user ' + state.userId + ' is false.');
+		logger.warning('checkRateLimit for service [' + state.service + '] of user ' + state.userId + ' is false. passed (sec) ' + passed + ' period (sec) ' + period );
 	}
 
 	return result;

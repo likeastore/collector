@@ -165,9 +165,9 @@ describe('engine/tasks/builder.js', function () {
 						service: 'github',
 						quotas: {
 							requests: {
-								perMinute: 5,
-								repeatAfterMinutes: 15
-							}
+								perMinute: 5
+							},
+							repeatAfterMinutes: 15
 						},
 						rateLimitExceed: true,
 						lastExecution: moment().subtract(15, 'seconds').format()
@@ -188,9 +188,9 @@ describe('engine/tasks/builder.js', function () {
 						service: 'github',
 						quotas: {
 							requests: {
-								perMinute: 5,
-								repeatAfterMinutes: 15
-							}
+								perMinute: 5
+							},
+							repeatAfterMinutes: 15
 						},
 						rateLimitExceed: true,
 						lastExecution: moment().subtract(16, 'minutes').format()
@@ -211,9 +211,9 @@ describe('engine/tasks/builder.js', function () {
 						service: 'github',
 						quotas: {
 							requests: {
-								perMinute: 5,
-								repeatAfterMinutes: 15
-							}
+								perMinute: 5
+							},
+							repeatAfterMinutes: 15
 						},
 						rateLimitExceed: true,
 						lastExecution: '2013-05-20T18:36:30+00:00'
