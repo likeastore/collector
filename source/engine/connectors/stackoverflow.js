@@ -85,7 +85,7 @@ function connector(state, callback) {
 				itemId: fav.question_id.toString(),
 				userId: state.userId,
 				dateInt: fav.creation_date,
-				date: moment(fav.creation_date).format(),
+				date: moment.unix(fav.creation_date).format(),
 				description: fav.title,
 				authorName: fav.owner.display_name,
 				avatarUrl: 'http://gravatar.com/avatar/' + fav.owner.email_hash + '?d=mm',
