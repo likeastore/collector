@@ -30,26 +30,27 @@ function connector(state, callback) {
 	var uri = formatRequestUri(username, accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip', 'User-Agent': 'likeastore/collector'};
 
+	var response;
 	var unzippedResponse = '';
 	var stream = new MemoryStream(function (buffer) {
 		unzippedResponse += buffer;
 	}).on('end', function () {
-		return handleResponse(JSON.parse(unzippedResponse));
-	});
-
-	request({uri: uri, headers: headers}, function (err, response) {
-		if (err) {
-			return callback(err);
-		}
-
 		var rateLimit = +response.headers['x-ratelimit-current'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
 		if (rateLimit === 0 || isNaN(rateLimit)) {
-			log.warning('rate limit exceeed for user: ' + state.userId);
 			state.rateLimitExceed = true;
+			return callback({message: 'rate limit exceeed for user: ' + state.userId}, state);
 		}
 
+		return handleResponse(JSON.parse(unzippedResponse));
+	});
+
+	request({uri: uri, headers: headers}, function (err, res) {
+		if (err) {
+			return callback(err);
+		}
+		response = res;
 	}).pipe(zlib.createGunzip()).pipe(stream);
 
 	function initState(state) {

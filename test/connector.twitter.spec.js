@@ -93,6 +93,7 @@ describe('engine/connectors/twitter.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
+						.defaultReplyHeaders({'x-rate-limit-remaining': 100})
 						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false')
 						.replyWithFile(200, __dirname + '/replies/twitter.connector.init.json');
 
@@ -140,6 +141,7 @@ describe('engine/connectors/twitter.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
+						.defaultReplyHeaders({'x-rate-limit-remaining': 100})
 						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&max_id=332542318055919617')
 						.replyWithFile(200, __dirname + '/replies/twitter.connector.second.json');
 
@@ -189,6 +191,7 @@ describe('engine/connectors/twitter.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
+						.defaultReplyHeaders({'x-rate-limit-remaining': 100})
 						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&max_id=332542318055919614')
 						.reply(200, []);
 
@@ -238,6 +241,7 @@ describe('engine/connectors/twitter.js', function () {
 
 			beforeEach(function (done) {
 				nock('https://api.twitter.com')
+					.defaultReplyHeaders({'x-rate-limit-remaining': 100})
 					.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&since_id=332570459445018627')
 					.replyWithFile(200, __dirname + '/replies/twitter.connector.normal.json');
 

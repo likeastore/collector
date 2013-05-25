@@ -70,6 +70,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
+						.defaultReplyHeaders({ 'x-ratelimit-remaining': 100})
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100&page=1')
 						.replyWithFile(200, __dirname + '/replies/github.connector.init.json');
 
@@ -99,7 +100,7 @@ describe('engine/connectors/github.js', function () {
 					});
 
 					it('with id of first retrieved item', function () {
-						expect(updatedState.sinceId).to.equal('6522993')
+						expect(updatedState.sinceId).to.equal('6522993');
 					});
 				});
 			});
@@ -118,6 +119,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
+						.defaultReplyHeaders({ 'x-ratelimit-remaining': 100})
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100&page=2')
 						.replyWithFile(200, __dirname + '/replies/github.connector.init.json');
 
@@ -162,6 +164,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
+						.defaultReplyHeaders({ 'x-ratelimit-remaining': 100})
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100&page=3')
 						.reply(200, []);
 
@@ -210,6 +213,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
+						.defaultReplyHeaders({ 'x-ratelimit-remaining': 100})
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
 						.replyWithFile(200, __dirname + '/replies/github.connector.normal.nonew.json');
 
@@ -250,6 +254,7 @@ describe('engine/connectors/github.js', function () {
 
 				beforeEach(function (done) {
 					nock('https://api.github.com')
+						.defaultReplyHeaders({ 'x-ratelimit-remaining': 100})
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
 						.replyWithFile(200, __dirname + '/replies/github.connector.normal.new.json');
 

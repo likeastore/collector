@@ -70,6 +70,7 @@ describe('engine/connectors/stackoverflow.js', function () {
 
 				beforeEach(function (done) {
 					nock('http://api.stackoverflow.com')
+						.defaultReplyHeaders({'x-ratelimit-current': 100})
 						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&page=1')
 						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.init.json.gz');
 
@@ -119,6 +120,7 @@ describe('engine/connectors/stackoverflow.js', function () {
 
 				beforeEach(function (done) {
 					nock('http://api.stackoverflow.com')
+						.defaultReplyHeaders({'x-ratelimit-current': 100})
 						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&page=2')
 						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.normal.json.gz');
 
@@ -167,6 +169,7 @@ describe('engine/connectors/stackoverflow.js', function () {
 
 				beforeEach(function (done) {
 					nock('http://api.stackoverflow.com')
+						.defaultReplyHeaders({'x-ratelimit-current': 100})
 						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&fromdate=1332242921')
 						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.normal.json.gz');
 
@@ -203,6 +206,7 @@ describe('engine/connectors/stackoverflow.js', function () {
 
 				beforeEach(function (done) {
 					nock('http://api.stackoverflow.com')
+						.defaultReplyHeaders({'x-ratelimit-current': 100})
 						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&fromdate=1332242921')
 						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.new.json.gz');
 
