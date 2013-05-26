@@ -13,6 +13,11 @@ function executor(connector) {
 
 			var connectorErr = err;
 			state = state || currentState;
+
+			if (state.rateLimitExceed) {
+				logger.warning({message: 'connector for: ' + state.service + ' went to rateLimitExceed mode', state: state});
+			}
+
 			// update state
 			networks.update(state, function (err) {
 				if (err) {
@@ -39,7 +44,7 @@ function create(state) {
 	var connector = getConnector(state);
 
 	if (!connector) {
-		logger.warning('missing logger for service: ' + state.service);
+		logger.error('missing logger for service: ' + state.service);
 	}
 
 	return connector && executor(connector);
