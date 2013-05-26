@@ -100,7 +100,7 @@ describe('engine/connectors/github.js', function () {
 					});
 
 					it('with id of first retrieved item', function () {
-						expect(updatedState.sinceId).to.equal('6522993');
+						expect(updatedState.sinceId).to.equal(6522993);
 					});
 				});
 			});
@@ -280,7 +280,7 @@ describe('engine/connectors/github.js', function () {
 					});
 
 					it('stores sinceId', function () {
-						expect(updatedState.sinceId).to.equal('6522994');
+						expect(updatedState.sinceId).to.equal(6522994);
 					});
 				});
 			});

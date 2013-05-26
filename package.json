@@ -1,6 +1,6 @@
 {
   "name": "likeastore-collector",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -18,9 +18,9 @@
     "rewire": "~1.1.3",
     "memstream": "0.0.1",
     "node-logentries": "~0.1.0",
-    "config": "ssh+git://github.com/likeastore/config.git"
+    "likeastore-config": "git://github.com/likeastore/config.git"
   },
   "engines": {
-    "node": "0.8.x"
+    "node": "~0.8.x"
   }
 }

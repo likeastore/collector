@@ -46,6 +46,7 @@ function createEngine() {
 
 		var executionTime = finished.diff(started);
 		logger.success('all execution task are done in: ' + executionTime + ' (msec)');
+		logger.success('next start in: ' + config.collector.engineRestartInterval + ' (msec)');
 
 		setTimeout(engineLoop, config.collector.engineRestartInterval);
 	}

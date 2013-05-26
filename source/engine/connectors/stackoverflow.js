@@ -81,6 +81,8 @@ function connector(state, callback) {
 			return callback({ message: 'Unexpected response type', body: body.questions});
 		}
 
+		state.lastestResponse = body;
+
 		var favorites = body.questions.map(function (fav) {
 			return {
 				itemId: fav.question_id.toString(),

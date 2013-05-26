@@ -29,5 +29,6 @@ var setDb = function (options) {
 
 module.exports = {
 	db: db,
-	setDb: setDb
+	setDb: setDb,
+	mongo: mongo
 };
