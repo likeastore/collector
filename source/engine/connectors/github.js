@@ -70,6 +70,8 @@ function connector(state, callback) {
 			return callback({ message: 'Unexpected response type', body: body});
 		}
 
+		state.lastestResponse = body;
+
 		var stars = select(body.map(function (r) {
 			return {
 				itemId: r.id.toString(),

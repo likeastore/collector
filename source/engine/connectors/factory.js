@@ -23,6 +23,7 @@ function executor(connector) {
 				if (err) {
 					logger.error({message: 'update state error', state: state, err: err});
 				}
+
 				// update items
 				items.update(fetched, function (err, updated) {
 					if (err) {
