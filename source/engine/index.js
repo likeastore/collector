@@ -4,6 +4,7 @@ var moment = require('moment');
 var tasksBuilder = require('./tasks/builder');
 var networks = require('./../db/networks');
 var logger = require('./../utils/logger');
+var config = require('likeastore-config');
 
 function createEngine() {
 	var started, finished;
@@ -44,11 +45,9 @@ function createEngine() {
 		finished = moment();
 
 		var executionTime = finished.diff(started);
-
 		logger.success('all execution task are done in: ' + executionTime + ' (msec)');
-		logger.info('ready for next session in 1000 (msec)');
 
-		setTimeout(engineLoop, 1000);
+		setTimeout(engineLoop, config.collector.engineRestartInterval);
 	}
 
 	queue.drain = function () {
