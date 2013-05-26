@@ -78,7 +78,11 @@ function connector(state, callback) {
 
 	function handleResponse(body) {
 		if (!Array.isArray(body.questions)) {
-			return callback({ message: 'Unexpected response type', body: body.questions});
+			if (state.rateLimitExceed) {
+				logger.error({message: 'Unexpected response in rateLimitExceed mode (should not be possible)'});
+			}
+
+			return callback({ message: 'Unexpected response type', body: body, state: state});
 		}
 
 		state.lastestResponse = body;
