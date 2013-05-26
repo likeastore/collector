@@ -40,7 +40,7 @@ function connector(state, callback) {
 
 		if (rateLimit === 0 || isNaN(rateLimit)) {
 			state.rateLimitExceed = true;
-			return callback({message: 'rate limit exceeed for user: ' + state.userId}, state);
+			log.warning({message: 'rate limit exceeed', state: state});
 		}
 
 		return handleResponse(JSON.parse(unzippedResponse));
