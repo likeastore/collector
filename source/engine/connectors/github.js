@@ -72,9 +72,10 @@ function connector(state, callback) {
 
 		state.lastestResponse = body;
 
-		var stars = select(body.map(function (r) {
+		var stars = body.map(function (r) {
 			return {
 				itemId: r.id.toString(),
+				idInt: r.id,
 				userId: state.userId,
 				name: r.full_name,
 				authorName: r.owner.login,
@@ -86,20 +87,21 @@ function connector(state, callback) {
 				description: r.description,
 				type: 'github'
 			};
-		}));
+		});
 
-		log.info('retrieved ' + stars.length + ' stars');
+		var newStars = filterNewStars(stars);
+		log.info('retrieved ' + newStars.length + ' new stars');
 
-		return callback(null, updateState(state, stars), stars);
+		return callback(null, updateState(state, stars), newStars);
 	}
 
-	function select (stars) {
-		if (stars.mode === 'initial') {
+	function filterNewStars (stars) {
+		if (state.mode === 'initial') {
 			return stars;
 		}
 
 		return helpers.takeWhile(stars, function (star) {
-			return star.itemId !== state.sinceId;
+			return +state.sinceId < star.idInt;
 		});
 	}
 
@@ -120,7 +122,7 @@ function connector(state, callback) {
 					return state.mode === 'initial' && data.length > 0 && !state.sinceId;
 				},
 				apply: function (state, data) {
-					state.sinceId = data[0].itemId;
+					state.sinceId = data[0].idInt;
 				}
 			},
 			// increment page
@@ -132,12 +134,13 @@ function connector(state, callback) {
 					state.page = state.page + 1;
 				}
 			},
+			// initialize sinceId in normal mode
 			{
 				condition: function (state, data) {
 					return state.mode === 'normal' && data.length > 0;
 				},
 				apply: function (state, data) {
-					state.sinceId = data[0].itemId;
+					state.sinceId = data[0].idInt;
 				}
 			},
 			// go to normal
