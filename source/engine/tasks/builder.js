@@ -15,7 +15,7 @@ function checkQuotas(state) {
 	var result =  passed > period;
 
 	if (!result) {
-		logger.warning('checkQuotas for service [' + state.service + '] of user ' + state.userId + ' is false. passed (sec) ' + passed + ' period (sec) ' + period );
+		logger.info('checkQuotas for service [' + state.service + '] of user ' + state.userId + ' is false. passed (sec) ' + passed + ' period (sec) ' + period );
 	}
 
 	return result;
@@ -35,7 +35,7 @@ function checkRateLimit(state) {
 	var result = !exceed || passed > period;
 
 	if (!result) {
-		logger.warning('checkRateLimit for service [' + state.service + '] of user ' + state.userId + ' is false. passed (sec) ' + passed + ' period (sec) ' + period );
+		logger.info('checkRateLimit for service [' + state.service + '] of user ' + state.userId + ' is false. passed (sec) ' + passed + ' period (sec) ' + period );
 	}
 
 	return result;
@@ -51,6 +51,7 @@ function createTask(state) {
 
 function create(networks) {
 	var tasks = [];
+
 	networks.forEach(function (state) {
 		if (!state.skip && checkRateLimit(state) && checkQuotas(state)) {
 			var task = createTask(state);
