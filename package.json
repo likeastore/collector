@@ -18,7 +18,8 @@
     "rewire": "~1.1.3",
     "memstream": "0.0.1",
     "node-logentries": "~0.1.0",
-    "likeastore-config": "git://github.com/likeastore/config.git"
+    "likeastore-config": "git://github.com/likeastore/config.git",
+    "nodefly": "stable"
   },
   "engines": {
     "node": "~0.8.x"
