@@ -1,3 +1,14 @@
+var options = {
+  // time in ms when the event loop is considered blocked
+  blockThreshold: 10
+};
+
+require('nodefly').profile(
+	'197864a7bb128f11497f684fdace97fa',
+	['likeastore-collector', process.env.SUBDOMAIN],
+	options
+);
+
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -12,17 +23,6 @@ process.on('uncaughtException', function (err) {
 	logger.error({msg:'Uncaught exception', error:err, stack:err.stack});
 	console.log("Uncaught exception", err, err.stack && err.stack.toString()); //extra log, makes stack track clickable in webstorm
 });
-
-var options = {
-  // time in ms when the event loop is considered blocked
-  blockThreshold: 10
-};
-
-require('nodefly').profile(
-	'197864a7bb128f11497f684fdace97fa',
-	['likeastore-collector', process.env.SUBDOMAIN],
-	options
-);
 
 app.configure(function(){
 	app.set('port', process.env.VCAP_APP_PORT || 3002);
