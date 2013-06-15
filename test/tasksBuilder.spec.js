@@ -1,9 +1,16 @@
 var expect = require('chai').expect;
 var moment = require('moment');
-var builder = require('./../source/engine/tasks/builder');
+var rewire = require('rewire');
+var loggerFake = require('./fakes/logger');
 
 describe('engine/tasks/builder.js', function () {
-	var networks, tasks;
+	var builder, networks, tasks;
+
+	beforeEach(function () {
+		builder = rewire('./../source/engine/tasks/builder');
+		builder.__set__('logger', loggerFake);
+	});
+
 	describe('empty list of networks', function () {
 		beforeEach(function () {
 			networks = [];
