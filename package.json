@@ -1,9 +1,10 @@
 {
   "name": "likeastore-collector",
-  "version": "0.0.2",
+  "version": "0.0.2-1",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "./node_modules/mocha/bin/_mocha"
   },
   "dependencies": {
     "express": "~3.1.0",
@@ -24,5 +25,8 @@
   "engines": {
     "node": "~0.8.x"
   },
-  "subdomain": "likeastore-collector"
+  "subdomain": "likeastore-collector",
+  "devDependencies": {
+    "mocha": "~1.11.0"
+  }
 }
