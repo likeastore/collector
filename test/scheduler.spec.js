@@ -1,7 +1,8 @@
 var moment;
 var db, config, scheduler;
+var logger;
 
-// all currently available connectors..
+// all currently available connectors.. (should be corrected with new collector behavior)
 var twitter = function (state, callback) {
 
 };
@@ -25,10 +26,37 @@ var connectors = {
 scheduler.run(connectors);
 
 
-// helper connector executor function
+// helper connector executor function (could be overkill)
 function executor (state, connectors, callback) {
 	var connector = connectors[state.connector];
-	connector(state, callback);
+	var currentState = state;
+
+	connector(state, function (err, state, results) {
+		if (err) {
+			return callback (err, currentState);
+		}
+
+		state.scheduledTo = scheduleTo(state);
+
+		callback(null, state, results);
+	});
+
+	function scheduleTo(state) {
+		var currentMoment = moment();
+		var modes = {
+			initial: function () {
+				return 0;
+			},
+			normal: function () {
+				return 0;
+			},
+			ratelimit: function () {
+				return 0;
+			}
+		};
+
+		return modes[state.mode]();
+	}
 }
 
 // only checks the time stamp, connector is responsible to calculate that
@@ -47,7 +75,7 @@ function schedule(states, connectors) {
 	return tasks;
 
 	function nop (state) {
-		return function (callback) { return callback (null, null); };
+		return function (callback) { return callback (null, null, null); };
 	}
 
 	function task(state) {
@@ -63,13 +91,19 @@ function storeData (data, callback) {
 	db.items.update(data, callback);
 }
 
-function execute(tasks) {
+function execute(tasks, callback) {
+	var executionFailures = false;
 	tasks.forEach(function (task) {
 		task(taskExecuted);
 	});
 
+	return callback (executionFailures ? {message: 'some tasks failed during execution'} : null);
+
 	function taskExecuted(err, state, data) {
-		// result from nop operation
+		if (err) {
+
+		}
+
 		if (!state || !data) {
 			return;
 		}
@@ -77,18 +111,18 @@ function execute(tasks) {
 		storeState(state, stateStored);
 
 		function stateStored(err) {
-			var stateSaveError = err;
+			if (err) {
+				executionFailures = true;
+				logger.error({message: 'storing state failed', state: state});
+			}
 
 			storeData(data, dataStored);
 		}
 
-		function dataStored(dataSaveError, stateSaveError) {
-			if (dataStored) {
-				return; // log error
-			}
-
-			if (stateSaveError) {
-				return; // log error
+		function dataStored(err, result) {
+			if (err) {
+				executionFailures = true;
+				logger.error({message: 'storing items failed', state: state});
 			}
 		}
 	}
@@ -100,7 +134,7 @@ var scheduler = {
 			db.networks.findAll(function (err, states) {
 				var tasks = schedule(states, connectors);
 
-				execute(tasks, function (err, resuls) {
+				execute(tasks, function (err) {
 					// all executed
 					setTimeout(schedulerLoop, config.scheduler.timeout);
 				});
