@@ -313,7 +313,7 @@ describe('engine/connectors/github.js', function () {
 							.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
 							.replyWithFile(200, __dirname + '/replies/github.connector.normal.new.json');
 
-						connector(state, function (err, state, stars) {
+						connector(updatedState, function (err, state, stars) {
 							updatedUpdatedState = state;
 							returnedStars = stars;
 

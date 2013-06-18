@@ -91,10 +91,6 @@ describe('engine/connectors/stackoverflow.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('with next page', function () {
 						expect(updatedState.page).to.equal(2);
 					});
@@ -141,10 +137,6 @@ describe('engine/connectors/stackoverflow.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('removes next page', function () {
 						expect(updatedState.page).to.not.be.ok;
 					});
@@ -184,12 +176,6 @@ describe('engine/connectors/stackoverflow.js', function () {
 				it('retrieves no data', function () {
 					expect(returnedFavorites.length).to.equal(0);
 				});
-
-				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-				});
 			});
 
 			describe('one new favorite', function () {
@@ -223,10 +209,6 @@ describe('engine/connectors/stackoverflow.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('updates fromdate (incremented)', function () {
 						expect(updatedState.fromdate).to.equal(1332242923);
 					});
@@ -234,6 +216,12 @@ describe('engine/connectors/stackoverflow.js', function () {
 			});
 
 			describe('when meeting rate limit', function () {
+				var rateLimitToStop;
+
+				beforeEach(function () {
+					rateLimitToStop = 1;
+				});
+
 				beforeEach(function () {
 					state = {
 						userId: 'user',
@@ -247,7 +235,7 @@ describe('engine/connectors/stackoverflow.js', function () {
 
 				beforeEach(function (done) {
 					nock('http://api.stackoverflow.com')
-						.defaultReplyHeaders({'x-ratelimit-current': 0})
+						.defaultReplyHeaders({'x-ratelimit-current': rateLimitToStop})
 						.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&fromdate=1332242921')
 						.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.new.json.gz');
 
@@ -260,10 +248,35 @@ describe('engine/connectors/stackoverflow.js', function () {
 				});
 
 				it ('should set rate limit exceed flag', function () {
-					expect(updatedState.rateLimitExceed).to.equal(true);
+					expect(updatedState.mode).to.equal('rateLimit');
+				});
+
+				it ('should store previous state', function () {
+					expect(updatedState.prevMode).to.equal('normal');
+				});
+
+				describe('and run in rateLimit state', function () {
+					var updatedUpdatedState;
+
+					beforeEach(function (done) {
+						nock('http://api.stackoverflow.com')
+							.defaultReplyHeaders({'x-ratelimit-current': 100})
+							.get('/1.1/users/12345/favorites?access_token=fakeToken&pagesize=100&sort=creation&fromdate=1332242923')
+							.replyWithFile(200, __dirname + '/replies/stackoverflow.connector.new.json.gz');
+
+						connector(updatedState, function (err, state, favorites) {
+							updatedUpdatedState = state;
+							returnedFavorites = favorites;
+
+							done();
+						});
+					});
+
+					it ('should go back to previous mode', function () {
+						expect(updatedUpdatedState.mode).to.equal('normal');
+					});
 				});
 			});
-
 		});
 	});
 });

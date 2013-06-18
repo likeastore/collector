@@ -4,7 +4,6 @@ var moment = require('moment');
 var util = require('util');
 
 var helpers = require('./../../utils/helpers');
-var stater = require('./../../utils/stater');
 
 var API = 'https://api.github.com';
 

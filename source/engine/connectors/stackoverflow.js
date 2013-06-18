@@ -6,7 +6,6 @@ var moment = require('moment');
 var util = require('util');
 
 var helpers = require('./../../utils/helpers');
-var stater = require('./../../utils/stater');
 
 var API = 'http://api.stackoverflow.com/1.1';
 
@@ -38,12 +37,7 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-current'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
-		if (rateLimit === 0 || isNaN(rateLimit)) {
-			state.rateLimitExceed = true;
-			log.warning({message: 'rate limit exceeed', state: state});
-		}
-
-		return handleResponse(JSON.parse(unzippedResponse));
+		return handleResponse(JSON.parse(unzippedResponse), rateLimit);
 	});
 
 	request({uri: uri, headers: headers}, function (err, res) {
@@ -62,8 +56,8 @@ function connector(state, callback) {
 			state.page = 1;
 		}
 
-		if (state.rateLimitExceed) {
-			delete state.rateLimitExceed;
+		if (state.mode === 'rateLimit') {
+			state.mode = state.prevMode;
 		}
 	}
 
@@ -76,12 +70,8 @@ function connector(state, callback) {
 				base;
 	}
 
-	function handleResponse(body) {
+	function handleResponse(body, rateLimit) {
 		if (!Array.isArray(body.questions)) {
-			if (state.rateLimitExceed) {
-				logger.error({message: 'Unexpected response in rateLimitExceed mode (should not be possible)'});
-			}
-
 			return callback({ message: 'Unexpected response type', body: body, state: state});
 		}
 
@@ -104,60 +94,34 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites');
 
-		return callback(null, updateState(state, favorites), favorites);
+		return callback(null, updateState(state, favorites, rateLimit), favorites);
 	}
 
-	function updateState(state, favorites) {
-		var stateChanges = [
-			// last execution
-			{
-				condition: function (state, data) {
-					return true;
-				},
-				apply: function (state, data) {
-					state.lastExecution = moment().format();
-				}
-			},
-			// intialize fromdate
-			{
-				condition: function (state, data) {
-					return state.mode === 'initial' && data.length > 0 && !state.fromdate;
-				},
-				apply: function (state, data) {
-					state.fromdate = data[0].dateInt + 1;
-				}
-			},
-			// increment page
-			{
-				condition: function (state, data) {
-					return state.mode === 'initial' && data.length > 0;
-				},
-				apply: function (state, data) {
-					state.page = state.page + 1;
-				}
-			},
-			// go to normal
-			{
-				condition: function (state, data) {
-					return state.mode === 'initial' && data.length === 0;
-				},
-				apply: function (state, data) {
-					state.mode = 'normal';
-					delete state.page;
-				}
-			},
-			// update from date
-			{
-				condition: function (state, data) {
-					return state.mode === 'normal' && data.length > 0;
-				},
-				apply: function (state, data) {
-					state.fromdate = data[0].dateInt + 1;
-				}
-			}
-		];
+	function updateState(state, data, rateLimit) {
+		if (state.mode === 'initial' && data.length > 0 && !state.fromdate) {
+			state.fromdate = data[0].dateInt + 1;
+		}
 
-		return stater.update(state, stateChanges, favorites);
+		if (state.mode === 'initial' && data.length > 0) {
+			state.page += 1;
+		}
+
+		if (state.mode === 'initial' && data.length === 0) {
+			state.mode = 'normal';
+			delete state.page;
+		}
+
+		if (state.mode === 'normal' && data.length > 0) {
+			state.fromdate = data[0].dateInt + 1;
+		}
+
+		if (rateLimit === 1) {
+			var currentState = state.mode;
+			state.mode = 'rateLimit';
+			state.prevMode = currentState;
+		}
+
+		return state;
 	}
 }
 
