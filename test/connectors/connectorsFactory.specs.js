@@ -1,12 +1,12 @@
 var expect = require('chai').expect;
 var rewire = require('rewire');
-var loggerFake = require('./fakes/logger');
+var loggerFake = require('../fakes/logger');
 
 describe('engine/connectors/factory.js', function () {
 	var factory, subscription, connector;
 
 	beforeEach(function () {
-		factory = rewire('./../source/engine/connectors/factory');
+		factory = rewire('../../source/engine/connectors/factory');
 		factory.__set__('logger', loggerFake);
 	});
 

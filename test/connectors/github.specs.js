@@ -1,13 +1,13 @@
 var expect = require('chai').expect;
 var nock = require('nock');
 var rewire = require('rewire');
-var loggerFake = require('./fakes/logger');
+var loggerFake = require('../fakes/logger');
 
 describe('engine/connectors/github.js', function () {
 	var state, connector;
 
 	beforeEach(function () {
-		connector = rewire('./../source/engine/connectors/github');
+		connector = rewire('../../source/engine/connectors/github');
 		connector.__set__('logger', loggerFake);
 	});
 
