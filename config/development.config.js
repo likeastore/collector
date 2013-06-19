@@ -38,20 +38,23 @@ var config = {
 		schedulerRestart: 1000,
 
 		// after collector got to normal mode, next scheduled run in hour
-		nextNormalRunAfter: 600000,
+		nextNormalRunAfter: 1000 * 60 * 60,
+
+		// after collector got to rateLimit mode, next scheduled run in hour
+		nextRateLimitRunAfter: 1000 * 60 * 60,
 
 		// initial mode quotes
 		quotes: {
 			github: {
-				requestsPerMinute: 15
+				runAfter: 4000
 			},
 
 			twitter: {
-				requestsPerMinute: 1
+				runAfter: 60000
 			},
 
 			stackoverflow: {
-				requestsPerMinute: 15
+				runAfter: 4000
 			}
 		}
 	}
