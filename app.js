@@ -1,14 +1,3 @@
-var options = {
-  // time in ms when the event loop is considered blocked
-  blockThreshold: 10
-};
-
-require('nodefly').profile(
-	'197864a7bb128f11497f684fdace97fa',
-	['likeastore-collector', process.env.SUBDOMAIN],
-	options
-);
-
 var express = require('express');
 var http = require('http');
 var path = require('path');
