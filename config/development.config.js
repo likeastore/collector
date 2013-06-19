@@ -35,22 +35,24 @@ var config = {
 
 	collector: {
 		// scheduler cycle
-		schedulerRestart: 5000,
+		schedulerRestart: 1000,
 
-		// after collector got to normal mode, next scheduled run in
-		nextNormalRunAfter: 60000,
+		// after collector got to normal mode, next scheduled run in hour
+		nextNormalRunAfter: 600000,
 
 		// initial mode quotes
-		github: {
-			requestsPerMinute: 15
-		},
+		quotes: {
+			github: {
+				requestsPerMinute: 15
+			},
 
-		twitter: {
-			requestsPerMinute: 1
-		},
+			twitter: {
+				requestsPerMinute: 1
+			},
 
-		stackoverflow: {
-			requestsPerMinute: 15
+			stackoverflow: {
+				requestsPerMinute: 15
+			}
 		}
 	}
 };

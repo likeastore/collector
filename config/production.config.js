@@ -9,20 +9,12 @@ var config = {
 	services: {
 		github: {
 			appId: process.env.GITHUB_APP_ID,
-			appSecret: process.env.GITHUB_APP_SECRET,
-			quotas: {
-				requests: { perMinute: 1 },
-				repeatAfterMinutes: 15
-			}
+			appSecret: process.env.GITHUB_APP_SECRET
 		},
 
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,
-			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-			quotas: {
-				requests: { perMinute: 1 },
-				repeatAfterMinutes: 15
-			}
+			consumerSecret: process.env.TWITTER_CONSUMER_SECRET
 		},
 
 		facebook: {
@@ -33,11 +25,7 @@ var config = {
 		stackoverflow: {
 			clientId: process.env.STACKOVERFLOW_CLIENT_ID,
 			clientKey: process.env.STACKOVERFLOW_CLIENT_KEY,
-			clientSecret: process.env.STACKOVERFLOW_CLIENT_SECRET,
-			quotas: {
-				requests: { perMinute: 1 },
-				repeatAfterMinutes: 15
-			}
+			clientSecret: process.env.STACKOVERFLOW_CLIENT_SECRET
 		}
 	},
 
@@ -46,7 +34,26 @@ var config = {
 	},
 
 	collector: {
-		engineRestartInterval: 65000
+		// scheduler cycle
+		schedulerRestart: 65000,
+
+		// after collector got to normal mode, next scheduled run in hour
+		nextNormalRunAfter: 600000,
+
+		// initial mode quotes
+		quotes: {
+			github: {
+				requestsPerMinute: 15
+			},
+
+			twitter: {
+				requestsPerMinute: 1
+			},
+
+			stackoverflow: {
+				requestsPerMinute: 15
+			}
+		}
 	}
 };
 
