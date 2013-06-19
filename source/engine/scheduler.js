@@ -1,7 +1,8 @@
 var moment = require('moment');
+var async = require('async');
 var executor = require('./executor');
-var items = require('./db/items');
-var networks = require('./db/networks');
+var items = require('../db/items');
+var networks = require('../db/networks');
 var logger = require('../utils/logger');
 var config = require('../../config');
 
@@ -12,8 +13,13 @@ function allowedToExecute (state, currentMoment) {
 function schedule(states, connectors) {
 	var currentMoment = moment();
 
+	logger.info('scheduler stated at ' + currentMoment.format());
+	logger.info('recieved ' + states.length + ' services states');
+
 	var tasks = states.map(function (state) {
 		return allowedToExecute(state, currentMoment) ? task(state) : nop(state);
+	}).filter(function (task) {
+		return task !== nop;
 	});
 
 	return tasks;
@@ -36,12 +42,18 @@ function storeData (data, callback) {
 }
 
 function execute(tasks, callback) {
+	logger.info('currently allowed to execute: ' + tasks.length);
+
 	var executionFailures = false;
-	tasks.forEach(function (task) {
-		task(taskExecuted);
+
+	// tasks.forEach(function (task) {
+	// 	task(taskExecuted);
+	// });
+
+	async.parallelLimit(tasks, 10, function (err) {
+		return callback (executionFailures ? {message: 'some tasks failed during execution'} : null);
 	});
 
-	return callback (executionFailures ? {message: 'some tasks failed during execution'} : null);
 
 	function taskExecuted(err, state, data) {
 		if (err) {
@@ -80,7 +92,7 @@ var scheduler = {
 
 				execute(tasks, function (err) {
 					// all executed
-					setTimeout(schedulerLoop, config.scheduler.timeout);
+					setTimeout(schedulerLoop, config.collector.schedulerRestart);
 				});
 			});
 		};
