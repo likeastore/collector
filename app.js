@@ -12,7 +12,7 @@ require('nodefly').profile(
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var config = require('likeastore-config');
+var config = require('./config');
 
 var app = express();
 var engine = require('./source/engine').create();

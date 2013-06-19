@@ -1,6 +1,6 @@
 var request = require('request');
 var logger = require('./../../utils/logger');
-var config = require('likeastore-config');
+var config = require('../../../config');
 var moment = require('moment');
 var util = require('util');
 

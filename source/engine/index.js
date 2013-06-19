@@ -4,7 +4,7 @@ var moment = require('moment');
 var tasksBuilder = require('./tasks/builder');
 var networks = require('./../db/networks');
 var logger = require('./../utils/logger');
-var config = require('likeastore-config');
+var config = require('../../config');
 
 function createEngine() {
 	var started, finished;
