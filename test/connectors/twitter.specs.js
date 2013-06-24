@@ -1,13 +1,13 @@
 var expect = require('chai').expect;
 var nock = require('nock');
 var rewire = require('rewire');
-var loggerFake = require('./fakes/logger');
+var loggerFake = require('../fakes/logger');
 
 describe('engine/connectors/twitter.js', function () {
 	var state, connector;
 
 	beforeEach(function () {
-		connector = rewire('./../source/engine/connectors/twitter');
+		connector = rewire('../../source/engine/connectors/twitter');
 		connector.__set__('logger', loggerFake);
 	});
 
@@ -113,10 +113,6 @@ describe('engine/connectors/twitter.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('initialize sinceId with first retrieved favorite id', function () {
 						expect(updatedState.sinceId).to.equal('332570459445018627');
 					});
@@ -162,10 +158,6 @@ describe('engine/connectors/twitter.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('initialize sinceId with first retrieved favorite id', function () {
 						expect(updatedState.sinceId).to.equal('332542318055919615');
 					});
@@ -212,10 +204,6 @@ describe('engine/connectors/twitter.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('removes maxId from state', function () {
 						expect(updatedState.maxId).to.not.be.ok;
 					});
@@ -258,10 +246,6 @@ describe('engine/connectors/twitter.js', function () {
 			});
 
 			describe ('updates state', function () {
-				it ('with lastExecution', function () {
-					expect(updatedState.lastExecution).to.be.ok;
-				});
-
 				it('still in normal mode', function () {
 					expect(updatedState.mode).to.equal('normal');
 				});
@@ -272,6 +256,12 @@ describe('engine/connectors/twitter.js', function () {
 			});
 
 			describe('when meeting rate limit', function () {
+				var rateLimitToStop;
+
+				beforeEach(function () {
+					rateLimitToStop = 1;
+				});
+
 				beforeEach(function () {
 					state = {
 						userId: 'userId',
@@ -287,7 +277,7 @@ describe('engine/connectors/twitter.js', function () {
 				beforeEach(function (done) {
 					nock('https://api.twitter.com')
 						.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&since_id=332570459445018627')
-						.reply(200, [], {'x-rate-limit-remaining': 0});
+						.reply(200, [], {'x-rate-limit-remaining': rateLimitToStop});
 
 					connector(state, function (err, state, favorites) {
 						updatedState = state;
@@ -297,8 +287,34 @@ describe('engine/connectors/twitter.js', function () {
 					});
 				});
 
-				it ('should set rate limit exceed flag', function () {
-					expect(updatedState.rateLimitExceed).to.equal(true);
+				it ('should set rate limit exceed mode', function () {
+					expect(updatedState.mode).to.equal('rateLimit');
+				});
+
+				it ('should store previous state', function () {
+					expect(updatedState.prevMode).to.equal('normal');
+				});
+
+				describe('and run in rateLimit state', function () {
+					var updatedUpdatedState;
+
+					beforeEach(function (done) {
+						nock('https://api.twitter.com')
+							.defaultReplyHeaders({'x-rate-limit-remaining': 100})
+							.get('/1.1/favorites/list.json?screen_name=fakeTwitterUser&count=200&include_entities=false&since_id=332570459445018627')
+							.replyWithFile(200, __dirname + '/replies/twitter.connector.normal.json');
+
+						connector(updatedState, function (err, state, favorites) {
+							updatedUpdatedState = state;
+							returnedFavorites = favorites;
+
+							done();
+						});
+					});
+
+					it ('should go back to previous mode', function () {
+						expect(updatedUpdatedState.mode).to.equal('normal');
+					});
 				});
 			});
 		});

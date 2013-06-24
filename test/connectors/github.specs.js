@@ -1,13 +1,13 @@
 var expect = require('chai').expect;
 var nock = require('nock');
 var rewire = require('rewire');
-var loggerFake = require('./fakes/logger');
+var loggerFake = require('../fakes/logger');
 
 describe('engine/connectors/github.js', function () {
 	var state, connector;
 
 	beforeEach(function () {
-		connector = rewire('./../source/engine/connectors/github');
+		connector = rewire('../../source/engine/connectors/github');
 		connector.__set__('logger', loggerFake);
 	});
 
@@ -91,10 +91,6 @@ describe('engine/connectors/github.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('with next page', function () {
 						expect(updatedState.page).to.equal(2);
 					});
@@ -140,10 +136,6 @@ describe('engine/connectors/github.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('with next page', function () {
 						expect(updatedState.page).to.equal(3);
 					});
@@ -185,10 +177,6 @@ describe('engine/connectors/github.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('removes page from state', function () {
 						expect(updatedState.page).to.not.be.ok;
 					});
@@ -230,10 +218,6 @@ describe('engine/connectors/github.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('still in normal mode', function () {
 						expect(updatedState.mode).to.equal('normal');
 					});
@@ -271,10 +255,6 @@ describe('engine/connectors/github.js', function () {
 				});
 
 				describe ('updates state', function () {
-					it ('with lastExecution', function () {
-						expect(updatedState.lastExecution).to.be.ok;
-					});
-
 					it('still in normal mode', function () {
 						expect(updatedState.mode).to.equal('normal');
 					});
@@ -286,6 +266,12 @@ describe('engine/connectors/github.js', function () {
 			});
 
 			describe('when meeting rate limit', function () {
+				var rateLimitToStop;
+
+				beforeEach(function () {
+					rateLimitToStop = 1;
+				});
+
 				beforeEach(function () {
 					state = {
 						userId: 'userId',
@@ -300,7 +286,7 @@ describe('engine/connectors/github.js', function () {
 				beforeEach(function (done) {
 					nock('https://api.github.com')
 						.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
-						.reply(200, [], { 'x-ratelimit-remaining': 0});
+						.reply(200, [], { 'x-ratelimit-remaining': rateLimitToStop});
 
 					connector(state, function (err, state, stars) {
 						updatedState = state;
@@ -311,7 +297,33 @@ describe('engine/connectors/github.js', function () {
 				});
 
 				it ('should set rate limit exceed flag', function () {
-					expect(updatedState.rateLimitExceed).to.equal(true);
+					expect(updatedState.mode).to.equal('rateLimit');
+				});
+
+				it ('should store previous state', function () {
+					expect(updatedState.prevMode).to.equal('normal');
+				});
+
+				describe('and run in rateLimit state', function () {
+					var updatedUpdatedState;
+
+					beforeEach(function (done) {
+						nock('https://api.github.com')
+							.defaultReplyHeaders({ 'x-ratelimit-remaining': 100})
+							.get('/users/fakeGithubUser/starred?access_token=fakeAccessToken&per_page=100')
+							.replyWithFile(200, __dirname + '/replies/github.connector.normal.new.json');
+
+						connector(updatedState, function (err, state, stars) {
+							updatedUpdatedState = state;
+							returnedStars = stars;
+
+							done();
+						});
+					});
+
+					it ('should go back to previous mode', function () {
+						expect(updatedUpdatedState.mode).to.equal('normal');
+					});
 				});
 			});
 		});

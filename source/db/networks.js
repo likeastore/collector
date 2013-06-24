@@ -1,7 +1,7 @@
 var db = require('./dbConnector').db;
 
 module.exports = {
-	all: function (callback) {
+	findAll: function (callback) {
 		return db.networks.find({}, callback);
 	},
 

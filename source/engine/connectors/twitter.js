@@ -1,11 +1,11 @@
 var request = require('request');
 var logger = require('./../../utils/logger');
-var config = require('likeastore-config');
+var config = require('../../../config');
 var moment = require('moment');
+var scheduleTo = require('../scheduleTo');
 var util = require('util');
 
 var helpers = require('./../../utils/helpers');
-var stater = require('./../../utils/stater');
 
 var API = 'https://api.twitter.com/1.1';
 
@@ -63,8 +63,8 @@ function connector(state, callback) {
 			state.mode = 'initial';
 		}
 
-		if (state.rateLimitExceed) {
-			delete state.rateLimitExceed;
+		if (state.mode === 'rateLimit') {
+			state.mode = state.prevMode;
 		}
 	}
 
@@ -72,91 +72,55 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-rate-limit-remaining'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
-		if (rateLimit === 0 || isNaN(rateLimit)) {
-			state.rateLimitExceed = true;
-			log.warning({message: 'rate limit exceeed', state: state});
+		if (Array.isArray(body)) {
+			var favorites = body.map(function (fav) {
+				return {
+					itemId: fav.id_str,
+					userId: state.userId,
+					date: moment(fav.created_at).format(),
+					description: fav.text,
+					avatarUrl: fav.user.profile_image_url,
+					authorName: fav.user.screen_name,
+					source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
+					retweets: fav.retweet_count,
+					favorites: fav.favorite_count,
+					type: 'twitter'
+				};
+			});
+
+			log.info('retrieved ' + favorites.length + ' favorites');
+
+			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		if (!Array.isArray(body)) {
-			if (state.rateLimitExceed) {
-				logger.error({message: 'Unexpected response in rateLimitExceed mode (should not be possible)'});
-			}
-
-			return callback({ message: 'Unexpected response type', body: body, state: state});
-		}
-
-		state.lastestResponse = body;
-
-		var favorites = body.map(function (fav) {
-			return {
-				itemId: fav.id_str,
-				userId: state.userId,
-				date: moment(fav.created_at).format(),
-				description: fav.text,
-				avatarUrl: fav.user.profile_image_url,
-				authorName: fav.user.screen_name,
-				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
-				retweets: fav.retweet_count,
-				favorites: fav.favorite_count,
-				type: 'twitter'
-			};
-		});
-
-		log.info('retrieved ' + favorites.length + ' favorites');
-
-		return callback(null, updateState(state, favorites), favorites);
+		return callback({message: 'unexpected response', body: body}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
-	function updateState(state, favorites) {
-		var stateChanges = [
-			// last execution
-			{
-				condition: function (state, data) {
-					return true;
-				},
-				apply: function (state, data) {
-					state.lastExecution = moment().format();
-				}
-			},
-			// intialize sinceId
-			{
-				condition: function (state, data) {
-					return state.mode === 'initial' && data.length > 0 && !state.sinceId;
-				},
-				apply: function (state, data) {
-					state.sinceId = data[0].itemId;
-				}
-			},
-			// store sinceId
-			{
-				condition: function (state, data) {
-					return state.mode === 'normal' && data.length > 0;
-				},
-				apply: function (state, data) {
-					state.sinceId = data[0].itemId;
-				}
-			},
-			{
-				condition: function (state, data) {
-					return state.mode === 'initial' && data.length > 0;
-				},
-				apply: function (state, data) {
-					state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
-				}
-			},
-			// go to normal
-			{
-				condition: function (state, data) {
-					return state.mode === 'initial' && data.length === 0;
-				},
-				apply: function (state, data) {
-					state.mode = 'normal';
-					delete state.maxId;
-				}
-			}
-		];
+	function updateState(state, data, rateLimit) {
+		if (state.mode === 'initial' && data.length > 0 && !state.sinceId) {
+			state.sinceId = data[0].itemId;
+		}
 
-		return stater.update(state, stateChanges, favorites);
+		if (state.mode === 'normal' && data.length > 0) {
+			state.sinceId = data[0].itemId;
+		}
+
+		if (state.mode === 'initial' && data.length > 0) {
+			state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
+		}
+
+		if (state.mode === 'initial' && data.length === 0) {
+			state.mode = 'normal';
+			delete state.maxId;
+		}
+
+		if (rateLimit <= 1) {
+			var currentState = state.mode;
+			state.mode = 'rateLimit';
+			state.prevMode = currentState;
+		}
+
+		return state;
 	}
 }
 

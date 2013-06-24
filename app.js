@@ -1,12 +1,12 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var config = require('likeastore-config');
+var config = require('./config');
 
 var app = express();
-var engine = require('./source/engine').create();
-
 var logger = require('./source/utils/logger');
+var connectors = require('./source/engine/connectors');
+var scheduler = require('./source/engine/scheduler');
 
 process.on('uncaughtException', function (err) {
 	logger.error({msg:'Uncaught exception', error:err, stack:err.stack});
@@ -32,5 +32,5 @@ http.createServer(app).listen(app.get('port'), function() {
 	var env = process.env.NODE_ENV || 'development';
 	logger.success("likeastore-collector listening on port " + app.get('port') + ' ' + env + ' mongodb: ' + config.connection);
 
-	engine.start();
+	scheduler.run(connectors);
 });
