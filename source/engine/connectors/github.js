@@ -60,33 +60,31 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.userId);
 
-		if (!Array.isArray(body)) {
-			return callback({ message: 'Unexpected response type', body: body, state: state});
+		if (Array.isArray(body)) {
+			var stars = body.map(function (r) {
+				return {
+					itemId: r.id.toString(),
+					idInt: r.id,
+					userId: state.userId,
+					name: r.full_name,
+					authorName: r.owner.login,
+					authorUrl: r.owner.html_url,
+					authorGravatar: r.owner.gravatar_id,
+					avatarUrl: 'http://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
+					source: r.html_url,
+					date: moment(r.created_at).format(),
+					description: r.description,
+					type: 'github'
+				};
+			});
+
+			var newStars = filterNewStars(stars);
+			log.info('retrieved ' + newStars.length + ' new stars');
+
+			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), newStars);
 		}
 
-		state.lastestResponse = body;
-
-		var stars = body.map(function (r) {
-			return {
-				itemId: r.id.toString(),
-				idInt: r.id,
-				userId: state.userId,
-				name: r.full_name,
-				authorName: r.owner.login,
-				authorUrl: r.owner.html_url,
-				authorGravatar: r.owner.gravatar_id,
-				avatarUrl: 'http://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
-				source: r.html_url,
-				date: moment(r.created_at).format(),
-				description: r.description,
-				type: 'github'
-			};
-		});
-
-		var newStars = filterNewStars(stars);
-		log.info('retrieved ' + newStars.length + ' new stars');
-
-		return callback(null, scheduleTo(updateState(state, stars, rateLimit)), newStars);
+		return callback({ message: 'Unexpected response type', body: body, state: state}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
 	function filterNewStars (stars) {
@@ -117,7 +115,7 @@ function connector(state, callback) {
 			delete state.page;
 		}
 
-		if (rateLimit === 1) {
+		if (rateLimit <= 1) {
 			var currentState = state.mode;
 			state.mode = 'rateLimit';
 			state.prevMode = currentState;

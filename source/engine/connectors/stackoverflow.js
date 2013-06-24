@@ -72,30 +72,28 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(body, rateLimit) {
-		if (!Array.isArray(body.questions)) {
-			return callback({ message: 'Unexpected response type', body: body, state: state});
+		if (Array.isArray(body.questions)) {
+			var favorites = body.questions.map(function (fav) {
+				return {
+					itemId: fav.question_id.toString(),
+					userId: state.userId,
+					dateInt: fav.creation_date,
+					date: moment.unix(fav.creation_date).format(),
+					description: fav.title,
+					authorName: fav.owner.display_name,
+					avatarUrl: 'http://gravatar.com/avatar/' + fav.owner.email_hash + '?d=mm',
+					source: 'http://stackoverflow.com/questions/' + fav.question_id,
+					favorites: fav.favorite_count,
+					type: 'stackoverflow'
+				};
+			});
+
+			log.info('retrieved ' + favorites.length + ' favorites');
+
+			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		state.lastestResponse = body;
-
-		var favorites = body.questions.map(function (fav) {
-			return {
-				itemId: fav.question_id.toString(),
-				userId: state.userId,
-				dateInt: fav.creation_date,
-				date: moment.unix(fav.creation_date).format(),
-				description: fav.title,
-				authorName: fav.owner.display_name,
-				avatarUrl: 'http://gravatar.com/avatar/' + fav.owner.email_hash + '?d=mm',
-				source: 'http://stackoverflow.com/questions/' + fav.question_id,
-				favorites: fav.favorite_count,
-				type: 'stackoverflow'
-			};
-		});
-
-		log.info('retrieved ' + favorites.length + ' favorites');
-
-		return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
+		return callback({ message: 'Unexpected response type', body: body, state: state}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
 	function updateState(state, data, rateLimit) {
@@ -116,7 +114,7 @@ function connector(state, callback) {
 			state.fromdate = data[0].dateInt + 1;
 		}
 
-		if (rateLimit === 1) {
+		if (rateLimit <= 1) {
 			var currentState = state.mode;
 			state.mode = 'rateLimit';
 			state.prevMode = currentState;

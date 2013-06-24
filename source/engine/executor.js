@@ -41,7 +41,6 @@ function executor(state, connectors, callback) {
 			items.update(results, callback);
 		}
 	}
-
 }
 
 module.exports = executor;

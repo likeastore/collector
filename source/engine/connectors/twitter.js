@@ -72,28 +72,28 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-rate-limit-remaining'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
 
-		if (!Array.isArray(body)) {
-			return callback({ message: 'Unexpected response type', body: body, state: state});
+		if (Array.isArray(body)) {
+			var favorites = body.map(function (fav) {
+				return {
+					itemId: fav.id_str,
+					userId: state.userId,
+					date: moment(fav.created_at).format(),
+					description: fav.text,
+					avatarUrl: fav.user.profile_image_url,
+					authorName: fav.user.screen_name,
+					source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
+					retweets: fav.retweet_count,
+					favorites: fav.favorite_count,
+					type: 'twitter'
+				};
+			});
+
+			log.info('retrieved ' + favorites.length + ' favorites');
+
+			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		var favorites = body.map(function (fav) {
-			return {
-				itemId: fav.id_str,
-				userId: state.userId,
-				date: moment(fav.created_at).format(),
-				description: fav.text,
-				avatarUrl: fav.user.profile_image_url,
-				authorName: fav.user.screen_name,
-				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
-				retweets: fav.retweet_count,
-				favorites: fav.favorite_count,
-				type: 'twitter'
-			};
-		});
-
-		log.info('retrieved ' + favorites.length + ' favorites');
-
-		return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
+		return callback({message: 'unexpected response', body: body}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
 	function updateState(state, data, rateLimit) {
@@ -114,7 +114,7 @@ function connector(state, callback) {
 			delete state.maxId;
 		}
 
-		if (rateLimit === 1) {
+		if (rateLimit <= 1) {
 			var currentState = state.mode;
 			state.mode = 'rateLimit';
 			state.prevMode = currentState;
