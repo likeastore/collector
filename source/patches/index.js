@@ -12,6 +12,7 @@ var runner = {
 			delete network.lastExecution;
 			delete network.quotas;
 			delete network.scheduleTo;
+			delete network.lastestResponse;
 
 			network.mode = 'initial';
 

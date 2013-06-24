@@ -34,11 +34,5 @@ http.createServer(app).listen(app.get('port'), function() {
 	var env = process.env.NODE_ENV || 'development';
 	logger.success("likeastore-collector listening on port " + app.get('port') + ' ' + env + ' mongodb: ' + config.connection);
 
-	patches.run(function (err) {
-		if (err) {
-			logger.error('patches failed');
-		}
-
-		logger.success('patches success');
-	});
+	scheduler.run(connectors);
 });

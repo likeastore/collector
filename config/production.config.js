@@ -46,15 +46,15 @@ var config = {
 		// initial mode quotes
 		quotes: {
 			github: {
-				requestsPerMinute: 15
+				runAfter: 15
 			},
 
 			twitter: {
-				requestsPerMinute: 1
+				runAfter: 1
 			},
 
 			stackoverflow: {
-				requestsPerMinute: 15
+				runAfter: 15
 			}
 		}
 	}
