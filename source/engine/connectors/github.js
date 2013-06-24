@@ -2,7 +2,7 @@ var request = require('request');
 var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
-
+var scheduleTo = require('../scheduleTo');
 var helpers = require('./../../utils/helpers');
 
 var API = 'https://api.github.com';
@@ -86,7 +86,7 @@ function connector(state, callback) {
 		var newStars = filterNewStars(stars);
 		log.info('retrieved ' + newStars.length + ' new stars');
 
-		return callback(null, updateState(state, stars, rateLimit), newStars);
+		return callback(null, scheduleTo(updateState(state, stars, rateLimit)), newStars);
 	}
 
 	function filterNewStars (stars) {
@@ -122,7 +122,6 @@ function connector(state, callback) {
 			state.mode = 'rateLimit';
 			state.prevMode = currentState;
 		}
-
 
 		return state;
 	}

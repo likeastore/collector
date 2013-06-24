@@ -3,6 +3,7 @@ var zlib = require('zlib');
 var MemoryStream = require('memstream').MemoryStream;
 var logger = require('./../../utils/logger');
 var moment = require('moment');
+var scheduleTo = require('../scheduleTo');
 var util = require('util');
 
 var helpers = require('./../../utils/helpers');
@@ -94,7 +95,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites');
 
-		return callback(null, updateState(state, favorites, rateLimit), favorites);
+		return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 	}
 
 	function updateState(state, data, rateLimit) {

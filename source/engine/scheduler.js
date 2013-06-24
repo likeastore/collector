@@ -6,8 +6,10 @@ var networks = require('../db/networks');
 var logger = require('../utils/logger');
 var config = require('../../config');
 
+var PARALLEL_EXECUTION_LIMIT = 32;
+
 function allowedToExecute (state, currentMoment) {
-	return currentMoment.diff(state.scheduledTo) > 0;
+	return (state.scheduledTo && currentMoment.diff(state.scheduledTo) > 0) || true;
 }
 
 function schedule(states, connectors) {
@@ -33,55 +35,12 @@ function schedule(states, connectors) {
 	}
 }
 
-function storeState (state, callback) {
-	networks.update(state, callback);
-}
-
-function storeData (data, callback) {
-	items.update(data, callback);
-}
-
 function execute(tasks, callback) {
 	logger.info('currently allowed to execute: ' + tasks.length);
 
-	var executionFailures = false;
-
-	// tasks.forEach(function (task) {
-	// 	task(taskExecuted);
-	// });
-
-	async.parallelLimit(tasks, 10, function (err) {
-		return callback (executionFailures ? {message: 'some tasks failed during execution'} : null);
+	async.parallelLimit(tasks, PARALLEL_EXECUTION_LIMIT, function (err) {
+		return callback ({message: 'tasks execution error', error: err});
 	});
-
-
-	function taskExecuted(err, state, data) {
-		if (err) {
-			logger.error({message: 'task executed with error', error: err});
-		}
-
-		if (!state || !data) {
-			return;
-		}
-
-		storeState(state, stateStored);
-
-		function stateStored(err) {
-			if (err) {
-				executionFailures = true;
-				logger.error({message: 'storing state failed', state: state});
-			}
-
-			storeData(data, dataStored);
-		}
-
-		function dataStored(err, result) {
-			if (err) {
-				executionFailures = true;
-				logger.error({message: 'storing items failed', state: state});
-			}
-		}
-	}
 }
 
 var scheduler = {
@@ -89,15 +48,12 @@ var scheduler = {
 		var schedulerLoop = function () {
 			networks.findAll(function (err, states) {
 				var tasks = schedule(states, connectors);
-
 				execute(tasks, function (err) {
-					// all executed
 					setTimeout(schedulerLoop, config.collector.schedulerRestart);
 				});
 			});
 		};
 
-		// start scheduler
 		schedulerLoop();
 	}
 };
