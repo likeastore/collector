@@ -7,6 +7,7 @@ var app = express();
 var logger = require('./source/utils/logger');
 var connectors = require('./source/engine/connectors');
 var scheduler = require('./source/engine/scheduler');
+var patches = require('./source/patches');
 
 process.on('uncaughtException', function (err) {
 	logger.error({msg:'Uncaught exception', error:err, stack:err.stack});
@@ -28,9 +29,16 @@ app.configure('development', function(){
 	app.use(express.errorHandler());
 });
 
+
 http.createServer(app).listen(app.get('port'), function() {
 	var env = process.env.NODE_ENV || 'development';
 	logger.success("likeastore-collector listening on port " + app.get('port') + ' ' + env + ' mongodb: ' + config.connection);
 
-	scheduler.run(connectors);
+	patches.run(function (err) {
+		if (err) {
+			logger.error('patches failed');
+		}
+
+		logger.success('patches success');
+	});
 });

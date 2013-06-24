@@ -14,5 +14,9 @@ module.exports = {
 			query: { _id: obj._id },
 			update: obj
 		}, callback);
+	},
+
+	stream: function () {
+		return db.networks.find({});
 	}
 };
