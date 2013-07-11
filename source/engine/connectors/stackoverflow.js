@@ -8,7 +8,7 @@ var util = require('util');
 
 var helpers = require('./../../utils/helpers');
 
-var API = 'http://api.stackoverflow.com/1.1';
+var API = 'https://api.stackexchange.com/2.1';
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
