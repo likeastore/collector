@@ -12,7 +12,6 @@ var API = 'https://api.twitter.com/1.1';
 function connector(state, callback) {
 	var accessToken = state.accessToken;
 	var accessTokenSecret = state.accessTokenSecret;
-	var username = state.username;
 	var log = logger.connector('twitter');
 
 	if (!accessToken) {
@@ -23,13 +22,9 @@ function connector(state, callback) {
 		return callback('missing accessTokenSecret for user: ' + state.userId);
 	}
 
-	if (!username) {
-		return callback('missing username for user: ' + state.userId);
-	}
-
 	initState(state);
 
-	var uri = formatRequestUri(username, state);
+	var uri = formatRequestUri(state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	var oauth = {
@@ -49,8 +44,8 @@ function connector(state, callback) {
 		return handleResponse(response, body);
 	});
 
-	function formatRequestUri(username, state) {
-		var base = util.format('%s/favorites/list.json?screen_name=%s&count=200&include_entities=false', API, username);
+	function formatRequestUri(state) {
+		var base = util.format('%s/favorites/list.json?count=200&include_entities=false', API);
 		return state.maxId ?
 			util.format('%s&max_id=%s', base, state.maxId) :
 			state.mode === 'normal' && state.sinceId ?

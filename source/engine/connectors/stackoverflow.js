@@ -11,13 +11,8 @@ var helpers = require('./../../utils/helpers');
 var API = 'http://api.stackoverflow.com/1.1';
 
 function connector(state, callback) {
-	var username = state.username;
 	var accessToken = state.accessToken;
 	var log = logger.connector('stackoverflow');
-
-	if (!username) {
-		return callback('missing username for user: ' + state.userId);
-	}
 
 	if (!accessToken) {
 		return callback('missing accessToken for user: ' + state.userId);
@@ -27,7 +22,7 @@ function connector(state, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode.');
 
-	var uri = formatRequestUri(username, accessToken, state);
+	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip', 'User-Agent': 'likeastore/collector'};
 
 	var response;
@@ -62,8 +57,8 @@ function connector(state, callback) {
 		}
 	}
 
-	function formatRequestUri(username, accessToken, state) {
-		var base = util.format('%s/users/%s/favorites?access_token=%s&pagesize=100&sort=creation', API, username, accessToken);
+	function formatRequestUri(accessToken, state) {
+		var base = util.format('%s/users/me/favorites?access_token=%s&pagesize=100&sort=creation', API, accessToken);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			state.mode === 'normal' ?

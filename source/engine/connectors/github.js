@@ -9,22 +9,17 @@ var API = 'https://api.github.com';
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
-	var username = state.username;
 	var log = logger.connector('github');
 
 	if (!accessToken) {
 		return callback('missing accessToken for user: ' + state.userId);
 	}
 
-	if (!username) {
-		return callback('missing username for user: ' + state.userId);
-	}
-
 	initState(state);
 
 	log.info('prepearing request in (' + state.mode + ') mode.');
 
-	var uri = formatRequestUri(username, accessToken, state);
+	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
@@ -49,8 +44,8 @@ function connector(state, callback) {
 		}
 	}
 
-	function formatRequestUri(username, accessToken, state) {
-		var base = util.format('%s/users/%s/starred?access_token=%s&per_page=100', API, username, accessToken);
+	function formatRequestUri(accessToken, state) {
+		var base = util.format('%s/user/starred?access_token=%s&per_page=100', API, accessToken);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			base;
