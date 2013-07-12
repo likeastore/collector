@@ -12,7 +12,7 @@ function connector(state, callback) {
 	var log = logger.connector('github');
 
 	if (!accessToken) {
-		return callback('missing accessToken for user: ' + state.userId);
+		return callback('missing accessToken for user: ' + state.user);
 	}
 
 	initState(state);
@@ -53,14 +53,14 @@ function connector(state, callback) {
 
 	function handleResponse(response, body) {
 		var rateLimit = +response.headers['x-ratelimit-remaining'];
-		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.userId);
+		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
 		if (Array.isArray(body)) {
 			var stars = body.map(function (r) {
 				return {
 					itemId: r.id.toString(),
 					idInt: r.id,
-					userId: state.userId,
+					user: state.user,
 					name: r.full_name,
 					authorName: r.owner.login,
 					authorUrl: r.owner.html_url,
@@ -78,6 +78,8 @@ function connector(state, callback) {
 
 			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), newStars);
 		}
+
+		console.log(typeof body);
 
 		return callback({ message: 'Unexpected response type', body: body, state: state}, scheduleTo(updateState(state, [], rateLimit)));
 	}

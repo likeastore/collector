@@ -1,5 +1,6 @@
 var request = require('request');
 var zlib = require('zlib');
+var config = require('../../../config');
 var MemoryStream = require('memstream').MemoryStream;
 var logger = require('./../../utils/logger');
 var moment = require('moment');
@@ -15,7 +16,7 @@ function connector(state, callback) {
 	var log = logger.connector('stackoverflow');
 
 	if (!accessToken) {
-		return callback('missing accessToken for user: ' + state.userId);
+		return callback('missing accessToken for user: ' + state.user);
 	}
 
 	initState(state);
@@ -25,22 +26,21 @@ function connector(state, callback) {
 	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip', 'User-Agent': 'likeastore/collector'};
 
-	var response;
 	var unzippedResponse = '';
 	var stream = new MemoryStream(function (buffer) {
 		unzippedResponse += buffer;
 	}).on('end', function () {
-		var rateLimit = +response.headers['x-ratelimit-current'];
-		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
+		var response = JSON.parse(unzippedResponse);
+		var rateLimit = +response.quota_remaining;
+		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.user);
 
-		return handleResponse(JSON.parse(unzippedResponse), rateLimit);
+		return handleResponse(response, rateLimit);
 	});
 
 	request({uri: uri, headers: headers}, function (err, res) {
 		if (err) {
 			return callback(err);
 		}
-		response = res;
 	}).pipe(zlib.createGunzip()).pipe(stream);
 
 	function initState(state) {
@@ -58,7 +58,7 @@ function connector(state, callback) {
 	}
 
 	function formatRequestUri(accessToken, state) {
-		var base = util.format('%s/users/me/favorites?access_token=%s&pagesize=100&sort=creation', API, accessToken);
+		var base = util.format('%s/me/favorites?access_token=%s&key=%s&pagesize=100&sort=creation&site=stackoverflow', API, accessToken, config.services.stackoverflow.clientKey);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			state.mode === 'normal' ?
@@ -67,11 +67,11 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(body, rateLimit) {
-		if (Array.isArray(body.questions)) {
-			var favorites = body.questions.map(function (fav) {
+		if (Array.isArray(body.items)) {
+			var favorites = body.items.map(function (fav) {
 				return {
 					itemId: fav.question_id.toString(),
-					userId: state.userId,
+					user: state.user,
 					dateInt: fav.creation_date,
 					date: moment.unix(fav.creation_date).format(),
 					description: fav.title,

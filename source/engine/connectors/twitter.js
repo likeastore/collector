@@ -15,11 +15,11 @@ function connector(state, callback) {
 	var log = logger.connector('twitter');
 
 	if (!accessToken) {
-		return callback('missing accessToken for user: ' + state.userId);
+		return callback('missing accessToken for user: ' + state.user);
 	}
 
 	if (!accessTokenSecret) {
-		return callback('missing accessTokenSecret for user: ' + state.userId);
+		return callback('missing accessTokenSecret for user: ' + state.user);
 	}
 
 	initState(state);
@@ -65,13 +65,13 @@ function connector(state, callback) {
 
 	function handleResponse(response, body) {
 		var rateLimit = +response.headers['x-rate-limit-remaining'];
-		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.userId);
+		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.user);
 
 		if (Array.isArray(body)) {
 			var favorites = body.map(function (fav) {
 				return {
 					itemId: fav.id_str,
-					userId: state.userId,
+					user: state.user,
 					date: moment(fav.created_at).format(),
 					description: fav.text,
 					avatarUrl: fav.user.profile_image_url,
