@@ -21,7 +21,7 @@ function schedule(states, connectors) {
 	logger.info('recieved ' + states.length + ' services states');
 
 	var tasks = states.map(function (state) {
-		return allowedToExecute(state, currentMoment) ? task(state) : null;
+		return !state.skip && allowedToExecute(state, currentMoment) ? task(state) : null;
 	}).filter(function (task) {
 		return task !== null;
 	});

@@ -72,13 +72,11 @@ function connector(state, callback) {
 				return {
 					itemId: fav.id_str,
 					user: state.user,
-					date: moment(fav.created_at).format(),
+					date: moment(fav.created_at).toDate(),
 					description: fav.text,
 					avatarUrl: fav.user.profile_image_url,
 					authorName: fav.user.screen_name,
 					source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
-					retweets: fav.retweet_count,
-					favorites: fav.favorite_count,
 					type: 'twitter'
 				};
 			});

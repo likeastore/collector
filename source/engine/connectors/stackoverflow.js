@@ -2,12 +2,11 @@ var request = require('request');
 var zlib = require('zlib');
 var config = require('../../../config');
 var MemoryStream = require('memstream').MemoryStream;
-var logger = require('./../../utils/logger');
+var logger = require('../../utils/logger');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
 var util = require('util');
-
-var helpers = require('./../../utils/helpers');
+var helpers = require('../../utils/helpers');
 
 var API = 'https://api.stackexchange.com/2.1';
 
@@ -58,12 +57,10 @@ function connector(state, callback) {
 	}
 
 	function formatRequestUri(accessToken, state) {
-		var base = util.format('%s/me/favorites?access_token=%s&key=%s&pagesize=100&sort=creation&site=stackoverflow', API, accessToken, config.services.stackoverflow.clientKey);
+		var base = util.format('%s/me/favorites?access_token=%s&key=%s&pagesize=100&sort=activity&order=desc&site=stackoverflow', API, accessToken, config.services.stackoverflow.clientKey);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
-			state.mode === 'normal' ?
-				util.format('%s&fromdate=%s', base, state.fromdate) :
-				base;
+			base;
 	}
 
 	function handleResponse(body, rateLimit) {
@@ -71,14 +68,14 @@ function connector(state, callback) {
 			var favorites = body.items.map(function (fav) {
 				return {
 					itemId: fav.question_id.toString(),
+					idInt: fav.question_id,
 					user: state.user,
 					dateInt: fav.creation_date,
-					date: moment.unix(fav.creation_date).format(),
+					date: moment.unix(fav.creation_date).toDate(),
 					description: fav.title,
 					authorName: fav.owner.display_name,
-					avatarUrl: 'http://gravatar.com/avatar/' + fav.owner.email_hash + '?d=mm',
+					avatarUrl: fav.owner.profile_image,
 					source: 'http://stackoverflow.com/questions/' + fav.question_id,
-					favorites: fav.favorite_count,
 					type: 'stackoverflow'
 				};
 			});
@@ -92,10 +89,6 @@ function connector(state, callback) {
 	}
 
 	function updateState(state, data, rateLimit) {
-		if (state.mode === 'initial' && data.length > 0 && !state.fromdate) {
-			state.fromdate = data[0].dateInt + 1;
-		}
-
 		if (state.mode === 'initial' && data.length > 0) {
 			state.page += 1;
 		}
@@ -103,10 +96,6 @@ function connector(state, callback) {
 		if (state.mode === 'initial' && data.length === 0) {
 			state.mode = 'normal';
 			delete state.page;
-		}
-
-		if (state.mode === 'normal' && data.length > 0) {
-			state.fromdate = data[0].dateInt + 1;
 		}
 
 		if (rateLimit <= 1) {

@@ -3,7 +3,7 @@ var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
 var scheduleTo = require('../scheduleTo');
-var helpers = require('./../../utils/helpers');
+var helpers = require('../../utils/helpers');
 
 var API = 'https://api.github.com';
 
@@ -67,16 +67,15 @@ function connector(state, callback) {
 					authorGravatar: r.owner.gravatar_id,
 					avatarUrl: 'http://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
 					source: r.html_url,
-					date: moment(r.created_at).format(),
+					date: moment(r.created_at).toDate(),
 					description: r.description,
 					type: 'github'
 				};
 			});
 
-			var newStars = filterNewStars(stars);
-			log.info('retrieved ' + newStars.length + ' new stars');
+			log.info('retrieved ' + stars.length + ' stars');
 
-			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), newStars);
+			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
 
 		console.log(typeof body);
@@ -84,27 +83,9 @@ function connector(state, callback) {
 		return callback({ message: 'Unexpected response type', body: body, state: state}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
-	function filterNewStars (stars) {
-		if (state.mode === 'initial') {
-			return stars;
-		}
-
-		return helpers.takeWhile(stars, function (star) {
-			return +state.sinceId < star.idInt;
-		});
-	}
-
 	function updateState(state, data, rateLimit) {
-		if (state.mode === 'initial' && data.length > 0 && !state.sinceId) {
-			state.sinceId = data[0].idInt;
-		}
-
 		if (state.mode === 'initial' && data.length > 0) {
 			state.page += 1;
-		}
-
-		if (state.mode === 'normal' && data.length > 0) {
-			state.sinceId = data[0].idInt;
 		}
 
 		if (state.mode === 'initial' && data.length === 0) {

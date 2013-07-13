@@ -37,8 +37,8 @@ var config = {
 		// scheduler cycle
 		schedulerRestart: 1000,
 
-		// after collector got to normal mode, next scheduled run in 1 mins
-		nextNormalRunAfter: 1000 * 60,
+		// after collector got to normal mode, next scheduled run in 10 sec
+		nextNormalRunAfter: 1000 * 10,
 
 		// after collector got to rateLimit mode, next scheduled run in 1 min
 		nextRateLimitRunAfter: 1000 * 60,
