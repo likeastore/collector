@@ -3,7 +3,7 @@ var nock = require('nock');
 var rewire = require('rewire');
 var loggerFake = require('../fakes/logger');
 
-describe('engine/connectors/stackoverflow.js', function () {
+xdescribe('engine/connectors/stackoverflow.js', function () {
 	var state, connector;
 
 	beforeEach(function () {
