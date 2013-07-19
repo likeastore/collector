@@ -10,7 +10,7 @@ var scheduler = require('./source/engine/scheduler');
 var patches = require('./source/patches');
 
 process.on('uncaughtException', function (err) {
-	logger.error({msg:'Uncaught exception', error:err, stack:err.stack});
+	logger.fatal({msg:'Uncaught exception', error:err, stack:err.stack});
 	console.log("Uncaught exception", err, err.stack && err.stack.toString()); //extra log, makes stack track clickable in webstorm
 });
 

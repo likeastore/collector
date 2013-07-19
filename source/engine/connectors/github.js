@@ -78,8 +78,6 @@ function connector(state, callback) {
 			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
 
-		console.log(typeof body);
-
 		return callback({ message: 'Unexpected response type', body: body, state: state}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 

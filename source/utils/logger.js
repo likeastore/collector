@@ -26,6 +26,12 @@ module.exports = {
 		log.log('err', message);
 	},
 
+	fatal: function (message) {
+		message = typeof message === 'string' ? message : JSON.stringify(message);
+		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
+		log.log('emerg', message);
+	},
+
 	info: function (message) {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(message));

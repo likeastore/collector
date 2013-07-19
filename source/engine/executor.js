@@ -34,11 +34,19 @@ function executor(state, connectors, callback) {
 		}
 
 		function saveConnectorState (state, callback) {
-			networks.update(state, callback);
+			if (state) {
+				return networks.update(state, callback);
+			}
+
+			callback (null);
 		}
 
 		function saveConnectorResults(results, callback) {
-			items.update(results, callback);
+			if (results) {
+				return items.update(results, callback);
+			}
+
+			callback (null);
 		}
 	}
 }
