@@ -73,7 +73,7 @@ function connector(state, callback) {
 					itemId: fav.id_str,
 					user: state.user,
 					created: moment(fav.created_at).toDate(),
-					date: moment().toDate,
+					date: moment().toDate(),
 					description: fav.text,
 					avatarUrl: fav.user.profile_image_url,
 					authorName: fav.user.screen_name,

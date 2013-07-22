@@ -69,7 +69,7 @@ function connector(state, callback) {
 					avatarUrl: 'http://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
 					source: r.html_url,
 					created: moment(r.created_at).toDate(),
-					date: moment().toDate,
+					date: moment().toDate(),
 					description: r.description,
 					type: 'github'
 				};
