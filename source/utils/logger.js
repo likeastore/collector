@@ -2,9 +2,12 @@ var util = require('util');
 var colors = require('colors');
 var moment = require('moment');
 var logentries = require('node-logentries');
+var config = require('../../config');
+
 var log = logentries.logger({
-	token:process.env.LOGENTRIES_TOKEN
+	token: config.logentries.token
 });
+
 log.level('info');
 
 module.exports = {

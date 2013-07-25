@@ -33,6 +33,10 @@ var config = {
 		token: '2kXX0stV1Hf56y9DYZts3A'
 	},
 
+	logentries: {
+		token: 'ee7930a7-7950-491f-b3aa-6657a928dbdb'
+	},
+
 	collector: {
 		// scheduler cycle
 		schedulerRestart: 1000,
