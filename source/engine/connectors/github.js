@@ -66,7 +66,7 @@ function connector(state, callback) {
 					authorName: r.owner.login,
 					authorUrl: r.owner.html_url,
 					authorGravatar: r.owner.gravatar_id,
-					avatarUrl: 'http://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
+					avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
 					source: r.html_url,
 					created: moment(r.created_at).toDate(),
 					date: moment().toDate(),
