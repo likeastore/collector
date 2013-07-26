@@ -75,7 +75,7 @@ function connector(state, callback) {
 					created: moment(fav.created_at).toDate(),
 					date: moment().toDate(),
 					description: fav.text,
-					avatarUrl: fav.user.profile_image_url,
+					avatarUrl: fav.user.profile_image_url_https,
 					authorName: fav.user.screen_name,
 					source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
 					type: 'twitter'
