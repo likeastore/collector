@@ -75,7 +75,7 @@ function connector(state, callback) {
 					date: moment().toDate(),
 					description: fav.title,
 					authorName: fav.owner.display_name,
-					avatarUrl: fav.owner.profile_image.replace('http', 'https'),
+					avatarUrl: fav.owner.profile_image.replace(/^http:\/\//i, 'https://'),
 					source: 'http://stackoverflow.com/questions/' + fav.question_id,
 					type: 'stackoverflow'
 				};
