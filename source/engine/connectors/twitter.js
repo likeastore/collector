@@ -34,7 +34,7 @@ function connector(state, callback) {
 		token_secret: accessTokenSecret
 	};
 
-	log.info('prepearing request in (' + state.mode + ') mode.');
+	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
 	request({uri: uri, headers: headers, oauth: oauth, json: true}, function (err, response, body) {
 		if (err) {

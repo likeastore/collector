@@ -11,7 +11,7 @@ module.exports = {
 
 		var updates = items.map(function (item) {
 			return function (callback) {
-				db.items.update({itemId: item.itemId}, item, {upsert: true}, callback);
+				db.items.update({itemId: item.itemId, user: item.user}, item, {upsert: true, safe: true}, callback);
 			};
 		});
 

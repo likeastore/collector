@@ -17,7 +17,7 @@ function connector(state, callback) {
 
 	initState(state);
 
-	log.info('prepearing request in (' + state.mode + ') mode.');
+	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
 	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
