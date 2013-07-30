@@ -87,7 +87,7 @@ function connector(state, callback) {
 			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		return callback({message: 'unexpected response', body: body}, scheduleTo(updateState(state, [], rateLimit)));
+		return callback({message: 'unexpected response', body: body, status: response.statusCode}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
 	function updateState(state, data, rateLimit) {

@@ -17,7 +17,7 @@ function allowedToExecute (state, currentMoment) {
 function schedule(states, connectors) {
 	var currentMoment = moment();
 
-	logger.info('scheduler stated at ' + currentMoment.format());
+	logger.info('scheduler stated at: ' + currentMoment.format());
 	logger.info('recieved ' + states.length + ' services states');
 
 	var tasks = states.map(function (state) {
@@ -46,7 +46,15 @@ var scheduler = {
 		var schedulerLoop = function () {
 			networks.findAll(function (err, states) {
 				var tasks = schedule(states, connectors);
+
+				var started = moment();
+
 				execute(tasks, function (err) {
+					var finished = moment();
+					var duration = moment.duration(finished.diff(started));
+
+					logger.info('collection cycle: ' + duration.asSeconds() + ' sec. (' + duration.asMinutes() + ' mins.)');
+
 					setTimeout(schedulerLoop, config.collector.schedulerRestart);
 				});
 			});
