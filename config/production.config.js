@@ -53,6 +53,10 @@ var config = {
 				runAfter: 5000
 			},
 
+			gist: {
+				runAfter: 5000
+			},
+
 			twitter: {
 				runAfter: 60000
 			},
