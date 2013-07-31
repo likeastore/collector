@@ -90,6 +90,8 @@ function connector(state, callback) {
 	}
 
 	function updateState(state, data, rateLimit) {
+		state.lastExecution = moment().toDate();
+
 		if (state.mode === 'initial' && data.length > 0) {
 			state.page += 1;
 		}

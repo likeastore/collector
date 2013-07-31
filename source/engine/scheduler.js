@@ -14,14 +14,20 @@ function allowedToExecute (state, currentMoment) {
 	return currentMoment.diff(state.scheduledTo) > 0;
 }
 
-function schedule(states, connectors) {
+function schedule(mode, states, connectors) {
 	var currentMoment = moment();
 
-	logger.info('scheduler stated at: ' + currentMoment.format());
-	logger.info('recieved ' + states.length + ' services states');
+	var selectors = {
+		initial: function (state) {
+			return !state.skip && (!state.mode || state.mode === 'initial');
+		},
+		normal: function (state) {
+			return !state.skip && state.mode === 'normal';
+		}
+	};
 
 	var tasks = states.map(function (state) {
-		return !state.skip && allowedToExecute(state, currentMoment) ? task(state) : null;
+		return selectors[mode](state) && allowedToExecute(state, currentMoment) ? task(state) : null;
 	}).filter(function (task) {
 		return task !== null;
 	});
@@ -36,16 +42,16 @@ function schedule(states, connectors) {
 function execute(tasks, callback) {
 	logger.info('currently allowed to execute: ' + tasks.length);
 
-	async.series(tasks, function (err) {
+	async.parallel(tasks, function (err) {
 		return callback ({message: 'tasks execution error', error: err});
 	});
 }
 
 var scheduler = {
-	run: function (connectors) {
+	run: function (mode, connectors) {
 		var schedulerLoop = function () {
 			networks.findAll(function (err, states) {
-				var tasks = schedule(states, connectors);
+				var tasks = schedule(mode, states, connectors);
 
 				var started = moment();
 

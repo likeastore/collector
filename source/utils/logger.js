@@ -4,6 +4,8 @@ var moment = require('moment');
 var logentries = require('node-logentries');
 var config = require('../../config');
 
+var mode = process.env.COLLECTOR_MODE;
+
 var log = logentries.logger({
 	token: config.logentries.token
 });
@@ -61,6 +63,6 @@ module.exports = {
 	},
 
 	timestamptMessage: function (message) {
-		return util.format('[%s] %s', moment(), message);
+		return util.format('[%s] [%s mode] %s', moment(), mode, message);
 	}
 };

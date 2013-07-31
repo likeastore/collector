@@ -1,38 +1,22 @@
-var express = require('express');
-var http = require('http');
-var path = require('path');
 var config = require('./config');
-
-var app = express();
 var logger = require('./source/utils/logger');
-var connectors = require('./source/engine/connectors');
-var scheduler = require('./source/engine/scheduler');
-var patches = require('./source/patches');
+var fork = require('child_process').fork;
 
-process.on('uncaughtException', function (err) {
-	logger.fatal({msg:'Uncaught exception', error:err, stack:err.stack});
-	console.log("Uncaught exception", err, err.stack && err.stack.toString()); //extra log, makes stack track clickable in webstorm
+var initial = fork('./source/collector', ['--mode', 'initial', '--id', '0']);
+var main = fork('./source/collector', ['--mode', 'normal', '--id', '1']);
+
+initial.on('error', function (err) {
+	logger.fatal({message: 'initial collector error', err: err});
 });
 
-app.configure(function(){
-	app.set('port', process.env.VCAP_APP_PORT || 3002);
-	app.set('views', __dirname + '/views');
-	app.use(express.favicon());
-	app.use(express.logger('dev'));
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	app.use(app.router);
-	app.use(express.static(path.join(__dirname, 'public')));
+initial.on('exit', function (code) {
+	logger.info({message: 'initial collector exit', code: code});
 });
 
-app.configure('development', function(){
-	app.use(express.errorHandler());
+main.on('error', function (err) {
+	logger.fatal({message: 'normal collector error', err: err});
 });
 
-
-http.createServer(app).listen(app.get('port'), function() {
-	var env = process.env.NODE_ENV || 'development';
-	logger.success("likeastore-collector listening on port " + app.get('port') + ' ' + env + ' mongodb: ' + config.connection);
-
-	scheduler.run(connectors);
+main.on('exit', function (code) {
+	logger.info({message: 'normal collector exit', code: code});
 });
