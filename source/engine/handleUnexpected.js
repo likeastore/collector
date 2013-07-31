@@ -27,7 +27,7 @@ function handleUnexpected(response, body, state, callback) {
 	}
 
 	function returnError () {
-		callback({ message: 'Unexpected response type', body: body, status: response.statusCode});
+		callback({ message: 'Unexpected body type', body: body, status: response ? response.statusCode : body.error_id});
 	}
 
 	disableNetwork(null);

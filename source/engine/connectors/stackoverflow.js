@@ -6,6 +6,7 @@ var logger = require('../../utils/logger');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
 var util = require('util');
+var handleUnexpected = require('../handleUnexpected');
 var helpers = require('../../utils/helpers');
 
 var API = 'https://api.stackexchange.com/2.1';
@@ -86,7 +87,9 @@ function connector(state, callback) {
 			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		return callback({ message: 'Unexpected response type', body: body, status: body.error_id }, scheduleTo(updateState(state, [], rateLimit)));
+		handleUnexpected(null, body, state, function (err) {
+			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		});
 	}
 
 	function updateState(state, data, rateLimit) {

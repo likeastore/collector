@@ -3,6 +3,7 @@ var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
 var scheduleTo = require('../scheduleTo');
+var handleUnexpected = require('../handleUnexpected');
 var helpers = require('../../utils/helpers');
 
 var API = 'https://api.github.com';
@@ -93,8 +94,6 @@ function connect(state, callback) {
 		handleUnexpected(response, body, state, function (err) {
 			callback(err, scheduleTo(updateState(state, [], rateLimit)));
 		});
-
-		//return callback({ message: 'Unexpected response type', body: body, status: response.statusCode}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
 	function updateState(state, data, rateLimit) {
