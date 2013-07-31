@@ -63,6 +63,6 @@ module.exports = {
 	},
 
 	timestamptMessage: function (message) {
-		return util.format('[%s] [%s mode] %s', moment(), mode, message);
+		return util.format('[%s] (%s mode) %s', moment(), mode, message);
 	}
 };
