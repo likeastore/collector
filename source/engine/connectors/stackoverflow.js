@@ -10,7 +10,11 @@ var helpers = require('../../utils/helpers');
 
 var API = 'https://api.stackexchange.com/2.1';
 
-function connector(state, callback) {
+function handle(state) {
+	return state.service === 'stackoverflow';
+}
+
+function connect(state, callback) {
 	var accessToken = state.accessToken;
 	var log = logger.connector('stackoverflow');
 
@@ -111,4 +115,7 @@ function connector(state, callback) {
 	}
 }
 
-module.exports = connector;
+module.exports = {
+	handle: handle,
+	connect: connect
+};

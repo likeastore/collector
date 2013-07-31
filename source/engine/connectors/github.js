@@ -7,7 +7,11 @@ var helpers = require('../../utils/helpers');
 
 var API = 'https://api.github.com';
 
-function connector(state, callback) {
+function handle(state) {
+	return state.service === 'github';
+}
+
+function connect(state, callback) {
 	var accessToken = state.accessToken;
 	var log = logger.connector('github');
 
@@ -105,4 +109,7 @@ function connector(state, callback) {
 	}
 }
 
-module.exports = connector;
+module.exports = {
+	handle: handle,
+	connect: connect
+};

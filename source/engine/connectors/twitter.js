@@ -9,7 +9,11 @@ var helpers = require('./../../utils/helpers');
 
 var API = 'https://api.twitter.com/1.1';
 
-function connector(state, callback) {
+function handle(state) {
+	return state.service === 'twitter';
+}
+
+function connect(state, callback) {
 	var accessToken = state.accessToken;
 	var accessTokenSecret = state.accessTokenSecret;
 	var log = logger.connector('twitter');
@@ -120,4 +124,7 @@ function connector(state, callback) {
 	}
 }
 
-module.exports = connector;
+module.exports = {
+	handle: handle,
+	connect: connect
+};
