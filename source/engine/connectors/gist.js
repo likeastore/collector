@@ -35,6 +35,10 @@ function connect(state, callback) {
 			state.mode = 'initial';
 		}
 
+		if (!state.errors) {
+			state.errors = 0;
+		}
+
 		if (state.mode === 'initial' && !state.page) {
 			state.page = 1;
 		}
@@ -86,7 +90,11 @@ function connect(state, callback) {
 			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
 
-		return callback({ message: 'Unexpected response type', body: body, status: response.statusCode}, scheduleTo(updateState(state, [], rateLimit)));
+		handleUnexpected(response, body, state, function (err) {
+			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		});
+
+		//return callback({ message: 'Unexpected response type', body: body, status: response.statusCode}, scheduleTo(updateState(state, [], rateLimit)));
 	}
 
 	function updateState(state, data, rateLimit) {
