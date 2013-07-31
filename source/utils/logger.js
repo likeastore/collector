@@ -16,31 +16,31 @@ module.exports = {
 	success: function (message) {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('SUCCESS: %s', message)).green);
-		log.log('info', message);
+		log.log('info', util.format('[%s mode] %s', mode, message));
 	},
 
 	warning: function (message) {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('WARNING: %s', message)).yellow);
-		log.log('warning', message);
+		log.log('warning', util.format('[%s mode] %s', mode, message));
 	},
 
 	error: function (message) {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
-		log.log('err', message);
+		log.log('err', util.format('[%s mode] %s', mode, message));
 	},
 
 	fatal: function (message) {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
-		log.log('emerg', message);
+		log.log('emerg', util.format('[%s mode] %s', mode, message));
 	},
 
 	info: function (message) {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(message));
-		log.log('info', message);
+		log.log('info', util.format('[%s mode] %s', mode, message));
 	},
 
 	connector: function (name) {
@@ -63,6 +63,6 @@ module.exports = {
 	},
 
 	timestamptMessage: function (message) {
-		return util.format('[%s] (%s mode) %s', moment(), mode, message);
+		return util.format('[%s] [%s mode] %s', moment(), mode, message);
 	}
 };
