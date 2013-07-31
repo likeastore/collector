@@ -1,6 +1,6 @@
 var moment = require('moment');
 var async = require('async');
-var executor = require('./executor');
+var runner = require('./runner');
 var items = require('../db/items');
 var networks = require('../db/networks');
 var logger = require('../utils/logger');
@@ -14,8 +14,12 @@ function allowedToExecute (state, currentMoment) {
 	return currentMoment.diff(state.scheduledTo) > 0;
 }
 
-function schedule(mode, states, connectors) {
+function schedule(mode, states) {
 	var currentMoment = moment();
+
+	function task(state) {
+		return function (callback) { return runner(state, callback); };
+	}
 
 	var selectors = {
 		initial: function (state) {
@@ -33,10 +37,6 @@ function schedule(mode, states, connectors) {
 	});
 
 	return tasks;
-
-	function task(state) {
-		return function (callback) { return executor (state, connectors, callback); };
-	}
 }
 
 function execute(tasks, callback) {
@@ -48,10 +48,10 @@ function execute(tasks, callback) {
 }
 
 var scheduler = {
-	run: function (mode, connectors) {
+	run: function (mode) {
 		var schedulerLoop = function () {
 			networks.findAll(function (err, states) {
-				var tasks = schedule(mode, states, connectors);
+				var tasks = schedule(mode, states);
 
 				var started = moment();
 

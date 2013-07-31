@@ -3,23 +3,21 @@ var config = require('../../config');
 var items = require('../db/items');
 var networks = require('../db/networks');
 var logger = require('../utils/logger');
+var connectors = require('./connectors');
 
-function executor(state, connectors, callback) {
-	var service = state.service;
-	var connector = connectors[service];
-
-	connector(state, connectorExecuted);
+function runner(state, callback) {
+	connectors.connect(state, connectorExecuted);
 
 	function connectorExecuted(err, state, results) {
 		if (err) {
-			logger.error({message: 'connector execution failed', connector: service, state: state, error: err});
+			logger.error({message: 'connector execution failed', state: state, error: err});
 		}
 
 		saveConnectorState(state, connectorStateSaved);
 
 		function connectorStateSaved (err) {
 			if (err) {
-				logger.error({message: 'connector save state failed', connector: service, state: state, error: err});
+				logger.error({message: 'connector save state failed', state: state, error: err});
 			}
 
 			saveConnectorResults(results, connectorResultsSaved);
@@ -27,7 +25,7 @@ function executor(state, connectors, callback) {
 
 		function connectorResultsSaved (err) {
 			if (err) {
-				logger.error({message: 'connector save items failed', connector: service, state: state, error: err});
+				logger.error({message: 'connector save items failed', state: state, error: err});
 			}
 
 			callback(null);
@@ -51,4 +49,4 @@ function executor(state, connectors, callback) {
 	}
 }
 
-module.exports = executor;
+module.exports = runner;
