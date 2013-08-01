@@ -15,6 +15,7 @@ function handleUnexpected(response, body, state, callback) {
 			return callback({message: 'Failed to notify user', err: err});
 		}
 
+		state.errors = 0;
 		state.disabled = true;
 
 		returnError();
