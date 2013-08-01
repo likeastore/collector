@@ -57,17 +57,21 @@ function connect(state, callback) {
 
 		if (Array.isArray(body)) {
 			var stars = body.map(function (r) {
-				console.log(r);
+				var user = r.user || {
+					login: 'anonymous',
+					html_url: null,
+					gravatar_id: 'anon'
+				};
 
 				return {
 					itemId: r.id.toString(),
 					idInt: r.id,
 					user: state.user,
 					repo: 'gist',
-					authorName: r.user.login,
-					authorUrl: r.user.html_url,
-					authorGravatar: r.user.gravatar_id,
-					avatarUrl: 'https://www.gravatar.com/avatar/' + r.user.gravatar_id + '?d=mm',
+					authorName: user.login,
+					authorUrl: user.html_url,
+					authorGravatar: user.gravatar_id,
+					avatarUrl: 'https://www.gravatar.com/avatar/' + user.gravatar_id + '?d=mm',
 					source: r.html_url,
 					created: moment(r.created_at).toDate(),
 					date: moment().toDate(),
