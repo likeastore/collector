@@ -42,7 +42,7 @@ function schedule(mode, states, connectors) {
 function execute(tasks, callback) {
 	logger.info('currently allowed to execute: ' + tasks.length);
 
-	async.parallel(tasks, function (err) {
+	async.series(tasks, function (err) {
 		return callback ({message: 'tasks execution error', error: err});
 	});
 }
