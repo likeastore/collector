@@ -4,6 +4,6 @@ var async = require('async');
 
 module.exports = {
 	notifyOnError: function (user, message, callback) {
-		db.users.findAndModify({user: user}, [], {$set: {message: message}}, {}, callback);
+		db.users.findAndModify({user: user}, [], {$set: {warning: true}}, {}, callback);
 	}
 };
