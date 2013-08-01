@@ -82,7 +82,7 @@ function connector(state, callback) {
 				};
 			});
 
-			log.info('retrieved ' + favorites.length + ' favorites');
+			log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
 
 			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}

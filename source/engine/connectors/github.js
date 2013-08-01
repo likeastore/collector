@@ -75,7 +75,7 @@ function connector(state, callback) {
 				};
 			});
 
-			log.info('retrieved ' + stars.length + ' stars');
+			log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
 
 			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
