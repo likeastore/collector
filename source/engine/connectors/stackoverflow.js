@@ -48,6 +48,10 @@ function connector(state, callback) {
 			state.mode = 'initial';
 		}
 
+		if (!state.errors) {
+			state.errors = 0;
+		}
+
 		if (state.mode === 'initial' && !state.page) {
 			state.page = 1;
 		}
