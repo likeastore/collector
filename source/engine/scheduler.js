@@ -19,7 +19,7 @@ function schedule(mode, states, connectors) {
 
 	var selectors = {
 		initial: function (state) {
-			return !state.skip && (!state.mode || state.mode === 'initial');
+			return !state.skip && (!state.mode || state.mode === 'initial' || state.mode === 'rateLimit');
 		},
 		normal: function (state) {
 			return !state.skip && state.mode === 'normal';
