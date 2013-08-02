@@ -38,7 +38,9 @@ function connector(state, callback) {
 
 	request({uri: uri, headers: headers, oauth: oauth, json: true}, function (err, response, body) {
 		if (err) {
-			return callback('request failed: ' + err);
+			return handleUnexpected(response, body, state, err, function (err) {
+				callback (err, state);
+			});
 		}
 
 		return handleResponse(response, body);
