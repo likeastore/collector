@@ -58,6 +58,10 @@ function connector(state, callback) {
 			state.mode = 'initial';
 		}
 
+		if (!state.errors) {
+			state.errors = 0;
+		}
+
 		if (state.mode === 'rateLimit') {
 			state.mode = state.prevMode;
 		}
@@ -87,7 +91,9 @@ function connector(state, callback) {
 			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		return callback({message: 'unexpected response', body: body, status: response.statusCode}, scheduleTo(updateState(state, [], rateLimit)));
+		handleUnexpected(response, body, state, function (err) {
+			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		});
 	}
 
 	function updateState(state, data, rateLimit) {

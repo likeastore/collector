@@ -7,6 +7,10 @@ var logger = require('../utils/logger');
 var config = require('../../config');
 
 function allowedToExecute (state, currentMoment) {
+	if (state.skip || state.disabled) {
+		return false;
+	}
+
 	if (!state.scheduledTo) {
 		return true;
 	}
@@ -19,10 +23,10 @@ function schedule(mode, states, connectors) {
 
 	var selectors = {
 		initial: function (state) {
-			return !state.skip && (!state.mode || state.mode === 'initial' || state.mode === 'rateLimit');
+			return !state.mode || state.mode === 'initial' || state.mode === 'rateLimit';
 		},
 		normal: function (state) {
-			return !state.skip && state.mode === 'normal';
+			return state.mode === 'normal';
 		}
 	};
 
