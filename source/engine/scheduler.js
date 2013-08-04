@@ -58,6 +58,11 @@ var scheduler = {
 		var schedulerLoop = function () {
 			// TODO: use streams instead toArray
 			networks.findAll(function (err, states) {
+				if (err && !states) {
+					logger.error({message: 'failed to read network states (restarting loop)', err: err});
+					setTimeout(schedulerLoop, config.collector.schedulerRestart);
+				}
+
 				var tasks = schedule(mode, states, connectors);
 
 				var started = moment();
