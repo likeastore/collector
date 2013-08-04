@@ -4,6 +4,10 @@ var items = require('../db/items');
 var networks = require('../db/networks');
 var logger = require('../utils/logger');
 
+// TODO: Thinks about to separate `request` part of collector and `store` part.. first one
+// could be easily run in paraller, second in series. Would it be any profit? I don't know
+
+// TODO: function looks complex, need to refactor it
 function executor(state, connectors, callback) {
 	var service = state.service;
 	var connector = connectors[service];

@@ -10,7 +10,7 @@ var scheduler = require('./engine/scheduler');
 
 process.on('uncaughtException', function (err) {
 	logger.fatal({msg:'Uncaught exception', error:err, stack:err.stack});
-	console.log("Uncaught exception", err, err.stack && err.stack.toString()); //extra log, makes stack track clickable in webstorm
+	console.log("Uncaught exception", err, err.stack && err.stack.toString());
 });
 
 var env = process.env.NODE_ENV;

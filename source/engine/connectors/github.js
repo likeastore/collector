@@ -33,6 +33,7 @@ function connector(state, callback) {
 		return handleResponse(response, body);
 	});
 
+	// TODO: move to common function, seems the same for all collectors?
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';

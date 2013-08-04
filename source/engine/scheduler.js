@@ -7,6 +7,7 @@ var logger = require('../utils/logger');
 var config = require('../../config');
 
 function allowedToExecute (state, currentMoment) {
+	// TODO: that should be part of query too..
 	if (state.skip || state.disabled) {
 		return false;
 	}
@@ -21,6 +22,7 @@ function allowedToExecute (state, currentMoment) {
 function schedule(mode, states, connectors) {
 	var currentMoment = moment();
 
+	// TODO: that was not smart, better use as query for findAll method..
 	var selectors = {
 		initial: function (state) {
 			return !state.mode || state.mode === 'initial' || state.mode === 'rateLimit';
@@ -54,6 +56,7 @@ function execute(tasks, callback) {
 var scheduler = {
 	run: function (mode, connectors) {
 		var schedulerLoop = function () {
+			// TODO: use streams instead toArray
 			networks.findAll(function (err, states) {
 				var tasks = schedule(mode, states, connectors);
 
