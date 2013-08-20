@@ -7,6 +7,7 @@ var handleUnexpected = require('../handleUnexpected');
 var helpers = require('../../utils/helpers');
 
 var API = 'https://graph.facebook.com';
+var FIELDS = 'links.fields(id,caption,from,icon,message,name,link,created_time,picture),likes.fields(link,name,website,description,id,created_time,picture),name,username';
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
@@ -30,7 +31,7 @@ function connector(state, callback) {
 			});
 		}
 
-		return handleResponse(response, body.data);
+		return handleResponse(response, body);
 	});
 
 	// TODO: move to common function, seems the same for all collectors?
@@ -54,7 +55,9 @@ function connector(state, callback) {
 
 	function formatRequestUri(accessToken, state) {
 		var limit = 500;
-		var base = util.format('%s/me/likes?access_token=%s&limit=%s&fields=link,name,website,description,id,created_time,picture', API, accessToken, limit);
+		var base = util.format(
+			'%s/me?fields=%s&access_token=%s&limit=%s', API, FIELDS, accessToken, limit);
+
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&offset=%s', base, state.page * limit) :
 			base;
@@ -64,8 +67,13 @@ function connector(state, callback) {
 		var rateLimit = 100;
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-		if (Array.isArray(body)) {
-			var stars = body.map(function (r) {
+		var likesData = body.likes && body.likes.data;
+		var linksData = body.links && body.links.data;
+		var error = body.error;
+		var authorName = body.username || body.name;
+
+		if (!error && Array.isArray(likesData) && Array.isArray(linksData)) {
+			var likes = likesData.map(function (r) {
 				return {
 					itemId: r.id.toString(),
 					idInt: r.id,
@@ -73,19 +81,40 @@ function connector(state, callback) {
 					name: r.name,
 					source: r.link,
 					avatarUrl: r.picture.data.url,
+					authorName: authorName,
 					created: moment(r.created_time).toDate(),
 					date: moment().toDate(),
-					description: r.description,
+					description: r.description || r.name,
+					kind: 'like',
 					type: 'facebook'
 				};
 			});
 
-			log.info('retrieved ' + stars.length + ' likes for user: ' + state.user);
+			var links = linksData.map(function (r) {
+				return {
+					itemId: r.id.toString(),
+					idInt: r.id,
+					user: state.user,
+					name: r.from.name,
+					source: r.link,
+					avatarUrl: r.picture,
+					authorName: authorName,
+					created: moment(r.created_time).toDate(),
+					date: moment().toDate(),
+					description: r.message || r.name,
+					kind: 'link',
+					type: 'facebook'
+				};
+			});
 
-			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
+			likes = likes.concat(links);
+
+			log.info('retrieved ' + likes.length + ' likes and links for user: ' + state.user);
+
+			return callback(null, scheduleTo(updateState(state, likes, rateLimit)), likes);
 		}
 
-		handleUnexpected(response, body, state, function (err) {
+		handleUnexpected(response, body, state, error, function (err) {
 			callback(err, scheduleTo(updateState(state, [], rateLimit)));
 		});
 	}
