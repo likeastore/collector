@@ -7,7 +7,7 @@ var handleUnexpected = require('../handleUnexpected');
 var helpers = require('../../utils/helpers');
 
 var API = 'https://graph.facebook.com';
-var FIELDS = 'links.fields(id,caption,from,icon,message,name,link,created_time,picture),likes.fields(link,name,website,description,id,created_time,picture),name,username';
+var FIELDS = 'links.limit(500).offset(%s).fields(id,caption,from,icon,message,name,link,created_time,picture),likes.limit(500).offset(%s).fields(link,name,website,description,id,created_time,picture),name,username';
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
@@ -24,6 +24,8 @@ function connector(state, callback) {
 	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
+	console.log(uri);
+
 	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
 		if (err) {
 			return handleUnexpected(response, body, state, err, function (err) {
@@ -34,18 +36,17 @@ function connector(state, callback) {
 		return handleResponse(response, body);
 	});
 
-	// TODO: move to common function, seems the same for all collectors?
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';
 		}
 
-		if (!state.errors) {
-			state.errors = 0;
-		}
-
 		if (state.mode === 'initial' && !state.page) {
 			state.page = 0;
+		}
+
+		if (!state.errors) {
+			state.errors = 0;
 		}
 
 		if (state.mode === 'rateLimit') {
@@ -54,25 +55,23 @@ function connector(state, callback) {
 	}
 
 	function formatRequestUri(accessToken, state) {
-		var limit = 500;
-		var base = util.format(
-			'%s/me?fields=%s&access_token=%s&limit=%s', API, FIELDS, accessToken, limit);
+		var offset = state.mode === 'initial' ? state.page * 500 : 0;
+		var fields = util.format(FIELDS, offset, offset);
 
-		return state.mode === 'initial' || state.page ?
-			util.format('%s&offset=%s', base, state.page * limit) :
-			base;
+		return util.format('%s/me?fields=%s&access_token=%s', API, fields, accessToken);
+	}
+
+	function formatDescription (message, name) {
+		return message ? util.format('%s - %s', message, name) : name;
 	}
 
 	function handleResponse(response, body) {
-		var rateLimit = 100;
-		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
-
-		var likesData = body.likes && body.likes.data;
-		var linksData = body.links && body.links.data;
+		var likesData = body.likes && body.likes.data || [];
+		var linksData = body.links && body.links.data || [];
 		var error = body.error;
 		var authorName = body.username || body.name;
 
-		if (!error && Array.isArray(likesData) && Array.isArray(linksData)) {
+		if (!error) {
 			var likes = likesData.map(function (r) {
 				return {
 					itemId: r.id.toString(),
@@ -80,11 +79,11 @@ function connector(state, callback) {
 					user: state.user,
 					name: r.name,
 					source: r.link,
-					avatarUrl: r.picture.data.url,
+					avatarUrl: r.picture.data.url || 'https://www.gravatar.com/avatar?d=mm',
 					authorName: authorName,
 					created: moment(r.created_time).toDate(),
 					date: moment().toDate(),
-					description: r.description || r.name,
+					description: formatDescription(r.description, r.name),
 					kind: 'like',
 					type: 'facebook'
 				};
@@ -97,11 +96,11 @@ function connector(state, callback) {
 					user: state.user,
 					name: r.from.name,
 					source: r.link,
-					avatarUrl: r.picture,
+					avatarUrl: r.picture || 'https://www.gravatar.com/avatar?d=mm',
 					authorName: authorName,
 					created: moment(r.created_time).toDate(),
 					date: moment().toDate(),
-					description: r.message || r.name,
+					description: formatDescription(r.message, r.name),
 					kind: 'link',
 					type: 'facebook'
 				};
@@ -111,11 +110,11 @@ function connector(state, callback) {
 
 			log.info('retrieved ' + likes.length + ' likes and links for user: ' + state.user);
 
-			return callback(null, scheduleTo(updateState(state, likes, rateLimit)), likes);
+			return callback(null, scheduleTo(updateState(state, likes, 9999)), likes);
 		}
 
 		handleUnexpected(response, body, state, error, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+			callback(err, state);
 		});
 	}
 
