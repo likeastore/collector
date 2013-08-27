@@ -41,15 +41,13 @@ function execute(tasks, callback) {
 function createQuery(mode) {
 	var queries = {
 		initial: {
-			mode: {$or: [ {$in: ['initial', 'rateLimit' ]}, { $exist: false }]},
-			disabled: false,
-			skip: false
+			$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
+			//$and: [ {disabled: {$exists: false}}, {disabled: {$eq: false}}, {skip: {$exists: false}}, {skip: {$eq: false}}]
 		},
 
 		normal: {
-			mode: {$eq: 'normal'},
-			disabled: false,
-			skip: false
+			mode: 'normal'
+			//$and: [ {mode: 'normal'}, {disabled: {$exists: false}}, {disabled: {$eq: false}}, {skip: {$exists: false}}, {skip: {$eq: false}}]
 		}
 	};
 
@@ -61,10 +59,12 @@ var scheduler = {
 	run: function (mode, connectors) {
 		function schedulerLoop() {
 			var query = createQuery(mode);
+			console.log(query);
+
 			networks.findAll(query, function (err, states) {
 				if (err && !states) {
 					logger.error({message: 'failed to read network states (restarting loop)', err: err});
-					setTimeout(schedulerLoop, config.collector.schedulerRestart);
+					return setTimeout(schedulerLoop, config.collector.schedulerRestart);
 				}
 
 				var tasks = schedule(mode, states, connectors);
