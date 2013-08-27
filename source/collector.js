@@ -1,4 +1,5 @@
 var argv = require('optimist').argv;
+var memwatch = require('memwatch');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal';
@@ -7,6 +8,14 @@ var config = require('../config');
 var logger = require('./utils/logger');
 var connectors = require('./engine/connectors');
 var scheduler = require('./engine/scheduler');
+
+memwatch.on('leak', function(info) {
+	logger.fatal({msg: 'Memory leak detected', info: info});
+});
+
+memwatch.on('stats', function(stats) {
+	logger.warning({msg: 'V8 stats', stats: stats});
+});
 
 process.on('uncaughtException', function (err) {
 	logger.fatal({msg:'Uncaught exception', error:err, stack:err.stack});
