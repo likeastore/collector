@@ -1,7 +1,6 @@
 var request = require('request');
 var zlib = require('zlib');
 var config = require('../../../config');
-var MemoryStream = require('memstream').MemoryStream;
 var logger = require('../../utils/logger');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');

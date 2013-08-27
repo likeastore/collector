@@ -11,7 +11,7 @@ initial.on('error', function (err) {
 });
 
 initial.on('exit', function (code) {
-	logger.info({message: 'initial collector exit', code: code});
+	logger.fatal({message: 'initial collector exit', code: code});
 });
 
 main.on('error', function (err) {
@@ -19,5 +19,5 @@ main.on('error', function (err) {
 });
 
 main.on('exit', function (code) {
-	logger.info({message: 'normal collector exit', code: code});
+	logger.fatal({message: 'normal collector exit', code: code});
 });
