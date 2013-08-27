@@ -24,8 +24,6 @@ function connector(state, callback) {
 	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
-	console.log(uri);
-
 	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
 		if (err) {
 			return handleUnexpected(response, body, state, err, function (err) {
