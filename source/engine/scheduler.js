@@ -55,8 +55,6 @@ function createQuery(mode) {
 }
 
 module.exports = function (mode) {
-//	var timeout;
-
 	function schedulerLoop() {
 		var query = createQuery(mode);
 		networks.findAll(query, function (err, states) {
@@ -87,12 +85,6 @@ module.exports = function (mode) {
 
 	function restartScheduler () {
 		// http://stackoverflow.com/questions/16072699/nodejs-settimeout-memory-leak
-		// http://stackoverflow.com/questions/9699069/how-to-prevent-memory-leak-in-javascript
-
-		// if (timeout) {
-		// 	clearTimeout(timeout);
-		// }
-
 		var timeout = setTimeout(schedulerLoop, config.collector.schedulerRestart);
 	}
 
