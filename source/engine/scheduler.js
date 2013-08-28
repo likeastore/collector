@@ -1,3 +1,4 @@
+var util = require('util');
 var moment = require('moment');
 var async = require('async');
 var executor = require('./executor');
@@ -5,9 +6,9 @@ var items = require('../db/items');
 var networks = require('../db/networks');
 var logger = require('../utils/logger');
 var config = require('../../config');
+var connectors = require('./connectors');
 
-function allowedToExecute (state, currentMoment) {
-	// TODO: that should be part of query too..
+function allowedToExecute (state) {
 	if (state.skip || state.disabled) {
 		return false;
 	}
@@ -16,70 +17,80 @@ function allowedToExecute (state, currentMoment) {
 		return true;
 	}
 
-	return currentMoment.diff(state.scheduledTo) > 0;
+	return moment().diff(state.scheduledTo) > 0;
 }
 
-function schedule(mode, states, connectors) {
-	var currentMoment = moment();
+function task(state) {
+	return function (callback) { return executor (state, connectors, callback); };
+}
 
-	// TODO: that was not smart, better use as query for findAll method..
-	var selectors = {
-		initial: function (state) {
-			return !state.mode || state.mode === 'initial' || state.mode === 'rateLimit';
-		},
-		normal: function (state) {
-			return state.mode === 'normal';
-		}
-	};
-
+function createTasks(mode, states) {
 	var tasks = states.map(function (state) {
-		return selectors[mode](state) && allowedToExecute(state, currentMoment) ? task(state) : null;
+		return allowedToExecute(state) ? task(state) : null;
 	}).filter(function (task) {
 		return task !== null;
 	});
 
 	return tasks;
-
-	function task(state) {
-		return function (callback) { return executor (state, connectors, callback); };
-	}
 }
 
-function execute(tasks, callback) {
-	logger.info('currently allowed to execute: ' + tasks.length);
-
-	async.series(tasks, function (err) {
-		return callback ({message: 'tasks execution error', error: err});
-	});
+function runAllTasks(tasks, callback) {
+	logger.info('currently allowed to run: ' + tasks.length);
+	async.series(tasks, callback);
 }
 
-var scheduler = {
-	run: function (mode, connectors) {
-		var schedulerLoop = function () {
-			// TODO: use streams instead toArray
-			networks.findAll(function (err, states) {
-				if (err && !states) {
-					logger.error({message: 'failed to read network states (restarting loop)', err: err});
-					setTimeout(schedulerLoop, config.collector.schedulerRestart);
-				}
+function createQuery(mode) {
+	var queries = {
+		initial: {
+			$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
+		},
 
-				var tasks = schedule(mode, states, connectors);
+		normal: {
+			mode: 'normal'
+		}
+	};
 
-				var started = moment();
+	return queries[mode];
 
-				execute(tasks, function (err) {
-					var finished = moment();
-					var duration = moment.duration(finished.diff(started));
+}
 
-					logger.info('collection cycle: ' + duration.asSeconds() + ' sec. (' + duration.asMinutes() + ' mins.)');
+module.exports = function (mode) {
+	function schedulerLoop() {
+		var query = createQuery(mode);
+		networks.findAll(query, function (err, states) {
+			if (err && !states) {
+				return schedulerCallback({message: 'failed to read network states', err: err});
+			}
 
-					setTimeout(schedulerLoop, config.collector.schedulerRestart);
-				});
+			var tasks = createTasks(mode, states);
+			var started = moment();
+
+			runAllTasks(tasks, function (err) {
+				var finished = moment();
+				var duration = moment.duration(finished.diff(started));
+
+				schedulerCallback(err, duration);
 			});
-		};
-
-		schedulerLoop();
+		});
 	}
-};
 
-module.exports = scheduler;
+	function schedulerCallback(err, duration) {
+		if (err) {
+			logger.error(err);
+		}
+
+		logger.info(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+		restartScheduler();
+	}
+
+	function restartScheduler () {
+		// http://stackoverflow.com/questions/16072699/nodejs-settimeout-memory-leak
+		var timeout = setTimeout(schedulerLoop, config.collector.schedulerRestart);
+	}
+
+	return {
+		run: function () {
+			schedulerLoop();
+		}
+	};
+};

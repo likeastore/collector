@@ -1,8 +1,8 @@
 var db = require('./dbConnector').db;
 
 module.exports = {
-	findAll: function (callback) {
-		return db.networks.find({}, callback);
+	findAll: function (query, callback) {
+		return db.networks.find(query, callback);
 	},
 
 	find: function (query, callback) {
@@ -16,7 +16,7 @@ module.exports = {
 		}, callback);
 	},
 
-	stream: function () {
-		return db.networks.find({});
+	stream: function (query) {
+		return db.networks.find(query || {});
 	}
 };

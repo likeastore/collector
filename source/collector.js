@@ -6,7 +6,6 @@ process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal'
 
 var config = require('../config');
 var logger = require('./utils/logger');
-var connectors = require('./engine/connectors');
 var scheduler = require('./engine/scheduler');
 
 memwatch.on('leak', function(info) {
@@ -26,4 +25,4 @@ var env = process.env.NODE_ENV;
 var mode = process.env.COLLECTOR_MODE;
 logger.success('likeastore-collector started env:' + env + ' mongodb: ' + config.connection + ' mode: ' + mode);
 
-scheduler.run(mode, connectors);
+scheduler(mode).run();
