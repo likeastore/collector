@@ -1,3 +1,4 @@
+var util = require('util');
 var moment = require('moment');
 var async = require('async');
 var executor = require('./executor');
@@ -5,49 +6,47 @@ var items = require('../db/items');
 var networks = require('../db/networks');
 var logger = require('../utils/logger');
 var config = require('../../config');
+var connectors = require('./connectors');
 
-function allowedToExecute (state, currentMoment) {
+function allowedToExecute (state) {
+	if (state.skip || state.disabled) {
+		return false;
+	}
+
 	if (!state.scheduledTo) {
 		return true;
 	}
 
-	return currentMoment.diff(state.scheduledTo) > 0;
+	return moment().diff(state.scheduledTo) > 0;
 }
 
-function schedule(mode, states, connectors) {
-	var currentMoment = moment();
+function task(state) {
+	return function (callback) { return executor (state, connectors, callback); };
+}
 
+function createTasks(mode, states) {
 	var tasks = states.map(function (state) {
-		return allowedToExecute(state, currentMoment) ? task(state) : null;
+		return allowedToExecute(state) ? task(state) : null;
 	}).filter(function (task) {
 		return task !== null;
 	});
 
 	return tasks;
-
-	function task(state) {
-		return function (callback) { return executor (state, connectors, callback); };
-	}
 }
 
-function execute(tasks, callback) {
-	logger.info('currently allowed to execute: ' + tasks.length);
-
-	async.series(tasks, function (err) {
-		return callback ({message: 'tasks execution error', error: err});
-	});
+function runAllTasks(tasks, callback) {
+	logger.info('currently allowed to run: ' + tasks.length);
+	async.series(tasks, callback);
 }
 
 function createQuery(mode) {
 	var queries = {
 		initial: {
 			$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
-			//$and: [ {disabled: {$exists: false}}, {disabled: {$eq: false}}, {skip: {$exists: false}}, {skip: {$eq: false}}]
 		},
 
 		normal: {
 			mode: 'normal'
-			//$and: [ {mode: 'normal'}, {disabled: {$exists: false}}, {disabled: {$eq: false}}, {skip: {$exists: false}}, {skip: {$eq: false}}]
 		}
 	};
 
@@ -55,34 +54,44 @@ function createQuery(mode) {
 
 }
 
-var scheduler = {
-	run: function (mode, connectors) {
-		function schedulerLoop() {
-			var query = createQuery(mode);
-			console.log(query);
+module.exports = function (mode) {
+	function schedulerLoop(callback) {
+		var query = createQuery(mode);
+		networks.findAll(query, function (err, states) {
+			if (err && !states) {
+				return callback({message: 'failed to read network states', err: err});
+			}
 
-			networks.findAll(query, function (err, states) {
-				if (err && !states) {
-					logger.error({message: 'failed to read network states (restarting loop)', err: err});
-					return setTimeout(schedulerLoop, config.collector.schedulerRestart);
-				}
+			var tasks = createTasks(mode, states);
+			var started = moment();
 
-				var tasks = schedule(mode, states, connectors);
-				var started = moment();
+			runAllTasks(tasks, function (err) {
+				var finished = moment();
+				var duration = moment.duration(finished.diff(started));
 
-				execute(tasks, function (err) {
-					var finished = moment();
-					var duration = moment.duration(finished.diff(started));
-
-					logger.info('collection cycle: ' + duration.asSeconds() + ' sec. (' + duration.asMinutes() + ' mins.)');
-
-					setTimeout(schedulerLoop, config.collector.schedulerRestart);
-				});
+				callback(err, duration);
 			});
+		});
+	}
+
+	function schedulerCallback(err, duration) {
+		if (err) {
+			logger.error(err);
 		}
 
-		schedulerLoop();
+		logger.info(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+		restartScheduler();
 	}
-};
 
-module.exports = scheduler;
+	function restartScheduler () {
+		setTimeout(function () {
+			schedulerLoop (schedulerCallback);
+		}, config.collector.schedulerRestart);
+	}
+
+	return {
+		run: function () {
+			schedulerLoop(schedulerCallback);
+		}
+	};
+};
