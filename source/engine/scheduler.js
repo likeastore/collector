@@ -55,11 +55,13 @@ function createQuery(mode) {
 }
 
 module.exports = function (mode) {
-	function schedulerLoop(callback) {
+//	var timeout;
+
+	function schedulerLoop() {
 		var query = createQuery(mode);
 		networks.findAll(query, function (err, states) {
 			if (err && !states) {
-				return callback({message: 'failed to read network states', err: err});
+				return schedulerCallback({message: 'failed to read network states', err: err});
 			}
 
 			var tasks = createTasks(mode, states);
@@ -69,7 +71,7 @@ module.exports = function (mode) {
 				var finished = moment();
 				var duration = moment.duration(finished.diff(started));
 
-				callback(err, duration);
+				schedulerCallback(err, duration);
 			});
 		});
 	}
@@ -84,14 +86,19 @@ module.exports = function (mode) {
 	}
 
 	function restartScheduler () {
-		setTimeout(function () {
-			schedulerLoop (schedulerCallback);
-		}, config.collector.schedulerRestart);
+		// http://stackoverflow.com/questions/16072699/nodejs-settimeout-memory-leak
+		// http://stackoverflow.com/questions/9699069/how-to-prevent-memory-leak-in-javascript
+
+		// if (timeout) {
+		// 	clearTimeout(timeout);
+		// }
+
+		var timeout = setTimeout(schedulerLoop, config.collector.schedulerRestart);
 	}
 
 	return {
 		run: function () {
-			schedulerLoop(schedulerCallback);
+			schedulerLoop();
 		}
 	};
 };
