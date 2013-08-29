@@ -10,7 +10,7 @@ var connectors = require('./engine/connectors');
 var scheduler = require('./engine/scheduler');
 
 memwatch.on('leak', function(info) {
-	logger.fatal({msg: 'memory leak detected', info: info});
+	logger.warning({msg: 'memory leak detected', info: info});
 });
 
 memwatch.on('stats', function(stats) {
