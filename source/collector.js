@@ -14,7 +14,7 @@ memwatch.on('leak', function(info) {
 });
 
 memwatch.on('stats', function(stats) {
-	logger.warning({msg: 'memory stats', stats: stats});
+	logger.info({msg: 'memory stats', stats: stats});
 });
 
 process.on('uncaughtException', function (err) {
