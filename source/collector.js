@@ -13,7 +13,12 @@ memwatch.on('leak', function(info) {
 });
 
 memwatch.on('stats', function(stats) {
-	logger.warning({msg: 'V8 stats', stats: stats});
+	var trending = stats.usage_trend > 0;
+	if (trending) {
+		logger.warning({msg: 'V8 stats (usage trending)', stats: stats});
+	} else {
+		logger.info({msg: 'V8 stats', stats: stats});
+	}
 });
 
 process.on('uncaughtException', function (err) {
