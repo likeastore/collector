@@ -1,7 +1,6 @@
 var request = require('request');
 var zlib = require('zlib');
 var config = require('../../../config');
-var MemoryStream = require('memstream').MemoryStream;
 var logger = require('../../utils/logger');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
@@ -26,10 +25,13 @@ function connector(state, callback) {
 	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip', 'User-Agent': 'likeastore/collector'};
 
+	var stream = zlib.createGunzip();
 	var unzippedResponse = '';
-	var stream = new MemoryStream(function (buffer) {
-		unzippedResponse += buffer;
-	}).on('end', function () {
+	stream.on('data', function (data) {
+		unzippedResponse += data;
+	});
+
+	stream.on('finish', function () {
 		var response = JSON.parse(unzippedResponse);
 		var rateLimit = +response.quota_remaining;
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.user);
@@ -41,7 +43,7 @@ function connector(state, callback) {
 		if (err) {
 			return callback(err);
 		}
-	}).pipe(zlib.createGunzip()).pipe(stream);
+	}).pipe(stream);
 
 	// TODO: move to common function, seems the same for all collectors?
 	function initState(state) {

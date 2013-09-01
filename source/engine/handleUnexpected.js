@@ -12,7 +12,7 @@ function handleUnexpected(response, body, state, err, callback) {
 	state.errors += 1;
 
 	var status = response ? response.statusCode : body ? body.error_id : err;
-	logger.warning({message: 'Unexpected response.', body: body, status: status})
+	logger.warning({message: 'Unexpected response.', body: body, status: status});
 
 	if (state.errors === MAX_ERRORS_ALLOWED) {
 		delete state.errors;

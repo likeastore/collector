@@ -7,7 +7,8 @@ var config = require('../../config');
 var mode = process.env.COLLECTOR_MODE;
 
 var log = logentries.logger({
-	token: config.logentries.token
+	token: config.logentries.token,
+	printerror: false
 });
 
 log.level('info');

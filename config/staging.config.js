@@ -49,6 +49,10 @@ var config = {
 
 		// initial mode quotes
 		quotes: {
+			facebook: {
+				runAfter: 5000
+			},
+
 			github: {
 				runAfter: 5000
 			},

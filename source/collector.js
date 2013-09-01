@@ -6,15 +6,19 @@ process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal'
 
 var config = require('../config');
 var logger = require('./utils/logger');
-var connectors = require('./engine/connectors');
 var scheduler = require('./engine/scheduler');
 
 memwatch.on('leak', function(info) {
-	logger.warning({msg: 'memory leak detected', info: info});
+	logger.fatal({msg: 'Memory leak detected', info: info});
 });
 
 memwatch.on('stats', function(stats) {
-	logger.info({msg: 'memory stats', stats: stats});
+	var trending = stats.usage_trend > 0;
+	if (trending) {
+		logger.warning({msg: 'V8 stats (usage trending)', stats: stats});
+	} else {
+		logger.info({msg: 'V8 stats', stats: stats});
+	}
 });
 
 process.on('uncaughtException', function (err) {
@@ -26,4 +30,4 @@ var env = process.env.NODE_ENV;
 var mode = process.env.COLLECTOR_MODE;
 logger.success('likeastore-collector started env:' + env + ' mongodb: ' + config.connection + ' mode: ' + mode);
 
-scheduler.run(mode, connectors);
+scheduler(mode).run();
