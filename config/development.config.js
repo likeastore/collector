@@ -17,6 +17,11 @@ var config = {
 			consumerSecret: 'eusoZYiUldYqtI2SwK9MJNbiygCWOp9lQX7i5gnpWU'
 		},
 
+		retweets: {
+			consumerKey: 'dgwuxgGb07ymueGJF0ug',
+			consumerSecret: 'eusoZYiUldYqtI2SwK9MJNbiygCWOp9lQX7i5gnpWU'
+		},
+
 		facebook: {
 			appId: '394024317362081',
 			appSecret: 'bc86f2ab9afcb1227227146e5ea9ad44'
@@ -62,6 +67,10 @@ var config = {
 			},
 
 			twitter: {
+				runAfter: 60000
+			},
+
+			retweets: {
 				runAfter: 60000
 			},
 

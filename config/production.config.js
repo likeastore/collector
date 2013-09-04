@@ -17,6 +17,11 @@ var config = {
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET
 		},
 
+		retweets: {
+			consumerKey: process.env.TWITTER_CONSUMER_KEY,
+			consumerSecret: process.env.TWITTER_CONSUMER_SECRET
+		},
+
 		facebook: {
 			appId: process.env.FACEBOOK_APP_ID,
 			appSecret: process.env.FACEBOOK_APP_SECRET
@@ -62,6 +67,10 @@ var config = {
 			},
 
 			twitter: {
+				runAfter: 60000
+			},
+
+			retweets: {
 				runAfter: 60000
 			},
 
