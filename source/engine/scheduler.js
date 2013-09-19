@@ -58,8 +58,12 @@ module.exports = function (mode) {
 	function schedulerLoop() {
 		var query = createQuery(mode);
 		networks.findAll(query, function (err, states) {
-			if (err && !states) {
-				return schedulerCallback({message: 'failed to read network states', err: err});
+			if (err) {
+				return schedulerCallback({message: 'error during networks query', err: err});
+			}
+
+			if (!states) {
+				return schedulerCallback({message: 'failed to read networks states', states: states});
 			}
 
 			var tasks = createTasks(mode, states);
@@ -79,7 +83,10 @@ module.exports = function (mode) {
 			logger.error(err);
 		}
 
-		logger.info(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+		if (duration) {
+			logger.info(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+		}
+
 		restartScheduler();
 	}
 
