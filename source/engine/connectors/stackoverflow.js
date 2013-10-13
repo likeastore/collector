@@ -34,6 +34,7 @@ function connector(state, callback) {
 
 	stream.on('error', function (err) {
 		logger.error({message: 'failed to deflate stream', err: err, unzippedResponse: unzippedResponse});
+		callback(err);
 	});
 
 	stream.on('finish', function () {
