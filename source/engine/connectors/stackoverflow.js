@@ -27,8 +27,13 @@ function connector(state, callback) {
 
 	var stream = zlib.createGunzip();
 	var unzippedResponse = '';
+
 	stream.on('data', function (data) {
 		unzippedResponse += data;
+	});
+
+	stream.on('error', function (err) {
+		logger.error({message: 'failed to deflate stream', err: err, unzippedResponse: unzippedResponse});
 	});
 
 	stream.on('finish', function () {
