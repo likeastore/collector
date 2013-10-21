@@ -9,7 +9,7 @@ var logger = require('./utils/logger');
 var scheduler = require('./engine/scheduler');
 var appName = 'collector-' + process.env.COLLECTOR_MODE;
 
-if (appName === 'collector-normal') {
+if (process.env.NODE_ENV === 'production' && appName === 'collector-normal') {
 	require('nodetime').profile({
 		accountKey: '183fdc2ea3a416ac65eca419a34d38c74467f35a',
 		appName: appName
