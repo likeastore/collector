@@ -1,6 +1,6 @@
 {
   "name": "likeastore-collector",
-  "version": "0.0.2-31",
+  "version": "0.0.2-32",
   "private": true,
   "scripts": {
     "start": "node app.js",
