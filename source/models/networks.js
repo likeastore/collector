@@ -1,4 +1,5 @@
-var db = require('./dbConnector').db;
+var config = require('../../config');
+var db = require('../db')(config);
 
 module.exports = {
 	findAll: function (query, callback) {

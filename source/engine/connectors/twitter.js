@@ -1,11 +1,12 @@
 var request = require('request');
-var logger = require('./../../utils/logger');
-var config = require('../../../config');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
 var util = require('util');
+
 var handleUnexpected = require('../handleUnexpected');
 var helpers = require('./../../utils/helpers');
+var logger = require('./../../utils/logger');
+var config = require('../../../config');
 
 var API = 'https://api.twitter.com/1.1';
 

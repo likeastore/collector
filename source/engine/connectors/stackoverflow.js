@@ -1,12 +1,13 @@
 var request = require('request');
 var zlib = require('zlib');
-var config = require('../../../config');
-var logger = require('../../utils/logger');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
 var util = require('util');
+
 var handleUnexpected = require('../handleUnexpected');
 var helpers = require('../../utils/helpers');
+var config = require('../../../config');
+var logger = require('../../utils/logger');
 
 var API = 'https://api.stackexchange.com/2.1';
 

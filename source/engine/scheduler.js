@@ -1,9 +1,9 @@
 var util = require('util');
 var moment = require('moment');
 var async = require('async');
+
 var executor = require('./executor');
-var items = require('../db/items');
-var networks = require('../db/networks');
+var networks = require('../models/networks');
 var logger = require('../utils/logger');
 var config = require('../../config');
 var connectors = require('./connectors');

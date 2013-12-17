@@ -1,7 +1,7 @@
 var moment = require('moment');
 var config = require('../../config');
-var items = require('../db/items');
-var networks = require('../db/networks');
+var items = require('../models/items');
+var networks = require('../models/networks');
 var logger = require('../utils/logger');
 
 // TODO: Thinks about to separate `request` part of collector and `store` part.. first one

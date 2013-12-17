@@ -1,8 +1,9 @@
 var request = require('request');
-var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+
 var scheduleTo = require('../scheduleTo');
+var logger = require('./../../utils/logger');
 var handleUnexpected = require('../handleUnexpected');
 var helpers = require('../../utils/helpers');
 
