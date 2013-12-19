@@ -37,7 +37,7 @@ function connector(state, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
-	request({uri: uri, headers: headers, oauth: oauth, json: true}, function (err, response, body) {
+	request({uri: uri, headers: headers, oauth: oauth, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
 		if (err) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);

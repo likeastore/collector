@@ -68,6 +68,10 @@ var config = {
 			stackoverflow: {
 				runAfter: 5000
 			}
+		},
+
+		request: {
+			timeout: 5000
 		}
 	}
 };

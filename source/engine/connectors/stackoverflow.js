@@ -5,7 +5,6 @@ var scheduleTo = require('../scheduleTo');
 var util = require('util');
 
 var handleUnexpected = require('../handleUnexpected');
-var helpers = require('../../utils/helpers');
 var config = require('../../../config');
 var logger = require('../../utils/logger');
 
@@ -46,7 +45,7 @@ function connector(state, callback) {
 		return handleResponse(response, rateLimit);
 	});
 
-	request({uri: uri, headers: headers}, function (err, res) {
+	request({uri: uri, headers: headers, timeout: config.collector.request.timeout}, function (err, res) {
 		if (err) {
 			return callback(err);
 		}
