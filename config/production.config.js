@@ -71,7 +71,7 @@ var config = {
 		},
 
 		request: {
-			timeout: 1000
+			timeout: 10000
 		}
 	}
 };
