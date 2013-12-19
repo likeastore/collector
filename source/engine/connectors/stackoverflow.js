@@ -86,7 +86,6 @@ function connector(state, callback) {
 					user: state.user,
 					dateInt: fav.creation_date,
 					created: moment.unix(fav.creation_date).toDate(),
-					date: moment().toDate(),
 					description: fav.title,
 					authorName: fav.owner.display_name,
 					avatarUrl: fav.owner.profile_image && fav.owner.profile_image.replace(/^http:\/\//i, 'https://'),

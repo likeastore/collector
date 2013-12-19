@@ -83,7 +83,6 @@ function connect(state, callback) {
 					avatarUrl: 'https://www.gravatar.com/avatar/' + user.gravatar_id + '?d=mm',
 					source: r.html_url,
 					created: moment(r.created_at).toDate(),
-					date: moment().toDate(),
 					description: r.description,
 					gist: true,
 					type: 'github'

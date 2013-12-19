@@ -81,7 +81,6 @@ function connector(state, callback) {
 					avatarUrl: r.picture.data.url || 'https://www.gravatar.com/avatar?d=mm',
 					authorName: authorName,
 					created: moment(r.created_time).toDate(),
-					date: moment().toDate(),
 					description: formatDescription(r.description, r.name),
 					kind: 'like',
 					type: 'facebook'
@@ -98,7 +97,6 @@ function connector(state, callback) {
 					avatarUrl: r.picture || 'https://www.gravatar.com/avatar?d=mm',
 					authorName: authorName,
 					created: moment(r.created_time).toDate(),
-					date: moment().toDate(),
 					description: formatDescription(r.message, r.name),
 					kind: 'link',
 					type: 'facebook'
