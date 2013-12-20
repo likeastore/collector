@@ -1,12 +1,12 @@
 var request = require('request');
 var zlib = require('zlib');
-var config = require('../../../config');
-var logger = require('../../utils/logger');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
 var util = require('util');
+
 var handleUnexpected = require('../handleUnexpected');
-var helpers = require('../../utils/helpers');
+var config = require('../../../config');
+var logger = require('../../utils/logger');
 
 var API = 'https://api.stackexchange.com/2.1';
 
@@ -45,7 +45,7 @@ function connector(state, callback) {
 		return handleResponse(response, rateLimit);
 	});
 
-	request({uri: uri, headers: headers}, function (err, res) {
+	request({uri: uri, headers: headers, timeout: config.collector.request.timeout}, function (err, res) {
 		if (err) {
 			return callback(err);
 		}
@@ -86,7 +86,6 @@ function connector(state, callback) {
 					user: state.user,
 					dateInt: fav.creation_date,
 					created: moment.unix(fav.creation_date).toDate(),
-					date: moment().toDate(),
 					description: fav.title,
 					authorName: fav.owner.display_name,
 					avatarUrl: fav.owner.profile_image && fav.owner.profile_image.replace(/^http:\/\//i, 'https://'),

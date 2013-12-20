@@ -1,5 +1,3 @@
-var users = require('../db/users');
-var util = require('util');
 var logger = require('../utils/logger');
 
 var MAX_ERRORS_ALLOWED = 5;

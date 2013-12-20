@@ -1,13 +1,18 @@
 var argv = require('optimist').argv;
 var memwatch = require('memwatch');
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal';
+var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+var mode = process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal';
 
 var config = require('../config');
 var logger = require('./utils/logger');
 var scheduler = require('./engine/scheduler');
 var appName = 'collector-' + process.env.COLLECTOR_MODE;
+
+var http = require('http');
+var https = require('https');
+http.globalAgent.maxSockets = 128;
+https.globalAgent.maxSockets = 128;
 
 if (process.env.NODE_ENV === 'production' && appName === 'collector-normal') {
 	require('nodetime').profile({
@@ -34,8 +39,5 @@ process.on('uncaughtException', function (err) {
 	console.log("Uncaught exception", err, err.stack && err.stack.toString());
 });
 
-var env = process.env.NODE_ENV;
-var mode = process.env.COLLECTOR_MODE;
 logger.success(appName + ' started env:' + env + ' mongodb: ' + config.connection + ' mode: ' + mode);
-
 scheduler(mode).run();

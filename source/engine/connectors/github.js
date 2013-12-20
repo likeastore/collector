@@ -1,10 +1,11 @@
 var request = require('request');
-var logger = require('./../../utils/logger');
 var moment = require('moment');
 var util = require('util');
+
 var scheduleTo = require('../scheduleTo');
+var logger = require('./../../utils/logger');
 var handleUnexpected = require('../handleUnexpected');
-var helpers = require('../../utils/helpers');
+var config = require('../../../config');
 
 var API = 'https://api.github.com';
 
@@ -23,7 +24,7 @@ function connector(state, callback) {
 	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
-	request({uri: uri, headers: headers, json: true}, function (err, response, body) {
+	request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
 		if (err) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
@@ -77,7 +78,6 @@ function connector(state, callback) {
 					avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
 					source: r.html_url,
 					created: moment(r.created_at).toDate(),
-					date: moment().toDate(),
 					description: r.description,
 					type: 'github'
 				};

@@ -1,11 +1,12 @@
 var request = require('request');
-var logger = require('./../../utils/logger');
-var config = require('../../../config');
 var moment = require('moment');
 var scheduleTo = require('../scheduleTo');
 var util = require('util');
+
 var handleUnexpected = require('../handleUnexpected');
 var helpers = require('./../../utils/helpers');
+var logger = require('./../../utils/logger');
+var config = require('../../../config');
 
 var API = 'https://api.twitter.com/1.1';
 
@@ -36,7 +37,7 @@ function connector(state, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
-	request({uri: uri, headers: headers, oauth: oauth, json: true}, function (err, response, body) {
+	request({uri: uri, headers: headers, oauth: oauth, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
 		if (err) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
@@ -80,7 +81,6 @@ function connector(state, callback) {
 					itemId: fav.id_str,
 					user: state.user,
 					created: moment(fav.created_at).toDate(),
-					date: moment().toDate(),
 					description: fav.text,
 					avatarUrl: fav.user.profile_image_url_https,
 					authorName: fav.user.screen_name,
