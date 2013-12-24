@@ -64,33 +64,34 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-		if (Array.isArray(body)) {
-			var stars = body.map(function (r) {
-				return {
-					itemId: r.id.toString(),
-					idInt: r.id,
-					user: state.user,
-					name: r.full_name,
-					repo: r.name,
-					authorName: r.owner.login,
-					authorUrl: r.owner.html_url,
-					authorGravatar: r.owner.gravatar_id,
-					avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
-					source: r.html_url,
-					created: moment(r.created_at).toDate(),
-					description: r.description,
-					type: 'github'
-				};
+
+		if (!Array.isArray(body)) {
+			return handleUnexpected(response, body, state, function (err) {
+				callback(err, scheduleTo(updateState(state, [], rateLimit)));
 			});
-
-			log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
 
-		handleUnexpected(response, body, state, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		var stars = body.map(function (r) {
+			return {
+				itemId: r.id.toString(),
+				idInt: r.id,
+				user: state.user,
+				name: r.full_name,
+				repo: r.name,
+				authorName: r.owner.login,
+				authorUrl: r.owner.html_url,
+				authorGravatar: r.owner.gravatar_id,
+				avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
+				source: r.html_url,
+				created: moment(r.created_at).toDate(),
+				description: r.description,
+				type: 'github'
+			};
 		});
+
+		log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 	}
 
 	function updateState(state, data, rateLimit) {

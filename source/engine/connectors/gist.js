@@ -64,39 +64,39 @@ function connect(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-		if (Array.isArray(body)) {
-			var stars = body.map(function (r) {
-				var user = r.user || {
-					login: 'anonymous',
-					html_url: null,
-					gravatar_id: 'anon'
-				};
-
-				return {
-					itemId: r.id.toString(),
-					idInt: r.id,
-					user: state.user,
-					repo: 'gist',
-					authorName: user.login,
-					authorUrl: user.html_url,
-					authorGravatar: user.gravatar_id,
-					avatarUrl: 'https://www.gravatar.com/avatar/' + user.gravatar_id + '?d=mm',
-					source: r.html_url,
-					created: moment(r.created_at).toDate(),
-					description: r.description,
-					gist: true,
-					type: 'github'
-				};
+		if (!Array.isArray(body)) {
+			return handleUnexpected(response, body, state, function (err) {
+				callback(err, scheduleTo(updateState(state, [], rateLimit)));
 			});
-
-			log.info('retrieved ' + stars.length + ' gists for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
 
-		handleUnexpected(response, body, state, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		var stars = body.map(function (r) {
+			var user = r.user || {
+				login: 'anonymous',
+				html_url: null,
+				gravatar_id: 'anon'
+			};
+
+			return {
+				itemId: r.id.toString(),
+				idInt: r.id,
+				user: state.user,
+				repo: 'gist',
+				authorName: user.login,
+				authorUrl: user.html_url,
+				authorGravatar: user.gravatar_id,
+				avatarUrl: 'https://www.gravatar.com/avatar/' + user.gravatar_id + '?d=mm',
+				source: r.html_url,
+				created: moment(r.created_at).toDate(),
+				description: r.description,
+				gist: true,
+				type: 'github'
+			};
 		});
+
+		log.info('retrieved ' + stars.length + ' gists for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 	}
 
 	function updateState(state, data, rateLimit) {

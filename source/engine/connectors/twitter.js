@@ -75,28 +75,28 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-rate-limit-remaining'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.user);
 
-		if (Array.isArray(body)) {
-			var favorites = body.map(function (fav) {
-				return {
-					itemId: fav.id_str,
-					user: state.user,
-					created: moment(fav.created_at).toDate(),
-					description: fav.text,
-					avatarUrl: fav.user.profile_image_url_https,
-					authorName: fav.user.screen_name,
-					source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
-					type: 'twitter'
-				};
+		if (!Array.isArray(body)) {
+			return handleUnexpected(response, body, state, function (err) {
+				callback(err, scheduleTo(updateState(state, [], rateLimit)));
 			});
-
-			log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		handleUnexpected(response, body, state, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		var favorites = body.map(function (fav) {
+			return {
+				itemId: fav.id_str,
+				user: state.user,
+				created: moment(fav.created_at).toDate(),
+				description: fav.text,
+				avatarUrl: fav.user.profile_image_url_https,
+				authorName: fav.user.screen_name,
+				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
+				type: 'twitter'
+			};
 		});
+
+		log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 	}
 
 	function updateState(state, data, rateLimit) {

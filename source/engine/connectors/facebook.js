@@ -70,49 +70,49 @@ function connector(state, callback) {
 		var error = body.error;
 		var authorName = body.username || body.name;
 
-		if (!error) {
-			var likes = likesData.map(function (r) {
-				return {
-					itemId: r.id.toString(),
-					idInt: r.id,
-					user: state.user,
-					name: r.name,
-					source: r.link,
-					avatarUrl: r.picture.data.url || 'https://www.gravatar.com/avatar?d=mm',
-					authorName: authorName,
-					created: moment(r.created_time).toDate(),
-					description: formatDescription(r.description, r.name),
-					kind: 'like',
-					type: 'facebook'
-				};
+		if (error) {
+			return handleUnexpected(response, body, state, error, function (err) {
+				callback(err, state);
 			});
-
-			var links = linksData.map(function (r) {
-				return {
-					itemId: r.id.toString(),
-					idInt: r.id,
-					user: state.user,
-					name: r.from.name,
-					source: r.link,
-					avatarUrl: r.picture || 'https://www.gravatar.com/avatar?d=mm',
-					authorName: authorName,
-					created: moment(r.created_time).toDate(),
-					description: formatDescription(r.message, r.name),
-					kind: 'link',
-					type: 'facebook'
-				};
-			});
-
-			likes = likes.concat(links);
-
-			log.info('retrieved ' + likes.length + ' likes and links for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, likes, 9999)), likes);
 		}
 
-		handleUnexpected(response, body, state, error, function (err) {
-			callback(err, state);
+		var likes = likesData.map(function (r) {
+			return {
+				itemId: r.id.toString(),
+				idInt: r.id,
+				user: state.user,
+				name: r.name,
+				source: r.link,
+				avatarUrl: r.picture.data.url || 'https://www.gravatar.com/avatar?d=mm',
+				authorName: authorName,
+				created: moment(r.created_time).toDate(),
+				description: formatDescription(r.description, r.name),
+				kind: 'like',
+				type: 'facebook'
+			};
 		});
+
+		var links = linksData.map(function (r) {
+			return {
+				itemId: r.id.toString(),
+				idInt: r.id,
+				user: state.user,
+				name: r.from.name,
+				source: r.link,
+				avatarUrl: r.picture || 'https://www.gravatar.com/avatar?d=mm',
+				authorName: authorName,
+				created: moment(r.created_time).toDate(),
+				description: formatDescription(r.message, r.name),
+				kind: 'link',
+				type: 'facebook'
+			};
+		});
+
+		likes = likes.concat(links);
+
+		log.info('retrieved ' + likes.length + ' likes and links for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, likes, 9999)), likes);
 	}
 
 	function updateState(state, data, rateLimit) {
