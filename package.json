@@ -20,8 +20,7 @@
     "rewire": "~1.1.3",
     "node-logentries": "~0.1.2",
     "optimist": "~0.6.0",
-    "memwatch": "~0.2.2",
-    "nodetime": "~0.8.13"
+    "memwatch": "~0.2.2"
   },
   "engines": {
     "node": "~0.10.x"
