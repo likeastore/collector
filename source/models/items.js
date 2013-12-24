@@ -10,7 +10,8 @@ module.exports = {
 			return function (callback) {
 				db.items.update({
 					itemId: item.itemId,
-					user: item.user
+					user: item.user,
+					type: item.type
 				}, {
 					$set: item,
 					$setOnInsert: {

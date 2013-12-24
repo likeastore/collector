@@ -127,12 +127,6 @@ function connector(state, callback) {
 			delete state.page;
 		}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
-		}
-
 		return state;
 	}
 }
