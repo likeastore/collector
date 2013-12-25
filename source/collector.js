@@ -15,11 +15,6 @@ http.globalAgent.maxSockets = 128;
 https.globalAgent.maxSockets = 128;
 
 if (process.env.NODE_ENV === 'production' && appName === 'collector-normal') {
-	require('nodetime').profile({
-		accountKey: '183fdc2ea3a416ac65eca419a34d38c74467f35a',
-		appName: appName
-	});
-
 	memwatch.on('leak', function(info) {
 		logger.warning({msg: 'Memory leak detected', app: appName, info: info});
 	});

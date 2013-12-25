@@ -3,5 +3,7 @@ module.exports = {
 	twitter: require('./twitter'),
 	stackoverflow: require('./stackoverflow'),
 	gist: require('./gist'),
-	facebook: require('./facebook')
+	facebook: require('./facebook'),
+	vimeo: require('./vimeo'),
+	youtube: require('./youtube')
 };

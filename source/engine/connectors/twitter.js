@@ -75,54 +75,56 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-rate-limit-remaining'];
 		log.info('rate limit remaining: ' + rateLimit + ' for user: ' + state.user);
 
-		if (Array.isArray(body)) {
-			var favorites = body.map(function (fav) {
-				return {
-					itemId: fav.id_str,
-					user: state.user,
-					created: moment(fav.created_at).toDate(),
-					description: fav.text,
-					avatarUrl: fav.user.profile_image_url_https,
-					authorName: fav.user.screen_name,
-					source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
-					type: 'twitter'
-				};
+		if (!Array.isArray(body)) {
+			return handleUnexpected(response, body, state, function (err) {
+				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
-
-			log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		handleUnexpected(response, body, state, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		var favorites = body.map(function (fav) {
+			return {
+				itemId: fav.id_str,
+				user: state.user,
+				created: moment(fav.created_at).toDate(),
+				description: fav.text,
+				avatarUrl: fav.user.profile_image_url_https,
+				authorName: fav.user.screen_name,
+				source: util.format('%s/%s/status/%s', 'https://twitter.com', fav.user.screen_name, fav.id_str),
+				type: 'twitter'
+			};
 		});
+
+		log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, favorites, rateLimit, false)), favorites);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0 && !state.sinceId) {
-			state.sinceId = data[0].itemId;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0 && !state.sinceId) {
+				state.sinceId = data[0].itemId;
+			}
 
-		if (state.mode === 'normal' && data.length > 0) {
-			state.sinceId = data[0].itemId;
-		}
+			if (state.mode === 'normal' && data.length > 0) {
+				state.sinceId = data[0].itemId;
+			}
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
-		}
+			if (state.mode === 'initial' && data.length > 0) {
+				state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.maxId;
-		}
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.maxId;
+			}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
+			if (rateLimit <= 1) {
+				var currentState = state.mode;
+				state.mode = 'rateLimit';
+				state.prevMode = currentState;
+			}
 		}
 
 		return state;

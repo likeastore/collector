@@ -78,48 +78,50 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(body, rateLimit) {
-		if (Array.isArray(body.items)) {
-			var favorites = body.items.map(function (fav) {
-				return {
-					itemId: fav.question_id.toString(),
-					idInt: fav.question_id,
-					user: state.user,
-					dateInt: fav.creation_date,
-					created: moment.unix(fav.creation_date).toDate(),
-					description: fav.title,
-					authorName: fav.owner.display_name,
-					avatarUrl: fav.owner.profile_image && fav.owner.profile_image.replace(/^http:\/\//i, 'https://'),
-					source: 'http://stackoverflow.com/questions/' + fav.question_id,
-					type: 'stackoverflow'
-				};
+		if (!Array.isArray(body.items)) {
+			return handleUnexpected(null, body, state, function (err) {
+				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
-
-			log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
 		}
 
-		handleUnexpected(null, body, state, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		var favorites = body.items.map(function (fav) {
+			return {
+				itemId: fav.question_id.toString(),
+				idInt: fav.question_id,
+				user: state.user,
+				dateInt: fav.creation_date,
+				created: moment.unix(fav.creation_date).toDate(),
+				description: fav.title,
+				authorName: fav.owner.display_name,
+				avatarUrl: fav.owner.profile_image && fav.owner.profile_image.replace(/^http:\/\//i, 'https://'),
+				source: 'http://stackoverflow.com/questions/' + fav.question_id,
+				type: 'stackoverflow'
+			};
 		});
+
+		log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, favorites, rateLimit, false)), favorites);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.page += 1;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0) {
+				state.page += 1;
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.page;
-		}
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.page;
+			}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
+			if (rateLimit <= 1) {
+				var currentState = state.mode;
+				state.mode = 'rateLimit';
+				state.prevMode = currentState;
+			}
 		}
 
 		return state;

@@ -64,51 +64,53 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-		if (Array.isArray(body)) {
-			var stars = body.map(function (r) {
-				return {
-					itemId: r.id.toString(),
-					idInt: r.id,
-					user: state.user,
-					name: r.full_name,
-					repo: r.name,
-					authorName: r.owner.login,
-					authorUrl: r.owner.html_url,
-					authorGravatar: r.owner.gravatar_id,
-					avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
-					source: r.html_url,
-					created: moment(r.created_at).toDate(),
-					description: r.description,
-					type: 'github'
-				};
+		if (!Array.isArray(body)) {
+			return handleUnexpected(response, body, state, function (err) {
+				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
-
-			log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
-
-			return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
 		}
 
-		handleUnexpected(response, body, state, function (err) {
-			callback(err, scheduleTo(updateState(state, [], rateLimit)));
+		var stars = body.map(function (r) {
+			return {
+				itemId: r.id.toString(),
+				idInt: r.id,
+				user: state.user,
+				name: r.full_name,
+				repo: r.name,
+				authorName: r.owner.login,
+				authorUrl: r.owner.html_url,
+				authorGravatar: r.owner.gravatar_id,
+				avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
+				source: r.html_url,
+				created: moment(r.created_at).toDate(),
+				description: r.description,
+				type: 'github'
+			};
 		});
+
+		log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
+
+		return callback(null, scheduleTo(updateState(state, stars, rateLimit, false)), stars);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.page += 1;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0) {
+				state.page += 1;
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.page;
-		}
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.page;
+			}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
+			if (rateLimit <= 1) {
+				var currentState = state.mode;
+				state.mode = 'rateLimit';
+				state.prevMode = currentState;
+			}
 		}
 
 		return state;
