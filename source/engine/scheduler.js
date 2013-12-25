@@ -35,7 +35,7 @@ function createTasks(mode, states) {
 }
 
 function runAllTasks(tasks, callback) {
-	logger.info('currently allowed to run: ' + tasks.length);
+	tasks.length > 0 && logger.info('currently allowed to run: ' + tasks.length);
 	async.series(tasks, callback);
 }
 
