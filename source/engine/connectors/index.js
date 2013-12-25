@@ -4,5 +4,6 @@ module.exports = {
 	stackoverflow: require('./stackoverflow'),
 	gist: require('./gist'),
 	facebook: require('./facebook'),
-	vimeo: require('./vimeo')
+	vimeo: require('./vimeo'),
+	youtube: require('./youtube')
 };
