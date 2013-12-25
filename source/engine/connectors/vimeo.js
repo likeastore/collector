@@ -103,7 +103,7 @@ function connector(state, callback) {
 		return callback(null, scheduleTo(updateState(state, favorites, 9999, false)), favorites);
 
 		function findWith(prop, val, array) {
-			_.find(array, function (item) {
+			return _.find(array, function (item) {
 				return item[prop] === val;
 			});
 		}
