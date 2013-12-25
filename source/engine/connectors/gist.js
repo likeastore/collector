@@ -66,7 +66,7 @@ function connect(state, callback) {
 
 		if (!Array.isArray(body)) {
 			return handleUnexpected(response, body, state, function (err) {
-				callback(err, scheduleTo(updateState(state, [], rateLimit)));
+				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
 		}
 
@@ -96,25 +96,27 @@ function connect(state, callback) {
 
 		log.info('retrieved ' + stars.length + ' gists for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, stars, rateLimit)), stars);
+		return callback(null, scheduleTo(updateState(state, stars, rateLimit, false)), stars);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.page += 1;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0) {
+				state.page += 1;
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.page;
-		}
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.page;
+			}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
+			if (rateLimit <= 1) {
+				var currentState = state.mode;
+				state.mode = 'rateLimit';
+				state.prevMode = currentState;
+			}
 		}
 
 		return state;

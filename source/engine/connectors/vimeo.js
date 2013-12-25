@@ -78,7 +78,7 @@ function connector(state, callback) {
 
 		if (!Array.isArray(videos)) {
 			return handleUnexpected(response, body, state, function (err) {
-				callback(err, scheduleTo(updateState(state, [], 9999)));
+				callback(err, scheduleTo(updateState(state, [], 9999, true)));
 			});
 		}
 
@@ -100,7 +100,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, favorites, 9999)), favorites);
+		return callback(null, scheduleTo(updateState(state, favorites, 9999, false)), favorites);
 
 		function findWith(prop, val, array) {
 			_.find(array, function (item) {
@@ -109,16 +109,18 @@ function connector(state, callback) {
 		}
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.page += 1;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length === 50) {
+				state.page += 1;
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.page;
+			if (state.mode === 'initial' && data.length < 50) {
+				state.mode = 'normal';
+				delete state.page;
+			}
 		}
 
 		return state;

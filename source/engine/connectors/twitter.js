@@ -77,7 +77,7 @@ function connector(state, callback) {
 
 		if (!Array.isArray(body)) {
 			return handleUnexpected(response, body, state, function (err) {
-				callback(err, scheduleTo(updateState(state, [], rateLimit)));
+				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
 		}
 
@@ -96,33 +96,35 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
+		return callback(null, scheduleTo(updateState(state, favorites, rateLimit, false)), favorites);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0 && !state.sinceId) {
-			state.sinceId = data[0].itemId;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0 && !state.sinceId) {
+				state.sinceId = data[0].itemId;
+			}
 
-		if (state.mode === 'normal' && data.length > 0) {
-			state.sinceId = data[0].itemId;
-		}
+			if (state.mode === 'normal' && data.length > 0) {
+				state.sinceId = data[0].itemId;
+			}
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
-		}
+			if (state.mode === 'initial' && data.length > 0) {
+				state.maxId = helpers.decrementStringId(data[data.length - 1].itemId);
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.maxId;
-		}
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.maxId;
+			}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
+			if (rateLimit <= 1) {
+				var currentState = state.mode;
+				state.mode = 'rateLimit';
+				state.prevMode = currentState;
+			}
 		}
 
 		return state;

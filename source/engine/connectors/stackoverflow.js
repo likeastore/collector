@@ -80,7 +80,7 @@ function connector(state, callback) {
 	function handleResponse(body, rateLimit) {
 		if (!Array.isArray(body.items)) {
 			return handleUnexpected(null, body, state, function (err) {
-				callback(err, scheduleTo(updateState(state, [], rateLimit)));
+				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
 		}
 
@@ -101,25 +101,27 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + favorites.length + ' favorites for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, favorites, rateLimit)), favorites);
+		return callback(null, scheduleTo(updateState(state, favorites, rateLimit, false)), favorites);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.page += 1;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0) {
+				state.page += 1;
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.page;
-		}
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.page;
+			}
 
-		if (rateLimit <= 1) {
-			var currentState = state.mode;
-			state.mode = 'rateLimit';
-			state.prevMode = currentState;
+			if (rateLimit <= 1) {
+				var currentState = state.mode;
+				state.mode = 'rateLimit';
+				state.prevMode = currentState;
+			}
 		}
 
 		return state;

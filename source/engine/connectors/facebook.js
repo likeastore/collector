@@ -72,7 +72,7 @@ function connector(state, callback) {
 
 		if (error) {
 			return handleUnexpected(response, body, state, error, function (err) {
-				callback(err, state);
+				callback(err, scheduleTo(updateState(state, [], 9999, true)));
 			});
 		}
 
@@ -112,19 +112,21 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + likes.length + ' likes and links for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, likes, 9999)), likes);
+		return callback(null, scheduleTo(updateState(state, likes, 9999, false)), likes);
 	}
 
-	function updateState(state, data, rateLimit) {
+	function updateState(state, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
-		if (state.mode === 'initial' && data.length > 0) {
-			state.page += 1;
-		}
+		if (!failed) {
+			if (state.mode === 'initial' && data.length > 0) {
+				state.page += 1;
+			}
 
-		if (state.mode === 'initial' && data.length === 0) {
-			state.mode = 'normal';
-			delete state.page;
+			if (state.mode === 'initial' && data.length === 0) {
+				state.mode = 'normal';
+				delete state.page;
+			}
 		}
 
 		return state;
