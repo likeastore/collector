@@ -91,9 +91,9 @@ function connector(state, callback) {
 				title: video.title,
 				authorName: video.owner.display_name,
 				authorUrl: video.owner.profileurl,
-				avatarUrl: video.owner.portraits && video.owner.portraits.portrait && findWith('height', 100, video.owner.portraits.portrait),
-				source: video.urls && findWith('type', 'video', video.urls),
-				thumbnail: video.thumbnails && video.thumbnails.thumbnail && findWith('height', 360, video.thumbnails.thumbnail),
+				avatarUrl: video.owner.portraits && video.owner.portraits.portrait && findWith('height', '100', video.owner.portraits.portrait, '_content'),
+				source: video.urls && video.urls.url && findWith('type', 'video', video.urls.url, '_content'),
+				thumbnail: video.thumbnails && video.thumbnails.thumbnail && findWith('height', '360', video.thumbnails.thumbnail, '_content'),
 				type: 'vimeo'
 			};
 		});
@@ -102,10 +102,12 @@ function connector(state, callback) {
 
 		return callback(null, scheduleTo(updateState(state, favorites, 9999, false)), favorites);
 
-		function findWith(prop, val, array) {
-			return _.find(array, function (item) {
+		function findWith(prop, val, array, ret) {
+			var found =  _.find(array, function (item) {
 				return item[prop] === val;
 			});
+
+			return found && found[ret];
 		}
 	}
 
