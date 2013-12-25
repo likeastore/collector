@@ -115,8 +115,6 @@ function connector(state, callback) {
 			}
 		}
 
-		console.dir(state);
-
 		return state;
 	}
 }
