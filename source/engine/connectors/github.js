@@ -64,7 +64,6 @@ function connector(state, callback) {
 		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-
 		if (!Array.isArray(body)) {
 			return handleUnexpected(response, body, state, function (err) {
 				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
