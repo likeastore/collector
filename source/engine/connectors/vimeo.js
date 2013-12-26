@@ -91,9 +91,9 @@ function connector(state, callback) {
 				title: video.title,
 				authorName: video.owner.display_name,
 				authorUrl: video.owner.profileurl,
-				avatarUrl: video.owner.portraits && video.owner.portraits.portrait && findWith('height', '100', video.owner.portraits.portrait, '_content'),
+				avatarUrl: video.owner.portraits && video.owner.portraits.portrait && findWith('width', '100', video.owner.portraits.portrait, '_content'),
 				source: video.urls && video.urls.url && findWith('type', 'video', video.urls.url, '_content'),
-				thumbnail: video.thumbnails && video.thumbnails.thumbnail && findWith('height', '360', video.thumbnails.thumbnail, '_content'),
+				thumbnail: video.thumbnails && video.thumbnails.thumbnail && findWith('width', '640', video.thumbnails.thumbnail, '_content'),
 				type: 'vimeo'
 			};
 		});
