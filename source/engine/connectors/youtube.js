@@ -12,7 +12,7 @@ var API = 'https://www.googleapis.com/youtube/v3';
 function connector(state, callback) {
 	var log = logger.connector('youtube');
 
-	if (state.unauthorized) {
+	if (state.unauthorized && state.refreshToken) {
 		return refreshAccessToken(state, connect);
 	}
 
