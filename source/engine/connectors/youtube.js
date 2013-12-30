@@ -79,15 +79,15 @@ function connector(state, callback) {
 		var refreshTokenUrl = 'https://accounts.google.com/o/oauth2/token';
 		var headers = { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'likeastore/collector'};
 		var data = {
-			'client_id': config.services.youtube.client_id,
-			'secret_id': config.services.youtube.secret_id,
+			'client_id': config.services.youtube.clientId,
+			'client_secret': config.services.youtube.clientSecret,
 			'refresh_token': refreshToken,
 			'grant_type': 'refresh_token'
 		};
 
 		logger.info('refreshing accessToken for user: ' + state.user);
 
-		request.post({url: refreshTokenUrl, headers: headers, data: data}, function (err, response, body) {
+		request.post({url: refreshTokenUrl, headers: headers, form: data, json: true}, function (err, response, body) {
 			if (err || !body.access_token) {
 				return callback(err, state);
 			}
