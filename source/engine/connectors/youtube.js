@@ -12,7 +12,7 @@ var API = 'https://www.googleapis.com/youtube/v3';
 function connector(state, callback) {
 	var log = logger.connector('youtube');
 
-	if (state.unauthorized) {
+	if (state.unauthorized && state.refreshToken) {
 		return refreshAccessToken(state, connect);
 	}
 
@@ -94,6 +94,7 @@ function connector(state, callback) {
 
 			state.accessToken = body.access_token;
 			delete state.unauthorized;
+			delete state.errors;
 
 			logger.info('accessToken refreshed for user: ' + state.user);
 
