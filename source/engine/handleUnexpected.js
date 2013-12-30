@@ -8,6 +8,11 @@ function handleUnexpected(response, body, state, err, callback) {
 	state.errors += 1;
 
 	var status = response ? response.statusCode : body ? body.error_id : err;
+
+	if (status === 401) {
+		state.unauthorized = true;
+	}
+
 	if (state.errors === MAX_ERRORS_ALLOWED) {
 		delete state.errors;
 		state.disabled = true;

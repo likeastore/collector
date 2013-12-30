@@ -10,29 +10,42 @@ var config = require('../../../config');
 var API = 'https://www.googleapis.com/youtube/v3';
 
 function connector(state, callback) {
-	var accessToken = state.accessToken;
 	var log = logger.connector('youtube');
 
-	if (!accessToken) {
-		return callback('missing accessToken for user: ' + state.user);
+	if (state.unauthorized) {
+		return refreshAccessToken(state, connect);
 	}
 
-	initState(state);
+	connect(null, state);
 
-	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
-
-	var uri = formatRequestUri(accessToken, state);
-	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
-
-	request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
+	function connect(err, state) {
 		if (err) {
-			return handleUnexpected(response, body, state, err, function (err) {
-				callback (err, state);
-			});
+			return callback(err);
 		}
 
-		return handleResponse(response, body);
-	});
+		var accessToken = state.accessToken;
+
+		if (!accessToken) {
+			return callback('missing accessToken for user: ' + state.user);
+		}
+
+		initState(state);
+
+		log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
+
+		var uri = formatRequestUri(accessToken, state);
+		var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
+
+		request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
+			if (err) {
+				return handleUnexpected(response, body, state, err, function (err) {
+					callback (err, state);
+				});
+			}
+
+			return handleResponse(response, body);
+		});
+	}
 
 	// TODO: move to common function, seems the same for all collectors?
 	function initState(state) {
@@ -54,6 +67,38 @@ function connector(state, callback) {
 		return state.mode === 'initial' && state.nextPageToken ?
 			util.format('%s&pageToken=%s', base, state.nextPageToken) :
 			base;
+	}
+
+	function refreshAccessToken(state, callback) {
+		var refreshToken = state.refreshToken;
+
+		if (!refreshToken) {
+			return callback('missing refreshToken for user: ' + state.user);
+		}
+
+		var refreshTokenUrl = 'https://accounts.google.com/o/oauth2/token';
+		var headers = { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'likeastore/collector'};
+		var data = {
+			'client_id': config.services.youtube.client_id,
+			'secret_id': config.services.youtube.secret_id,
+			'refresh_token': refreshToken,
+			'grant_type': 'refresh_token'
+		};
+
+		logger.info('refreshing accessToken for user: ' + state.user);
+
+		request({url: refreshTokenUrl, headers: headers, data: data}, function (err, response, body) {
+			if (err || !body.access_token) {
+				return callback(err, state);
+			}
+
+			state.accessToken = body.access_token;
+			delete state.unauthorized;
+
+			logger.info('accessToken refreshed for user: ' + state.user);
+
+			callback(null, state);
+		});
 	}
 
 	function handleResponse(response, body) {
