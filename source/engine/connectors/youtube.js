@@ -87,7 +87,7 @@ function connector(state, callback) {
 
 		logger.info('refreshing accessToken for user: ' + state.user);
 
-		request({url: refreshTokenUrl, headers: headers, data: data}, function (err, response, body) {
+		request.post({url: refreshTokenUrl, headers: headers, data: data}, function (err, response, body) {
 			if (err || !body.access_token) {
 				return callback(err, state);
 			}
