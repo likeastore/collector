@@ -85,6 +85,10 @@ var config = {
 
 			youtube: {
 				runAfter: 5000
+			},
+
+			dribbble: {
+				runAfter: 5000
 			}
 		},
 
