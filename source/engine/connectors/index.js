@@ -5,5 +5,6 @@ module.exports = {
 	gist: require('./gist'),
 	facebook: require('./facebook'),
 	vimeo: require('./vimeo'),
-	youtube: require('./youtube')
+	youtube: require('./youtube'),
+	dribbble: require('./dribbble')
 };
