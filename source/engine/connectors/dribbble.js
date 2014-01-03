@@ -60,7 +60,6 @@ function connector(state, callback) {
 	}
 
 	function handleResponse(response, body) {
-		console.log(body);
 		var shots = body.shots;
 
 		if (!Array.isArray(shots)) {
