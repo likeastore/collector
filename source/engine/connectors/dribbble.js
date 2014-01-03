@@ -10,7 +10,7 @@ var config = require('../../../config');
 var API = 'http://api.dribbble.com';
 
 function connector(state, callback) {
-	var log = logger.connector('github');
+	var log = logger.connector('dribbble');
 	var username = state.username;
 
 	if (!username) {
@@ -21,7 +21,7 @@ function connector(state, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
-	var uri = formatRequestUri(state);
+	var uri = formatRequestUri(username, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
@@ -52,14 +52,15 @@ function connector(state, callback) {
 		}
 	}
 
-	function formatRequestUri(accessToken, state) {
-		var base = util.format('%s/players/%s/shots/likes&per_page=30', API, accessToken);
+	function formatRequestUri(username, state) {
+		var base = util.format('%s/players/%s/shots/likes?per_page=30', API, username);
 		return state.mode === 'initial' && state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			base;
 	}
 
 	function handleResponse(response, body) {
+		console.log(body);
 		var shots = body.shots;
 
 		if (!Array.isArray(shots)) {
@@ -73,16 +74,14 @@ function connector(state, callback) {
 				itemId: r.id.toString(),
 				idInt: r.id,
 				user: state.user,
-				name: r.full_name,
-				repo: r.name,
-				authorName: r.owner.login,
-				authorUrl: r.owner.html_url,
-				authorGravatar: r.owner.gravatar_id,
-				avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
-				source: r.html_url,
 				created: moment(r.created_at).toDate(),
-				description: r.description,
-				type: 'github'
+				title: r.title,
+				authorName: r.player.name,
+				authorUrl: r.player.url,
+				avatarUrl: r.player.avatar_url,
+				source: r.url,
+				thumbnail: r.image_400_url,
+				type: 'dribbble'
 			};
 		});
 
