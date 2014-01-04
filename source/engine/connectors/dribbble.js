@@ -79,7 +79,7 @@ function connector(state, callback) {
 				authorUrl: r.player.url,
 				avatarUrl: r.player.avatar_url,
 				source: r.url,
-				thumbnail: r.image_400_url,
+				thumbnail: r.image_400_url || r.image_url,
 				type: 'dribbble'
 			};
 		});
