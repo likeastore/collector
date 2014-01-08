@@ -81,7 +81,7 @@ function connector(state, callback) {
 				itemId: r.project.id.toString(),
 				idInt: r.project.id,
 				user: state.user,
-				created: moment(r.project.created_on).toDate(),
+				created: moment.unix(r.project.created_on).toDate(),
 				title: r.project.name,
 				authorName: first(r.project.owners).display_name,
 				authorUrl: first(r.project.owners).url,
