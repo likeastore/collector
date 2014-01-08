@@ -11,17 +11,22 @@ var API = 'https://www.behance.net/v2';
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
+	var username = state.username;
 	var log = logger.connector('behance');
 
 	if (!accessToken) {
 		return callback('missing accessToken for user: ' + state.user);
 	}
 
+	if (!username) {
+		return callback('missing username for user: ' + state.user);
+	}
+
 	initState(state);
 
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
-	var uri = formatRequestUri(accessToken, state);
+	var uri = formatRequestUri(accessToken, username, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
@@ -52,44 +57,53 @@ function connector(state, callback) {
 		}
 	}
 
-	function formatRequestUri(accessToken, state) {
-		var base = util.format('%s/users/starred?access_token=%s&per_page=100', API, accessToken);
-		return state.mode === 'initial' || state.page ?
+	function formatRequestUri(accessToken, username, state) {
+		var base = util.format('%s/users/%s/appreciations?access_token=%s', API, username, accessToken);
+		return state.mode === 'initial' && state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			base;
 	}
 
 	function handleResponse(response, body) {
-		var rateLimit = +response.headers['x-ratelimit-remaining'];
+		var rateLimit = response.statusCode === 429 ? 0 : 9999;
+		var appreciations = body.appreciations;
+
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-		if (!Array.isArray(body)) {
+		if (!Array.isArray(appreciations)) {
 			return handleUnexpected(response, body, state, function (err) {
 				callback(err, scheduleTo(updateState(state, [], rateLimit, true)));
 			});
 		}
 
-		var stars = body.map(function (r) {
+		var stars = appreciations.map(function (r) {
 			return {
-				itemId: r.id.toString(),
-				idInt: r.id,
+				itemId: r.project.id.toString(),
+				idInt: r.project.id,
 				user: state.user,
-				name: r.full_name,
-				repo: r.name,
-				authorName: r.owner.login,
-				authorUrl: r.owner.html_url,
-				authorGravatar: r.owner.gravatar_id,
-				avatarUrl: 'https://www.gravatar.com/avatar/' + r.owner.gravatar_id + '?d=mm',
-				source: r.html_url,
-				created: moment(r.created_at).toDate(),
-				description: r.description,
-				type: 'github'
+				created: moment(r.project.created_on).toDate(),
+				title: r.project.name,
+				authorName: first(r.project.owners).display_name,
+				authorUrl: first(r.project.owners).url,
+				avatarUrl: best(first(r.project.owners).images),
+				source: r.project.url,
+				thumbnail: best(r.project.covers),
+				type: 'behance'
 			};
 		});
 
-		log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
+		log.info('retrieved ' + stars.length + ' appreciations for user: ' + state.user);
 
 		return callback(null, scheduleTo(updateState(state, stars, rateLimit, false)), stars);
+
+		function first(array) {
+			return array[0];
+		}
+
+		function best(object) {
+			var sorted = Object.keys(object).sort();
+			return object[sorted[sorted.length - 1]];
+		}
 	}
 
 	function updateState(state, data, rateLimit, failed) {

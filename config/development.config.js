@@ -94,6 +94,10 @@ var config = {
 
 			dribbble: {
 				runAfter: 5000
+			},
+
+			behance: {
+				runAfter: 5000
 			}
 		},
 
