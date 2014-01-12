@@ -52,6 +52,11 @@ var config = {
 		token: process.env.LOGENTRIES_TOKEN
 	},
 
+	newrelic: {
+		application: 'likeastore-collector-' + process.env.COLLECTOR_MODE,
+		licenseKey: 'e5862474ee62b99898c861dddfbfa8a89ac54f49'
+	},
+
 	collector: {
 		// scheduler cycle
 		schedulerRestart: 1000,

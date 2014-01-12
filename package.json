@@ -21,7 +21,8 @@
     "node-logentries": "~0.1.2",
     "optimist": "~0.6.0",
     "memwatch": "~0.2.2",
-    "respawn": "~0.1.7"
+    "respawn": "~0.1.7",
+    "newrelic": "~1.2.0"
   },
   "engines": {
     "node": "~0.10.x"

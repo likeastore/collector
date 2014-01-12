@@ -52,6 +52,12 @@ var config = {
 		token: 'ee7930a7-7950-491f-b3aa-6657a928dbdb'
 	},
 
+	newrelic: {
+		application: 'likeastore-collector-stage-' + process.env.COLLECTOR_MODE,
+		licenseKey: 'e5862474ee62b99898c861dddfbfa8a89ac54f49'
+	},
+
+
 	collector: {
 		// scheduler cycle
 		schedulerRestart: 1000,

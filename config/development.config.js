@@ -52,6 +52,11 @@ var config = {
 		token: null
 	},
 
+	newrelic: {
+		application: 'likeastore-collector-dev-' + process.env.COLLECTOR_MODE,
+		licenseKey: null
+	},
+
 	collector: {
 		// scheduler cycle
 		schedulerRestart: 1000,
