@@ -59,7 +59,10 @@ var config = {
 
 	collector: {
 		// scheduler cycle
-		schedulerRestart: 1000,
+		schedulerRestartShort: 1000,
+
+		// scheduler cycle (in case of zero tasks executed previously)
+		schedulerRestartLong: 1000,
 
 		// after collector got to normal mode, next scheduled run in 10 sec
 		nextNormalRunAfter: 1000 * 10,

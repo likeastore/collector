@@ -73,12 +73,12 @@ module.exports = function (mode) {
 				var finished = moment();
 				var duration = moment.duration(finished.diff(started));
 
-				schedulerCallback(err, duration);
+				schedulerCallback(err, duration, tasks.length);
 			});
 		});
 	}
 
-	function schedulerCallback(err, duration) {
+	function schedulerCallback(err, duration, tasks) {
 		if (err) {
 			logger.error(err);
 		}
@@ -87,12 +87,13 @@ module.exports = function (mode) {
 			logger.info(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
 		}
 
-		restartScheduler();
+		restartScheduler(tasks);
 	}
 
-	function restartScheduler () {
+	function restartScheduler (tasks) {
 		// http://stackoverflow.com/questions/16072699/nodejs-settimeout-memory-leak
-		var timeout = setTimeout(schedulerLoop, config.collector.schedulerRestart);
+		var timeout = setTimeout(schedulerLoop, tasks === 0 ?
+			config.collector.schedulerRestartLong : config.collector.schedulerRestartShort);
 	}
 
 	return {
