@@ -1,3 +1,5 @@
+var argv = require('optimist').argv;
+
 var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var mode = process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal';
 
@@ -7,8 +9,6 @@ var http = require('http');
 var https = require('https');
 http.globalAgent.maxSockets = 128;
 https.globalAgent.maxSockets = 128;
-
-var argv = require('optimist').argv;
 
 var config = require('./config');
 var logger = require('./source/utils/logger');
