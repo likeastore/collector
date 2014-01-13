@@ -94,7 +94,7 @@ function connector(state, callback) {
 
 		log.info('retrieved ' + stars.length + ' appreciations for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, stars, rateLimit, false)), undefined);
+		return callback(null, scheduleTo(updateState(state, stars, rateLimit, false)), stars);
 
 		function first(array) {
 			return array[0];
