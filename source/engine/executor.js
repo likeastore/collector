@@ -28,7 +28,11 @@ function executor(state, connectors, callback) {
 				logger.error({message: 'connector save state failed', connector: service, state: state, error: err});
 			}
 
-			saveConnectorResults(results, connectorResultsSaved);
+			if (results) {
+				return saveConnectorResults(results, connectorResultsSaved);
+			}
+
+			connectorResultsSaved(null, moment.duration(0));
 		}
 
 		function connectorResultsSaved (err, saveDuration) {
