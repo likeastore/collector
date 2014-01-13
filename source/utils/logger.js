@@ -11,7 +11,7 @@ var log = logentries.logger({
 	printerror: false
 });
 
-log.level('info');
+log.level(config.logging.level);
 
 module.exports = {
 	success: function (message) {
@@ -36,6 +36,12 @@ module.exports = {
 		message = typeof message === 'string' ? message : JSON.stringify(message);
 		console.log(this.timestamptMessage(util.format('ERROR: %s', message)).red);
 		log.log('emerg', util.format('[%s mode] %s', mode, message));
+	},
+
+	important: function (message) {
+		message = typeof message === 'string' ? message : JSON.stringify(message);
+		console.log(this.timestamptMessage(util.format('IMPORTANT: %s', message)).cyan);
+		log.log('crit', util.format('[%s mode] %s', mode, message));
 	},
 
 	info: function (message) {

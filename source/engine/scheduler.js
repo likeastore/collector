@@ -35,7 +35,7 @@ function createTasks(mode, states) {
 }
 
 function runAllTasks(tasks, callback) {
-	tasks.length > 0 && logger.info('currently allowed to run: ' + tasks.length);
+	tasks.length > 0 && logger.important('currently allowed to run: ' + tasks.length);
 	async.series(tasks, callback);
 }
 
@@ -84,7 +84,7 @@ module.exports = function (mode) {
 		}
 
 		if (duration) {
-			logger.info(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+			logger.important(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
 		}
 
 		restartScheduler(tasks);

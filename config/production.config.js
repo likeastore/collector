@@ -57,6 +57,10 @@ var config = {
 		licenseKey: 'e5862474ee62b99898c861dddfbfa8a89ac54f49'
 	},
 
+	logging: {
+		level: 'err'
+	},
+
 	collector: {
 		// scheduler cycle
 		schedulerRestart: 1000,

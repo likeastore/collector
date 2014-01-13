@@ -1,5 +1,5 @@
+var util = require('util');
 var moment = require('moment');
-var config = require('../../config');
 var items = require('../models/items');
 var networks = require('../models/networks');
 var logger = require('../utils/logger');
@@ -11,6 +11,8 @@ var logger = require('../utils/logger');
 function executor(state, connectors, callback) {
 	var service = state.service;
 	var connector = connectors[service];
+
+	var started = moment();
 
 	connector(state, connectorExecuted);
 
@@ -33,6 +35,16 @@ function executor(state, connectors, callback) {
 			if (err) {
 				logger.error({message: 'connector save items failed', connector: service, state: state, error: err});
 			}
+
+			var finished = moment();
+			var duration = moment.duration(finished.diff(started));
+
+			logger.important(
+				util.format('connector: %s, items: %s, executed: %d sec. (%d mins.)',
+					service,
+					results ? results.length : '[NOT COLLECTED]',
+					duration.asSeconds().toFixed(2),
+					duration.asMinutes().toFixed(2)));
 
 			callback(null);
 		}
