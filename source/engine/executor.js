@@ -12,7 +12,7 @@ function executor(state, connectors, callback) {
 	var service = state.service;
 	var connector = connectors[service];
 
-	var started = moment();
+	var connectorStarted = moment();
 
 	connector(state, connectorExecuted);
 
@@ -31,20 +31,21 @@ function executor(state, connectors, callback) {
 			saveConnectorResults(results, connectorResultsSaved);
 		}
 
-		function connectorResultsSaved (err) {
+		function connectorResultsSaved (err, saveDuration) {
 			if (err) {
 				logger.error({message: 'connector save items failed', connector: service, state: state, error: err});
 			}
 
-			var finished = moment();
-			var duration = moment.duration(finished.diff(started));
+			var connectorExecuted = moment();
+			var duration = moment.duration(connectorExecuted.diff(connectorStarted));
 
 			logger.important(
-				util.format('connector: %s, items: %s, executed: %d sec. (%d mins.)',
+				util.format('connector: %s (%s), items: %s, saved: %d sec., executed: %d sec.',
 					service,
+					state.user,
 					results ? results.length : '[NOT COLLECTED]',
-					duration.asSeconds().toFixed(2),
-					duration.asMinutes().toFixed(2)));
+					saveDuration.asSeconds().toFixed(2),
+					duration.asSeconds().toFixed(2)));
 
 			callback(null);
 		}
@@ -58,11 +59,11 @@ function executor(state, connectors, callback) {
 		}
 
 		function saveConnectorResults(results, callback) {
-			if (results) {
-				return items.update(results, callback);
-			}
-
-			callback (null);
+			var saveStarted = moment();
+			items.update(results, function (err) {
+				var saveExecuted = moment();
+				callback(err, moment.duration(saveExecuted.diff(saveStarted)));
+			});
 		}
 	}
 }

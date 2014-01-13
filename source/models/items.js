@@ -18,8 +18,7 @@ module.exports = {
 						date: moment().toDate()
 					},
 				}, {
-					upsert: true,
-					safe: true
+					upsert: true
 				}, callback);
 			};
 		});
