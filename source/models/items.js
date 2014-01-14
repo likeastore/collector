@@ -23,6 +23,6 @@ module.exports = {
 			};
 		});
 
-		async.series(updates, callback);
+		async.parallelLimit(updates, 16, callback);
 	}
 };
