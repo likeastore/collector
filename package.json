@@ -3,9 +3,9 @@
   "version": "0.0.8",
   "private": true,
   "scripts": {
-    "start": "node app.js",
+    "start": "node monitor.js",
     "test": "node runTests.js --reporter spec",
-    "watch": "nodemon --watch source --watch node_modules app.js",
+    "watch": "nodemon --watch source --watch node_modules monitor.js",
     "watch-test": "nodemon --watch source --watch test runTests.js --reporter min"
   },
   "dependencies": {
