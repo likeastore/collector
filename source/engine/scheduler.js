@@ -84,7 +84,7 @@ module.exports = function (mode) {
 		}
 
 		if (duration) {
-			logger.important(util.format('collection cycle: %d sec. (%d mins.)', duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+			logger.important(util.format('tasks processed: %s, collection cycle: %d sec. (%d mins.)', tasks, duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
 		}
 
 		restartScheduler(tasks);
