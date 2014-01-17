@@ -71,7 +71,8 @@ function connector(state, callback) {
 	}
 
 	function formatRequestUri(accessToken, state) {
-		var base = util.format('%s/me/favorites?access_token=%s&key=%s&pagesize=100&sort=activity&order=desc&site=stackoverflow', API, accessToken, config.services.stackoverflow.clientKey);
+		var pageSize = state.mode === 'initial' ? 100 : 50;
+		var base = util.format('%s/me/favorites?access_token=%s&key=%s&pagesize=%s&sort=activity&order=desc&site=stackoverflow', API, accessToken, config.services.stackoverflow.clientKey, pageSize);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			base;

@@ -54,7 +54,8 @@ function connect(state, callback) {
 	}
 
 	function formatRequestUri(accessToken, state) {
-		var base = util.format('%s/gists/starred?access_token=%s&per_page=100', API, accessToken);
+		var pageSize = state.mode === 'initial' ? 100 : 50;
+		var base = util.format('%s/gists/starred?access_token=%s&per_page=%s', API, accessToken, pageSize);
 		return state.mode === 'initial' || state.page ?
 			util.format('%s&page=%s', base, state.page) :
 			base;

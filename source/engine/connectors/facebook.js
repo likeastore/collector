@@ -8,7 +8,7 @@ var handleUnexpected = require('../handleUnexpected');
 var config = require('../../../config');
 
 var API = 'https://graph.facebook.com';
-var FIELDS = 'links.limit(500).offset(%s).fields(id,caption,from,icon,message,name,link,created_time,picture),likes.limit(500).offset(%s).fields(link,name,website,description,id,created_time,picture),name,username';
+var FIELDS = 'links.limit(%s).offset(%s).fields(id,caption,from,icon,message,name,link,created_time,picture),likes.limit(%s).offset(%s).fields(link,name,website,description,id,created_time,picture.type(square)),name,username';
 
 function connector(state, callback) {
 	var accessToken = state.accessToken;
@@ -54,10 +54,15 @@ function connector(state, callback) {
 	}
 
 	function formatRequestUri(accessToken, state) {
-		var offset = state.mode === 'initial' ? state.page * 500 : 0;
-		var fields = util.format(FIELDS, offset, offset);
+		var pageSize = state.mode === 'initial' ? 500 : 50;
+		var offset = state.mode === 'initial' ? state.page * pageSize : 0;
+		var fields = formatFields(pageSize, offset);
 
 		return util.format('%s/me?fields=%s&access_token=%s', API, fields, accessToken);
+	}
+
+	function formatFields(pageSize, offset) {
+		return util.format(FIELDS, pageSize, offset, pageSize, offset);
 	}
 
 	function formatDescription (message, name) {
