@@ -16,9 +16,17 @@ function scheduler (mode) {
 		async.series(collectorSteps, restartScheduler);
 	}
 
-	function restartScheduler () {
+	function restartScheduler (err, results) {
+		if (err) {
+			logger.error(err);
+		}
+
+		var totalTasks = results.reduce(function (memo, value) {
+			return memo + value;
+		});
+
 		// http://stackoverflow.com/questions/16072699/nodejs-settimeout-memory-leak
-		var timeout = setTimeout(schedulerLoop, config.collector.schedulerRestartShort);
+		var timeout = setTimeout(schedulerLoop, totalTasks > 0 ? config.collector.schedulerRestartShort : config.collector.schedulerRestartLong);
 	}
 
 	function runCollectingTasks(callback) {
@@ -84,7 +92,7 @@ function scheduler (mode) {
 
 			logger.important(util.format('%s tasks processed: %s, duration: %d sec. (%d mins.)', type, tasks.length, duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
 
-			callback(null);
+			callback(null, tasks.length);
 		});
 	}
 
@@ -121,7 +129,7 @@ function scheduler (mode) {
 	}
 
 	function notDisabled (state) {
-		return !state.skip || !state.disabled;
+		return !state.disabled;
 	}
 
 	function collectingTask(state) {
