@@ -3,7 +3,6 @@ var argv = require('optimist').argv;
 var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var mode = process.env.COLLECTOR_MODE = process.env.COLLECTOR_MODE || argv.mode || 'normal';
 
-require('newrelic');
 require('./source/utils/memwatch');
 
 var http = require('http');
