@@ -5,7 +5,6 @@ var async = require('async');
 var executor = require('./executor');
 var disableNetworks = require('./disableNetworks');
 var networks = require('../models/networks');
-var users = require('../models/users');
 var logger = require('../utils/logger');
 var config = require('../../config');
 var connectors = require('./connectors');
@@ -43,8 +42,7 @@ function scheduler (mode) {
 	}
 
 	function prepareCollectingTasks(callback) {
-		var query = createQuery(mode);
-		networks.findAll(query, function (err, states) {
+		networks.findByMode(mode, function (err, states) {
 			if (err) {
 				return callback({message: 'error during networks query', err: err});
 			}
@@ -58,7 +56,7 @@ function scheduler (mode) {
 	}
 
 	function prepareCleaningTasks(callback) {
-		networks.findAll({disabled: {$exists: false}}, function (err, states) {
+		networks.findActive(function (err, states) {
 			if (err) {
 				return callback({message: 'error during networks query', err: err});
 			}
@@ -126,21 +124,6 @@ function scheduler (mode) {
 
 	function disableNetworksTask(state) {
 		return function (callback) { return disableNetworks(state, callback); };
-	}
-
-	function createQuery(mode) {
-		var queries = {
-			initial: {
-				$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
-			},
-
-			normal: {
-				mode: 'normal'
-			}
-		};
-
-		return queries[mode];
-
 	}
 
 	return {

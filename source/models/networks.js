@@ -11,6 +11,24 @@ module.exports = {
 		return db.networks.findOne(query, callback);
 	},
 
+	findByMode: function (mode, callback) {
+		var queries = {
+			initial: {
+				$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
+			},
+
+			normal: {
+				mode: 'normal'
+			}
+		};
+
+		return db.networks.find(queries[mode], callback);
+	},
+
+	findActive: function (callback) {
+		return db.networks.find({$and: [{disabled: {$exists: false}}, {skip: {$exists: false }}]}, callback);
+	},
+
 	update: function (obj, callback) {
 		return users.findByEmail(obj.user, function (err, user) {
 			if (err) {
