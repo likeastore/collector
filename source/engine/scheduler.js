@@ -108,7 +108,7 @@ function scheduler (mode) {
 
 	function createCleaningTasks(states) {
 		var tasks = states.map(function (state) {
-			return notDisabled(state) ? disableNetworksTask(state) : null;
+			return allowToDisable(state) ? disableNetworksTask(state) : null;
 		}).filter(function (task) {
 			return task !== null;
 		});
@@ -128,8 +128,12 @@ function scheduler (mode) {
 		return moment().diff(state.scheduledTo) > 0;
 	}
 
-	function notDisabled (state) {
-		return !state.disabled;
+	function allowToDisable (state) {
+		if (state.disabled || state.skip || !state.userData) {
+			return false;
+		}
+
+		return !state.userData.loginLastDate || moment().diff(state.userData.loginLastDate, 'months') > 1;
 	}
 
 	function collectingTask(state) {
