@@ -6,6 +6,10 @@ var db = require('../db')(config);
 
 var usersCache = {};
 
+function findByEmail(email, callback) {
+	db.users.findOne({email: email}, callback);
+}
+
 function findAndCache(email, callback) {
 	if (usersCache[email]) {
 		return callback (null, usersCache[email]);
@@ -28,6 +32,7 @@ function findNonActive(callback) {
 }
 
 module.exports = {
+	findByEmail: findByEmail,
 	findAndCache: findAndCache,
 	findNonActive: findNonActive
 };

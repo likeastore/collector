@@ -9,9 +9,9 @@
     "watch-test": "nodemon --watch source --watch test runTests.js --reporter min"
   },
   "dependencies": {
-    "mongojs": "~0.7.17",
+    "mongojs": "~0.9.8",
     "underscore": "~1.4.4",
-    "async": "~0.2.9",
+    "async": "~0.2.10",
     "chai": "~1.5.0",
     "moment": "~2.0.0",
     "colors": "~0.6.2",
@@ -21,8 +21,9 @@
     "node-logentries": "~0.1.2",
     "optimist": "~0.6.0",
     "memwatch": "~0.2.2",
-    "respawn": "~0.1.7",
-    "newrelic": "~1.2.0"
+    "respawn": "~0.1.8",
+    "newrelic": "~1.2.0",
+    "mocha": "~1.11.0"
   },
   "engines": {
     "node": "~0.10.x"

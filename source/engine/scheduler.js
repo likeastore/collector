@@ -14,7 +14,6 @@ function scheduler (mode) {
 
 	function schedulerLoop() {
 		var collectorSteps = [runCollectingTasks, runCleaningTasks];
-
 		async.series(collectorSteps, restartScheduler);
 	}
 
@@ -59,21 +58,16 @@ function scheduler (mode) {
 	}
 
 	function prepareCleaningTasks(callback) {
-		// no clean up tasks for initial collector
-		if (mode === 'initial') {
-			return callback(null, []);
-		}
-
-		users.findNonActive(function (err, nonActiveUsers) {
+		networks.findAll({disabled: {$exists: false}}, function (err, states) {
 			if (err) {
-				return callback({message: 'error during users query', err: err});
+				return callback({message: 'error during networks query', err: err});
 			}
 
-			if (!nonActiveUsers) {
-				return callback({message: 'failed to read nonActiveUsers'});
+			if (!states) {
+				return callback({message: 'failed to read networks states'});
 			}
 
-			callback(null, createCleaningTasks(nonActiveUsers));
+			callback(null, createCleaningTasks(states));
 		});
 	}
 
@@ -90,7 +84,7 @@ function scheduler (mode) {
 			var finished = moment();
 			var duration = moment.duration(finished.diff(started));
 
-			logger.important(util.format('%s tasks processed: %s, duration: %d sec. (%d mins.)', type, tasks, duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
+			logger.important(util.format('%s tasks processed: %s, duration: %d sec. (%d mins.)', type, tasks.length, duration.asSeconds().toFixed(2), duration.asMinutes().toFixed(2)));
 
 			callback(null);
 		});
@@ -106,9 +100,9 @@ function scheduler (mode) {
 		return tasks;
 	}
 
-	function createCleaningTasks(users) {
-		var tasks = users.map(function (user) {
-			return disableNetworksTask(user);
+	function createCleaningTasks(states) {
+		var tasks = states.map(function (state) {
+			return disableNetworksTask(state);
 		});
 
 		return tasks;
@@ -130,8 +124,8 @@ function scheduler (mode) {
 		return function (callback) { return executor(state, connectors, callback); };
 	}
 
-	function disableNetworksTask(user) {
-		return function (callback) { return disableNetworks(user, callback); }
+	function disableNetworksTask(state) {
+		return function (callback) { return disableNetworks(state, callback); };
 	}
 
 	function createQuery(mode) {
