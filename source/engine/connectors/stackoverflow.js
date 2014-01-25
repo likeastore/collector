@@ -45,9 +45,11 @@ function connector(state, callback) {
 		return handleResponse(response, rateLimit);
 	});
 
-	request({uri: uri, headers: headers, timeout: config.collector.request.timeout}, function (err, res) {
+	request({uri: uri, headers: headers, timeout: config.collector.request.timeout}, function (err, response, body) {
 		if (err) {
-			return callback(err);
+			return handleUnexpected(response, body, state, err, function (err) {
+				callback (err, state);
+			});
 		}
 	}).pipe(stream);
 
