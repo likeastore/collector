@@ -100,7 +100,9 @@ function scheduler (mode) {
 
 	function createCleaningTasks(states) {
 		var tasks = states.map(function (state) {
-			return disableNetworksTask(state);
+			return notDisabled(state) ? disableNetworksTask(state) : null;
+		}).filter(function (task) {
+			return task !== null;
 		});
 
 		return tasks;
@@ -116,6 +118,10 @@ function scheduler (mode) {
 		}
 
 		return moment().diff(state.scheduledTo) > 0;
+	}
+
+	function notDisabled (state) {
+		return !state.skip || !state.disabled;
 	}
 
 	function collectingTask(state) {
