@@ -22,7 +22,6 @@ function executor(state, connectors, callback) {
 			logger.error({message: 'connector execution failed', connector: service, state: state, error: err});
 		}
 
-
 		saveConnectorState(state, connectorStateSaved);
 
 		function saveConnectorState (state, callback) {
