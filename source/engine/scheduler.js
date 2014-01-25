@@ -56,7 +56,7 @@ function scheduler (mode) {
 	}
 
 	function prepareCleaningTasks(callback) {
-		networks.findActive(function (err, states) {
+		networks.findByMode(mode, function (err, states) {
 			if (err) {
 				return callback({message: 'error during networks query', err: err});
 			}
@@ -70,7 +70,7 @@ function scheduler (mode) {
 	}
 
 	function runTasks(tasks, type, callback) {
-		tasks.length > 0 && logger.important('currently allowed to run: ' + tasks.length);
+		tasks.length > 0 && logger.important(util.format('%s currently allowed to run: %s', type, tasks.length));
 
 		var started = moment();
 		async.series(tasks, function (err) {

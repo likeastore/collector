@@ -5,6 +5,10 @@ var networks = require('../models/networks');
 var logger = require('../utils/logger');
 
 function disableNetworks(state, callback) {
+	if (state.disabled || state.skip) {
+		return callback (null);
+	}
+
 	var userData = state.userData;
 
 	if (userData && (!userData.loginLastDate || moment().diff(userData.loginLastDate, 'months') > 1)) {

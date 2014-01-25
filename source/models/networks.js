@@ -2,6 +2,16 @@ var config = require('../../config');
 var db = require('../db')(config);
 var users = require('./users');
 
+var queries = {
+	initial: {
+		$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
+	},
+
+	normal: {
+		mode: 'normal'
+	}
+};
+
 module.exports = {
 	findAll: function (query, callback) {
 		return db.networks.find(query, callback);
@@ -12,21 +22,7 @@ module.exports = {
 	},
 
 	findByMode: function (mode, callback) {
-		var queries = {
-			initial: {
-				$or: [ {mode: {$exists: false }}, { mode: 'initial'}, {mode: 'rateLimit'}]
-			},
-
-			normal: {
-				mode: 'normal'
-			}
-		};
-
 		return db.networks.find(queries[mode], callback);
-	},
-
-	findActive: function (callback) {
-		return db.networks.find({$and: [{disabled: {$exists: false}}, {skip: {$exists: false }}]}, callback);
 	},
 
 	update: function (obj, callback) {
