@@ -133,7 +133,7 @@ function scheduler (mode) {
 			return false;
 		}
 
-		return !state.userData.loginLastDate || moment().diff(state.userData.loginLastDate, 'months') > 1;
+		return moment().diff(state.userData.loginLastDate, 'months') > 1;
 	}
 
 	function collectingTask(state) {
