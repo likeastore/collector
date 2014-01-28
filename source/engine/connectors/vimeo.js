@@ -10,7 +10,7 @@ var config = require('../../../config');
 
 var API = 'http://vimeo.com/api/rest/v2?format=json&method=vimeo.videos.getLikes';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var accessToken = state.accessToken;
 	var accessTokenSecret = state.accessTokenSecret;
 	var log = logger.connector('vimeo');
@@ -86,6 +86,7 @@ function connector(state, callback) {
 			return {
 				itemId: video.id,
 				user: state.user,
+				userData: user,
 				created: moment(video.upload_date).toDate(),
 				description: video.description,
 				title: video.title,

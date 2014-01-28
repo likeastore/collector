@@ -9,7 +9,7 @@ var config = require('../../../config');
 
 var API = 'https://api.github.com';
 
-function connect(state, callback) {
+function connect(state, user, callback) {
 	var accessToken = state.accessToken;
 	var log = logger.connector('gist');
 
@@ -82,6 +82,7 @@ function connect(state, callback) {
 				itemId: r.id.toString(),
 				idInt: r.id,
 				user: state.user,
+				userData: user,
 				repo: 'gist',
 				authorName: user.login,
 				authorUrl: user.html_url,

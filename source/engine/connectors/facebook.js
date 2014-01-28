@@ -10,7 +10,7 @@ var config = require('../../../config');
 var API = 'https://graph.facebook.com';
 var FIELDS = 'links.limit(%s).offset(%s).fields(id,caption,from,icon,message,name,link,created_time,picture),likes.limit(%s).offset(%s).fields(link,name,website,description,id,created_time,picture.type(square)),name,username';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var accessToken = state.accessToken;
 	var log = logger.connector('facebook');
 
@@ -86,6 +86,7 @@ function connector(state, callback) {
 				itemId: r.id.toString(),
 				idInt: r.id,
 				user: state.user,
+				userData: user,
 				name: r.name,
 				source: r.link,
 				avatarUrl: r.picture.data.url || 'https://www.gravatar.com/avatar?d=mm',

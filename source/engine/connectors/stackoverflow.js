@@ -10,7 +10,7 @@ var logger = require('../../utils/logger');
 
 var API = 'https://api.stackexchange.com/2.1';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var accessToken = state.accessToken;
 	var log = logger.connector('stackoverflow');
 
@@ -92,6 +92,7 @@ function connector(state, callback) {
 				itemId: fav.question_id.toString(),
 				idInt: fav.question_id,
 				user: state.user,
+				userData: user,
 				dateInt: fav.creation_date,
 				created: moment.unix(fav.creation_date).toDate(),
 				description: fav.title,

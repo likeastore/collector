@@ -10,7 +10,7 @@ var config = require('../../../config');
 
 var API = 'https://api.twitter.com/1.1';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var accessToken = state.accessToken;
 	var accessTokenSecret = state.accessTokenSecret;
 	var log = logger.connector('twitter');
@@ -85,6 +85,7 @@ function connector(state, callback) {
 			return {
 				itemId: fav.id_str,
 				user: state.user,
+				userData: user,
 				created: moment(fav.created_at).toDate(),
 				description: fav.text,
 				avatarUrl: fav.user.profile_image_url_https,

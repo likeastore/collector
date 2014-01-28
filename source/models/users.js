@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var moment = require('moment');
 
 var config = require('../../config');
@@ -20,7 +19,7 @@ function findAndCache(email, callback) {
 			return callback(err);
 		}
 
-		usersCache[email] = _.pick(user, ['avatar', 'displayName', 'email', 'name' ]);
+		usersCache[email] = user;
 
 		return callback (null, usersCache[email]);
 	});

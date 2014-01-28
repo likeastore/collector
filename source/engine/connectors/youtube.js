@@ -9,7 +9,7 @@ var config = require('../../../config');
 
 var API = 'https://www.googleapis.com/youtube/v3';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var log = logger.connector('youtube');
 
 	if (state.unauthorized && state.refreshToken) {
@@ -117,6 +117,7 @@ function connector(state, callback) {
 			return {
 				itemId: video.contentDetails.like.resourceId.videoId,
 				user: state.user,
+				userData: user,
 				created: moment(video.snippet.publishedAt).toDate(),
 				description: video.snippet.description,
 				title: video.snippet.title,

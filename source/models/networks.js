@@ -25,19 +25,13 @@ module.exports = {
 		return db.networks.find(queries[mode], callback);
 	},
 
-	update: function (obj, callback) {
-		return users.findByEmail(obj.user, function (err, user) {
-			if (err) {
-				return callback(err);
-			}
+	update: function (obj, user, callback) {
+		obj.userData = user;
 
-			obj.userData = user;
-
-			db.networks.findAndModify({
-				query: { _id: obj._id },
-				update: obj
-			}, callback);
-		});
+		db.networks.findAndModify({
+			query: { _id: obj._id },
+			update: obj
+		}, callback);
 	},
 
 	disable: function(state, callback) {

@@ -9,7 +9,7 @@ var config = require('../../../config');
 
 var API = 'https://www.behance.net/v2';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var accessToken = state.accessToken;
 	var username = state.username;
 	var log = logger.connector('behance');
@@ -81,6 +81,7 @@ function connector(state, callback) {
 				itemId: r.project.id.toString(),
 				idInt: r.project.id,
 				user: state.user,
+				userData: user,
 				created: moment.unix(r.project.created_on).toDate(),
 				title: r.project.name,
 				authorName: first(r.project.owners).display_name,

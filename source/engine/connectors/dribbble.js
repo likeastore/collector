@@ -9,7 +9,7 @@ var config = require('../../../config');
 
 var API = 'http://api.dribbble.com';
 
-function connector(state, callback) {
+function connector(state, user, callback) {
 	var log = logger.connector('dribbble');
 	var username = state.username;
 
@@ -73,6 +73,7 @@ function connector(state, callback) {
 				itemId: r.id.toString(),
 				idInt: r.id,
 				user: state.user,
+				userData: user,
 				created: moment(r.created_at).toDate(),
 				title: r.title,
 				authorName: r.player.name,
