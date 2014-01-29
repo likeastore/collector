@@ -72,7 +72,7 @@ function connect(state, user, callback) {
 		}
 
 		var stars = body.map(function (r) {
-			var user = r.user || {
+			var gistOwner = r.user || {
 				login: 'anonymous',
 				html_url: null,
 				gravatar_id: 'anon'
@@ -84,10 +84,10 @@ function connect(state, user, callback) {
 				user: state.user,
 				userData: user,
 				repo: 'gist',
-				authorName: user.login,
-				authorUrl: user.html_url,
-				authorGravatar: user.gravatar_id,
-				avatarUrl: 'https://www.gravatar.com/avatar/' + user.gravatar_id + '?d=mm',
+				authorName: gistOwner.login,
+				authorUrl: gistOwner.html_url,
+				authorGravatar: gistOwner.gravatar_id,
+				avatarUrl: 'https://www.gravatar.com/avatar/' + gistOwner.gravatar_id + '?d=mm',
 				source: r.html_url,
 				created: moment(r.created_at).toDate(),
 				description: r.description,
