@@ -103,6 +103,7 @@ function connector(state, user, callback) {
 				itemId: r.id.toString(),
 				idInt: r.id,
 				user: state.user,
+				userData: user,
 				name: r.from.name,
 				source: r.link,
 				avatarUrl: r.picture || 'https://www.gravatar.com/avatar?d=mm',
