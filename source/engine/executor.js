@@ -23,10 +23,12 @@ function executor(state, connectors, callback) {
 
 		connector(state, user, connectorExecuted);
 
-		function connectorExecuted(err, state, results) {
+		function connectorExecuted(err, updatedState, results) {
 			if (err) {
 				logger.error({message: 'connector execution failed', connector: service, state: state, error: err});
 			}
+
+			state = updatedState || state;
 
 			saveConnectorState(state, connectorStateSaved);
 
