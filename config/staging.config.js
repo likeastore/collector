@@ -41,6 +41,10 @@ var config = {
 		behance: {
 			clientId: 'uzBD0GX9Q0CwE3tE9hw69wTpI6P1VBu1',
 			clientSecret: 'baScisHRs3Af11.E7OlC4q2jyrD7fj._'
+		},
+
+		pocket: {
+			consumerKey: '24374-c7057a9cd0bb40642cd4ff97'
 		}
 	},
 

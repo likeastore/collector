@@ -41,6 +41,10 @@ var config = {
 		behance: {
 			clientId: process.env.BAHANCE_CLIENT_ID,
 			clientSecret: process.env.BAHANCE_CLIENT_SECRET
+		},
+
+		pocket: {
+			consumerKey: process.env.POCKET_CONSUMER_KEY
 		}
 	},
 
