@@ -7,5 +7,6 @@ module.exports = {
 	vimeo: require('./vimeo'),
 	youtube: require('./youtube'),
 	dribbble: require('./dribbble'),
-	behance: require('./behance')
+	behance: require('./behance'),
+	pocket: require('./pocket')
 };

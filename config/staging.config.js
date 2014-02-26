@@ -110,6 +110,10 @@ var config = {
 
 			behance: {
 				runAfter: 5000
+			},
+
+			pocket: {
+				runAfter: 5000
 			}
 		},
 
