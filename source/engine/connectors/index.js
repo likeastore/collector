@@ -8,5 +8,6 @@ module.exports = {
 	youtube: require('./youtube'),
 	dribbble: require('./dribbble'),
 	behance: require('./behance'),
-	pocket: require('./pocket')
+	pocket: require('./pocket'),
+	tumblr: require('./tumblr')
 };
