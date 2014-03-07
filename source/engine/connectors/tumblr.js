@@ -75,7 +75,7 @@ function connector(state, user, callback) {
 		var list = body.response.liked_posts;
 
 		if (!Array.isArray(list)) {
-			return handleUnexpected(response, body, state, function (err) {
+			return handleUnexpected(response, body, state, 'unexpected response', function (err) {
 				callback(err, scheduleTo(updateState(state, [], 9999, true)));
 			});
 		}
