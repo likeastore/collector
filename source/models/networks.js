@@ -37,7 +37,7 @@ module.exports = {
 	disable: function(state, callback) {
 		return db.networks.findAndModify({
 			query: {_id: state._id},
-			update: {$set: {disabled: true}}
+			update: {$set: {disabled: true, lastError: 'disabled due to user inactivity'}}
 		}, callback);
 	},
 
