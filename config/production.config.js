@@ -123,6 +123,10 @@ var config = {
 
 			pocket: {
 				runAfter: 5000
+			},
+
+			tumblr: {
+				runAfter: 5000
 			}
 		},
 
