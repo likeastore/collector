@@ -24,8 +24,6 @@ function connector(state, user, callback) {
 	var body = formatRequestBody(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
-	console.dir(body);
-
 	request.post({uri: API, headers: headers, timeout: config.collector.request.timeout, form: body}, function (err, response, body) {
 		if (err) {
 			return handleUnexpected(response, body, state, err, function (err) {
