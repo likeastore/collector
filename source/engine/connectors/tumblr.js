@@ -72,7 +72,7 @@ function connector(state, user, callback) {
 	}
 
 	function handleResponse(response, body) {
-		var list = body.response.liked_posts;
+		var list = body.response && body.response.liked_posts;
 
 		if (!Array.isArray(list)) {
 			return handleUnexpected(response, body, state, 'unexpected response', function (err) {
