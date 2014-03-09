@@ -38,7 +38,7 @@ function connector(state, user, callback) {
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
 	request({uri: uri, headers: headers, oauth: oauth, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
-		if (err) {
+		if (failed(err, response, body)) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
 			});
@@ -47,16 +47,10 @@ function connector(state, user, callback) {
 		return handleResponse(response, body);
 	});
 
-	function formatRequestUri(state) {
-		var base = util.format('%s/favorites/list.json?count=200&include_entities=false', API);
-		return state.maxId ?
-			util.format('%s&max_id=%s', base, state.maxId) :
-			state.mode === 'normal' && state.sinceId ?
-				util.format('%s&since_id=%s', base, state.sinceId) :
-				base;
+	function failed(err, response, body) {
+		return err || response.statusCode !== 200 || !body;
 	}
 
-	// TODO: move to common function, seems the same for all collectors?
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';
@@ -69,6 +63,15 @@ function connector(state, user, callback) {
 		if (state.mode === 'rateLimit') {
 			state.mode = state.prevMode;
 		}
+	}
+
+	function formatRequestUri(state) {
+		var base = util.format('%s/favorites/list.json?count=200&include_entities=false', API);
+		return state.maxId ?
+			util.format('%s&max_id=%s', base, state.maxId) :
+			state.mode === 'normal' && state.sinceId ?
+				util.format('%s&since_id=%s', base, state.sinceId) :
+				base;
 	}
 
 	function handleResponse(response, body) {

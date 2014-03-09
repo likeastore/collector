@@ -25,7 +25,7 @@ function connect(state, user, callback) {
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
-		if (err) {
+		if (failed(err, response, body)) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
 			});
@@ -34,7 +34,10 @@ function connect(state, user, callback) {
 		return handleResponse(response, body);
 	});
 
-	// TODO: move to common function, seems the same for all collectors?
+	function failed(err, response, body) {
+		return err || response.statusCode !== 200 || !body;
+	}
+
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';

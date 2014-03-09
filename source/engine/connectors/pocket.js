@@ -25,7 +25,7 @@ function connector(state, user, callback) {
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
 	request.post({uri: API, headers: headers, timeout: config.collector.request.timeout, form: body}, function (err, response, body) {
-		if (err) {
+		if (failed(err, response, body)) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
 			});
@@ -42,6 +42,10 @@ function connector(state, user, callback) {
 		return handleResponse(response, body);
 
 	});
+
+	function failed(err, response, body) {
+		return err || response.statusCode !== 200 || !body;
+	}
 
 	function initState(state) {
 		if (!state.mode) {

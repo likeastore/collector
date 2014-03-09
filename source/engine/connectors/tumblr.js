@@ -37,7 +37,7 @@ function connector(state, user, callback) {
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
 	request({uri: uri, headers: headers, oauth: oauth, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
-		if (err) {
+		if (failed(err, response, body)) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
 			});
@@ -45,6 +45,10 @@ function connector(state, user, callback) {
 
 		return handleResponse(response, body);
 	});
+
+	function failed(err, response, body) {
+		return err || response.statusCode !== 200 || !body;
+	}
 
 	function formatRequestUri(state) {
 		var pageSize = 20;
@@ -72,7 +76,7 @@ function connector(state, user, callback) {
 	}
 
 	function handleResponse(response, body) {
-		var list = body.response && body.response.liked_posts;
+		var list = body.response.liked_posts;
 
 		if (!Array.isArray(list)) {
 			return handleUnexpected(response, body, state, 'unexpected response', function (err) {

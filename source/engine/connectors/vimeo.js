@@ -38,7 +38,7 @@ function connector(state, user, callback) {
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
 	request({uri: uri, headers: headers, oauth: oauth, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
-		if (err) {
+		if (failed(err, response, body)) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
 			});
@@ -54,7 +54,10 @@ function connector(state, user, callback) {
 			base;
 	}
 
-	// TODO: move to common function, seems the same for all collectors?
+	function failed(err, response, body) {
+		return err || response.statusCode !== 200 || !body;
+	}
+
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';
