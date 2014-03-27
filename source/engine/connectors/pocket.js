@@ -100,6 +100,8 @@ function connector(state, user, callback) {
 			});
 		}
 
+		console.log(list);
+
 		var stars = list.map(function (r) {
 			return {
 				itemId: r.item_id,
@@ -109,7 +111,7 @@ function connector(state, user, callback) {
 				title: r.resolved_title,
 				authorName: r.authors && r.authors[0] && r.authors[0].name,
 				authorUrl: r.authors && r.authors[0] && r.authors[0].url,
-				source: 'https://getpocket.com/a/read/' + r.item_id,
+				source: r.resolved_url,
 				created: moment.unix(r.time_favorited).toDate(),
 				description: r.excerpt,
 				thumbnail: r.image && r.image.src,
