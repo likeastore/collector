@@ -50,7 +50,13 @@ var config = {
 		tumblr: {
 			consumerKey: process.env.TUMBLR_CONSUMER_KEY,
 			consumerSecret: process.env.TUMBLR_CONSUMER_SECRET,
+		},
+
+		instagram: {
+			clientId: process.env.INSTAGRAM_CLIENT_ID,
+			clientSecret: process.env.INSTAGRAM_CLIENT_SECRET
 		}
+
 	},
 
 	mandrill: {
