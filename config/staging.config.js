@@ -127,6 +127,10 @@ var config = {
 
 			tumblr: {
 				runAfter: 5000
+			},
+
+			instagram: {
+				runAfter: 5000
 			}
 		},
 

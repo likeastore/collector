@@ -9,5 +9,6 @@ module.exports = {
 	dribbble: require('./dribbble'),
 	behance: require('./behance'),
 	pocket: require('./pocket'),
-	tumblr: require('./tumblr')
+	tumblr: require('./tumblr'),
+	instagram: require('./instagram')
 };

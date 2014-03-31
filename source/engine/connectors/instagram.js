@@ -1,16 +1,17 @@
 var request = require('request');
 var moment = require('moment');
+var util = require('util');
 
 var scheduleTo = require('../scheduleTo');
 var logger = require('./../../utils/logger');
 var handleUnexpected = require('../handleUnexpected');
 var config = require('../../../config');
 
-var API = 'https://getpocket.com/v3/get';
+var API = 'https://api.instagram.com/v1';
 
 function connector(state, user, callback) {
 	var accessToken = state.accessToken;
-	var log = logger.connector('pocket');
+	var log = logger.connector('instagram');
 
 	if (!accessToken) {
 		return callback('missing accessToken for user: ' + state.user);
@@ -20,26 +21,17 @@ function connector(state, user, callback) {
 
 	log.info('prepearing request in (' + state.mode + ') mode for user: ' + state.user);
 
-	var body = formatRequestBody(accessToken, state);
+	var uri = formatRequestUri(accessToken, state);
 	var headers = { 'Content-Type': 'application/json', 'User-Agent': 'likeastore/collector'};
 
-	request.post({uri: API, headers: headers, timeout: config.collector.request.timeout, form: body}, function (err, response, body) {
+	request({uri: uri, headers: headers, timeout: config.collector.request.timeout, json: true}, function (err, response, body) {
 		if (failed(err, response, body)) {
 			return handleUnexpected(response, body, state, err, function (err) {
 				callback (err, state);
 			});
 		}
 
-		try {
-			body = JSON.parse(body);
-		} catch (e) {
-			return handleUnexpected(response, body, state, e, function (err) {
-				callback (err, state);
-			});
-		}
-
 		return handleResponse(response, body);
-
 	});
 
 	function failed(err, response, body) {
@@ -64,75 +56,51 @@ function connector(state, user, callback) {
 		}
 	}
 
-	function formatRequestBody(accessToken, state) {
-		var pageSize = 500;
-
-		var requestBody =  {
-			consumer_key: config.services.pocket.consumerKey,
-			access_token: accessToken,
-			favorite: 1,
-			detailType: 'complete',
-			sort: 'oldest'
-		};
-
-		if (state.mode === 'initial') {
-			requestBody.count = pageSize;
-			requestBody.offset = pageSize * state.page;
-		} else if (state.mode === 'normal') {
-			requestBody.since = state.since;
-		}
-
-		return requestBody;
+	function formatRequestUri(accessToken, state) {
+		var base = util.format('%s/users/self/media/liked?access_token=%s', API, accessToken);
+		return state.maxId ? util.format('%s&max_like_id=%s', base, state.maxId) : base;
 	}
 
 	function handleResponse(response, body) {
-		var rateLimit = +response.headers['x-limit-user-remaining'];
+		var rateLimit = +response.headers['x-ratelimit-remaining'];
 		log.info('rate limit remaining: ' +  rateLimit + ' for user: ' + state.user);
 
-		var list = Object.keys(body.list).map(function (key) {
-			return body.list[key];
-		});
-
-		if (!Array.isArray(list)) {
+		if (!Array.isArray(body.data)) {
 			return handleUnexpected(response, body, state, 'unexpected response', function (err) {
 				callback(err, scheduleTo(updateState(state, body, [], rateLimit, true)));
 			});
 		}
 
-		var stars = list.map(function (r) {
+		var likes = body.data.map(function (r) {
 			return {
-				itemId: r.item_id,
-				idInt: +r.item_id,
+				itemId: r.id,
 				user: state.user,
 				userData: user,
-				title: r.resolved_title,
-				authorName: r.authors && r.authors[0] && r.authors[0].name,
-				authorUrl: r.authors && r.authors[0] && r.authors[0].url,
-				source: r.resolved_url,
-				created: moment.unix(r.time_favorited).toDate(),
-				description: r.excerpt,
-				thumbnail: r.image && r.image.src,
-				type: 'pocket'
+				authorName: r.user && r.user.username,
+				authorUrl: 'https://instagram.com/' + (r.user && r.user.username),
+				avatarUrl: r.user && r.user.profile_picture,
+				source: r.link,
+				created: moment.unix(r.created_time).toDate(),
+				description: r.caption && r.caption.text,
+				thumbnail: r.images && r.images.standard_resolution && r.images.standard_resolution.url,
+				type: 'instagram'
 			};
 		});
 
-		log.info('retrieved ' + stars.length + ' stars for user: ' + state.user);
+		log.info('retrieved ' + likes.length + ' likes for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, body, stars, rateLimit, false)), stars);
+		return callback(null, scheduleTo(updateState(state, body, likes, rateLimit, false)), likes);
 	}
 
 	function updateState(state, body, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
-		state.since = body.since;
 
 		if (!failed) {
-			if (state.mode === 'initial' && data.length > 0) {
-				state.page += 1;
-			}
-
-			if (state.mode === 'initial' && data.length === 0) {
+			if (state.mode === 'initial' && body.pagination && body.pagination.next_max_like_id) {
+				state.maxId = body.pagination.next_max_like_id;
+			} else {
 				state.mode = 'normal';
-				delete state.page;
+				delete state.maxId;
 			}
 
 			if (rateLimit <= 1) {
