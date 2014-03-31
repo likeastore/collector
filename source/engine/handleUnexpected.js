@@ -13,10 +13,11 @@ function handleUnexpected(response, body, state, err, callback) {
 		state.unauthorized = true;
 	}
 
+	state.lastError = { err: err, status: status, body: body};
+
 	if (state.errors === MAX_ERRORS_ALLOWED) {
 		delete state.errors;
 		state.disabled = true;
-		state.lastError = { err: err, status: status, body: body};
 
 		return callback({ message: 'Connector disabled, due to max errors count.', body: body, status: status});
 	}

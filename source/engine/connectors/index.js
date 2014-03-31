@@ -10,5 +10,6 @@ module.exports = {
 	behance: require('./behance'),
 	pocket: require('./pocket'),
 	tumblr: require('./tumblr'),
-	instagram: require('./instagram')
+	instagram: require('./instagram'),
+	flickr: require('./flickr')
 };

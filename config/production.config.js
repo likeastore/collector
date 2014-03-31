@@ -55,8 +55,12 @@ var config = {
 		instagram: {
 			clientId: process.env.INSTAGRAM_CLIENT_ID,
 			clientSecret: process.env.INSTAGRAM_CLIENT_SECRET
-		}
+		},
 
+		flickr: {
+			consumerKey: process.env.FLICKR_CONSUMER_KEY,
+			consumerSecret: process.env.FLICKR_CONSUMER_SECRET
+		}
 	},
 
 	mandrill: {
@@ -136,6 +140,10 @@ var config = {
 			},
 
 			instagram: {
+				runAfter: 5000
+			},
+
+			flickr: {
 				runAfter: 5000
 			}
 		},

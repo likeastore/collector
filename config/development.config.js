@@ -50,6 +50,11 @@ var config = {
 		tumblr: {
 			consumerKey: '6vUnFztIzNd6ISG8kBn7UyhGkHA8a49UjXUx9rCYbrWBnbFZBr',
 			consumerSecret: 'pnUrbwgmLHubWqaBxRIzD216FxAq8wZCzf2hXysL9huV1Sfq9R'
+		},
+
+		flickr: {
+			consumerKey: 'de1be7a4d307073deca73ad46d9faf40',
+			consumerSecret: '6103498d0db1c48a'
 		}
 	},
 
@@ -130,6 +135,10 @@ var config = {
 			},
 
 			instagram: {
+				runAfter: 5000
+			},
+
+			flickr: {
 				runAfter: 5000
 			}
 		},
