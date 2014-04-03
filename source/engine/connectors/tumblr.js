@@ -56,7 +56,6 @@ function connector(state, user, callback) {
 		return state.mode === 'initial' ? util.format('%s&offset=%s', base, state.page * pageSize) : base;
 	}
 
-	// TODO: move to common function, seems the same for all collectors?
 	function initState(state) {
 		if (!state.mode) {
 			state.mode = 'initial';
@@ -94,6 +93,7 @@ function connector(state, user, callback) {
 				authorName: fav.blog_name,
 				source: fav.post_url,
 				title: fav.title,
+				thumbnail: fav.photos && fav.photos[0] && fav.photos[0].original_size.url,
 				type: 'tumblr'
 			};
 		});
