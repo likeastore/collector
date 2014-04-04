@@ -80,6 +80,8 @@ function connector(state, user, callback) {
 	}
 
 	function handleResponse(response, body) {
+		logger.important({body: body});
+
 		var photos = body.photos.photo;
 
 		if (!Array.isArray(photos)) {
