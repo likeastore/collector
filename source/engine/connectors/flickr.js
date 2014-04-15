@@ -80,7 +80,7 @@ function connector(state, user, callback) {
 	}
 
 	function handleResponse(response, body) {
-		var photos = body.photos.photo;
+		var photos = body.photos && body.photos.photo;
 
 		if (!Array.isArray(photos)) {
 			return handleUnexpected(response, body, state, function (err) {
