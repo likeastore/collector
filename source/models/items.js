@@ -6,6 +6,8 @@ var db = require('../db')(config);
 
 module.exports = {
 	insert: function (items, state, callback) {
+		items = items || [];
+
 		var updates = items.map(function (item) {
 			return function (callback) {
 				db.items.update({
