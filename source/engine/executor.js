@@ -1,84 +1,56 @@
 var util = require('util');
+var async = require('async');
 var moment = require('moment');
 var items = require('../models/items');
 var users = require('../models/users');
 var networks = require('../models/networks');
 var logger = require('../utils/logger');
 
-// TODO: Thinks about to separate `request` part of collector and `store` part.. first one
-// could be easily run in paraller, second in series.
-
-// TODO: function looks complex, need to refactor it
 function executor(state, connectors, callback) {
-	var service = state.service;
-	var connector = connectors[service];
-	var connectorStarted = moment();
+	var executorStarted = moment();
 
-	users.findByEmail(state.user, executeConnector);
+	async.waterfall([
+		readUser,
+		executeConnector,
+		saveResults,
+		saveState
+	], function (err, results) {
+		var executorFinished = moment();
+		var duration = moment.duration(executorFinished.diff(executorStarted));
 
-	function executeConnector(err, user) {
-		if (err) {
-			return callback(err);
-		}
+		logger.important(
+			util.format('connector: %s (%s), items: %s, executed: %d sec.',
+				state.service,
+				state.user,
+				results ? results.length : '[NOT COLLECTED]',
+				duration.asSeconds().toFixed(2)));
 
-		connector(state, user, connectorExecuted);
+		callback(err);
+	});
 
-		function connectorExecuted(err, updatedState, results) {
-			if (err) {
-				logger.error({message: 'connector execution failed', connector: service, state: state, error: err});
-			}
+	function readUser(callback) {
+		users.findByEmail(state.user, function(err, user) {
+			callback(err, user);
+		});
+	}
 
-			state = updatedState || state;
+	function executeConnector(user, callback) {
+		var connector = connectors[state.service];
+		connector(state, user, function (err, state, results) {
+			callback(err, results, user);
+		});
+	}
 
-			saveConnectorState(state, connectorStateSaved);
+	function saveResults(results, user, callback) {
+		items.insert(results, state, function(err) {
+			callback(err, user, results);
+		});
+	}
 
-			function saveConnectorState (state, callback) {
-				if (state) {
-					return networks.update(state, user, callback);
-				}
-
-				callback (null);
-			}
-
-			function connectorStateSaved (err) {
-				if (err) {
-					logger.error({message: 'connector save state failed', connector: service, state: state, error: err});
-				}
-
-				if (results) {
-					return saveConnectorResults(results, connectorResultsSaved);
-				}
-
-				connectorResultsSaved(null, moment.duration(0));
-			}
-
-			function saveConnectorResults(results, callback) {
-				var saveStarted = moment();
-				items.update(results, function (err) {
-					var saveExecuted = moment();
-					callback(err, moment.duration(saveExecuted.diff(saveStarted)));
-				});
-			}
-
-			function connectorResultsSaved (err, saveDuration) {
-				if (err) {
-					logger.error({message: 'connector save items failed', connector: service, state: state, error: err});
-				}
-
-				var connectorExecuted = moment();
-				var duration = moment.duration(connectorExecuted.diff(connectorStarted));
-
-				logger.important(
-					util.format('connector: %s (%s), items: %s, saved: %d sec., executed: %d sec.',
-						service,
-						state.user,
-						results ? results.length : '[NOT COLLECTED]',
-						saveDuration.asSeconds().toFixed(2),
-						duration.asSeconds().toFixed(2)));
-
-				callback(null);
-			}
-		}
+	function saveState(user, results, callback) {
+		networks.update(state, user, function (err) {
+			callback(err, results);
+		});
 	}
 }
 

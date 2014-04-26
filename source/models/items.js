@@ -5,13 +5,12 @@ var config = require('../../config');
 var db = require('../db')(config);
 
 module.exports = {
-	update: function (items, callback) {
+	insert: function (items, state, callback) {
 		var updates = items.map(function (item) {
 			return function (callback) {
 				db.items.update({
 					itemId: item.itemId,
-					user: item.user,
-					type: item.type
+					user: item.user
 				}, {
 					$set: item,
 					$setOnInsert: {
@@ -23,6 +22,6 @@ module.exports = {
 			};
 		});
 
-		async.parallelLimit(updates, 16, callback);
+		async.series(updates, callback);
 	}
 };
