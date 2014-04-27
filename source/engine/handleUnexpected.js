@@ -1,3 +1,5 @@
+var logger = require('../utils/logger');
+
 var MAX_ERRORS_ALLOWED = 5;
 
 function handleUnexpected(response, body, state, err, callback) {
@@ -18,8 +20,7 @@ function handleUnexpected(response, body, state, err, callback) {
 	if (state.errors === MAX_ERRORS_ALLOWED) {
 		delete state.errors;
 		state.disabled = true;
-
-		return callback({ message: 'Connector disabled, due to max errors count.', body: body, status: status});
+		logger.important({ message: 'Connector disabled, due to max errors count.', body: body, status: status});
 	}
 
 	callback(null);
