@@ -14,7 +14,7 @@ function monitor(mode) {
 	});
 
 	proc.on('exit', function (code, signal) {
-		logger.fatal({msg: 'process exited, code: ' + code + ' signal: ' + signal});
+		logger.fatal({msg: 'process exited, code: ' + code + ' signal: ' + signal + ' mode: ' + mode});
 	});
 
 	proc.on('stdout', function (data) {
