@@ -20,7 +20,7 @@ function handleUnexpected(response, body, state, err, callback) {
 	if (state.errors === MAX_ERRORS_ALLOWED) {
 		delete state.errors;
 		state.disabled = true;
-		logger.important({ message: 'Connector disabled, due to max errors count.', body: body, status: status});
+		logger.error({ message: 'Connector disabled, due to max errors count.', body: body, status: status, err: err, response: response});
 	}
 
 	callback(null);

@@ -88,10 +88,12 @@ function connector(state, user, callback) {
 			'grant_type': 'refresh_token'
 		};
 
-		logger.info('refreshing accessToken for user: ' + state.user);
+		logger.important('refreshing accessToken for user: ' + state.user);
 
 		request.post({url: refreshTokenUrl, headers: headers, form: data, json: true}, function (err, response, body) {
 			if (err || !body.access_token) {
+				logger.error('failed to refresh accessToken for user: ' + state.user);
+
 				return callback(err, state);
 			}
 
@@ -99,7 +101,7 @@ function connector(state, user, callback) {
 			delete state.unauthorized;
 			delete state.errors;
 
-			logger.info('accessToken refreshed for user: ' + state.user);
+			logger.important('accessToken refreshed for user: ' + state.user);
 
 			callback(null, state);
 		});
