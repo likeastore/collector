@@ -99,7 +99,6 @@ function connector(state, user, callback) {
 
 			state.accessToken = body.access_token;
 			delete state.unauthorized;
-			delete state.errors;
 
 			logger.important('accessToken refreshed for user: ' + state.user);
 
