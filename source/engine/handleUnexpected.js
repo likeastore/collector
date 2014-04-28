@@ -25,8 +25,7 @@ function handleUnexpected(response, body, state, err, callback) {
 			message: 'Connector disabled, due to max errors count.',
 			body: body,
 			status: status,
-			err: err,
-			response: response
+			err: err
 		});
 	}
 
