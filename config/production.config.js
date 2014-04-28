@@ -77,7 +77,7 @@ var config = {
 	},
 
 	logging: {
-		level: 'debug'
+		level: 'err'
 	},
 
 	collector: {
