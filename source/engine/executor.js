@@ -12,7 +12,9 @@ function executor(state, connectors, callback) {
 	async.waterfall([
 		readUser,
 		executeConnector,
-		saveResults,
+		detectNewItems,
+		saveToMongo,
+		saveToEleastic,
 		saveState
 	], function (err, results) {
 		var executorFinished = moment();
@@ -37,14 +39,22 @@ function executor(state, connectors, callback) {
 	function executeConnector(user, callback) {
 		var connector = connectors[state.service];
 		connector(state, user, function (err, state, results) {
-			callback(err, results, user);
+			callback(err, user, results);
 		});
 	}
 
-	function saveResults(results, user, callback) {
+	function detectNewItems(user, results, callback) {
+		callback(null, user, results);
+	}
+
+	function saveToMongo(user, results, callback) {
 		items.insert(results, state, function(err) {
 			callback(err, user, results);
 		});
+	}
+
+	function saveToEleastic(user, results) {
+		callback(null, user, results);
 	}
 
 	function saveState(user, results, callback) {
