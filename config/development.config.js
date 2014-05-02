@@ -5,6 +5,10 @@ var config = {
 	applicationUrl: 'http://localhost:3001',
 	siteUrl: 'http://localhost:3000',
 
+	elastic: {
+		connection: 'http://localhost:9200'
+	},
+
 	// api keys
 	services: {
 		github: {

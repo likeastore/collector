@@ -5,6 +5,10 @@ var config = {
 	applicationUrl: 'https://app.likeastore.com',
 	siteUrl: 'https://likeastore.com',
 
+	elastic: {
+		connection: 'http://search.likeastore.com:9200'
+	},
+
 	// api keys
 	services: {
 		github: {

@@ -5,6 +5,10 @@ var config = {
 	applicationUrl: 'https://app-stage.likeastore.com',
 	siteUrl: 'https://stage.likeastore.com',
 
+	elastic: {
+		connection: 'http://stage.likeastore.com:9200'
+	},
+
 	// api keys
 	services: {
 		github: {

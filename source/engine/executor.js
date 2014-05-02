@@ -12,9 +12,9 @@ function executor(state, connectors, callback) {
 	async.waterfall([
 		readUser,
 		executeConnector,
-		detectNewItems,
+		findNew,
 		saveToMongo,
-		saveToEleastic,
+		//saveToEleastic,
 		saveState
 	], function (err, results) {
 		var executorFinished = moment();
@@ -30,41 +30,59 @@ function executor(state, connectors, callback) {
 		callback(err);
 	});
 
-	function readUser(callback) {
+	function readUser(next) {
+		logger.info('[executor]: reading user info');
+
 		users.findByEmail(state.user, function(err, user) {
-			callback(err, user);
+			next(logErrorAndProceed(err, '[executor]: failed to find user'), user);
 		});
 	}
 
-	function executeConnector(user, callback) {
+	function executeConnector(user, next) {
+		logger.info('[executor]: executing connector for (' + state.user + ') service: ' + state.service);
+
 		var connector = connectors[state.service];
 		connector(state, user, function (err, state, collected) {
-			callback(err, user, collected);
+			next(logErrorAndProceed(err, '[executor]: failed to execute connector'), user, collected);
 		});
 	}
 
-	function detectNewItems(user, collected, callback) {
-		items.detectNew(user, state, collected, function (err, detected) {
-			callback(err, user, detected);
+	function findNew(user, collected, next) {
+		logger.info('[executor]: finding new (' + state.user + ') collected: ' + collected.length);
+
+		items.findNew(collected, state, function (err, detected) {
+			next(logErrorAndProceed(err, '[executor]: failed to find new items'), user, detected);
 		});
 	}
 
-	function saveToMongo(user, detected, callback) {
+	function saveToMongo(user, detected, next) {
+		logger.info('[executor]: saving to mongo (' + state.user + ') detected: ' + detected.length);
+
 		items.insert(detected, state, function(err, saved) {
-			callback(err, user, saved);
+			next(logErrorAndProceed(err, '[executor]: failed to save items'), user, saved);
 		});
 	}
 
-	function saveToEleastic(user, saved) {
+	function saveToEleastic(user, saved, next) {
+		logger.info('[executor]: saving to elastic (' + state.user + ') saved: ' + saved.length);
+
 		items.index(saved, state, function (err) {
-			callback(null, user, saved);
+			next(logErrorAndProceed(err, '[executor]: failed to index items'), user, saved);
 		});
 	}
 
-	function saveState(user, saved, callback) {
+	function saveState(user, saved, next) {
+		logger.info('[executor]: saving state (' + state.user + ')');
+
 		networks.update(state, user, function (err) {
-			callback(err, saved);
+			next(logErrorAndProceed(err, '[executor]: failed to save state'), saved);
 		});
+	}
+
+	function logErrorAndProceed(err, message) {
+		if (err) {
+			logger.error({message: message, err: err});
+		}
 	}
 }
 

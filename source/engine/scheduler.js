@@ -12,7 +12,8 @@ var connectors = require('./connectors');
 function scheduler (mode) {
 
 	function schedulerLoop() {
-		var collectorSteps = [runCollectingTasks, runCleaningTasks];
+		// var collectorSteps = [runCollectingTasks, runCleaningTasks];
+		var collectorSteps = [runCollectingTasks];
 		async.series(collectorSteps, restartScheduler);
 	}
 

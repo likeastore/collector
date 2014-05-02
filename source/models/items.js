@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var async = require('async');
 var moment = require('moment');
 
 var config = require('../../config');
@@ -6,8 +7,8 @@ var db = require('../db')(config);
 var elastic = require('../elastic')(config);
 
 module.exports = {
-	detectNew: function (user, items, state, callback) {
-		if (!items) {
+	findNew: function (items, state, callback) {
+		if (!items || items.length === 0) {
 			return callback(null, items);
 		}
 
@@ -15,33 +16,19 @@ module.exports = {
 			return callback(null, items);
 		}
 
-		db.items.find({user: user.email, type: state.service}).limit(items.length).sort({_id: 1}, function (err, found) {
-			if (err) {
-				return callback(err);
-			}
-
-			var foundItemsIds = found.map(function (i) {
-				return i.itemId;
+		var check = function (item, callback) {
+			db.items.findOne({user: state.user, itemId: item.itemId}, function(err, found) {
+				callback(!found);
 			});
+		};
 
-			var newItemsIds = items.map(function (i) {
-				return i.itemId;
-			});
-
-			var itemsIdsToInsert = _.difference(foundItemsIds, newItemsIds);
-
-			var itemsToInsert = itemsIdsToInsert.map(function (id) {
-				return _.find(items, function (item) {
-					return item.itemId === id;
-				});
-			});
-
-			callback(null, itemsToInsert);
+		async.filter(items, check, function (detected) {
+			callback(null, detected);
 		});
 	},
 
 	insert: function (items, state, callback) {
-		if (!items) {
+		if (!items || items.length === 0) {
 			return callback(null);
 		}
 
