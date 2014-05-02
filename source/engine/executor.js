@@ -24,7 +24,7 @@ function executor(state, connectors, callback) {
 			util.format('connector: %s (%s), items: %s, executed: %d sec.',
 				state.service,
 				state.user,
-				results ? results.length : '[NOT COLLECTED]',
+				formatLength(results),
 				duration.asSeconds().toFixed(2)));
 
 		callback(err);
@@ -48,7 +48,7 @@ function executor(state, connectors, callback) {
 	}
 
 	function findNew(user, collected, next) {
-		logger.info('[executor]: finding new (' + state.user + ') collected: ' + collected.length);
+		logger.info('[executor]: finding new (' + state.user + ') collected: ' + formatLength(collected));
 
 		items.findNew(collected, state, function (err, detected) {
 			next(logErrorAndProceed(err, '[executor]: failed to find new items'), user, detected);
@@ -56,7 +56,7 @@ function executor(state, connectors, callback) {
 	}
 
 	function saveToMongo(user, detected, next) {
-		logger.info('[executor]: saving to mongo (' + state.user + ') detected: ' + detected.length);
+		logger.info('[executor]: saving to mongo (' + state.user + ') detected: ' + formatLength(detected));
 
 		items.insert(detected, state, function(err, saved) {
 			next(logErrorAndProceed(err, '[executor]: failed to save items'), user, saved);
@@ -64,7 +64,7 @@ function executor(state, connectors, callback) {
 	}
 
 	function saveToEleastic(user, saved, next) {
-		logger.info('[executor]: saving to elastic (' + state.user + ') saved: ' + saved.length);
+		logger.info('[executor]: saving to elastic (' + state.user + ') saved: ' + formatLength(saved));
 
 		items.index(saved, state, function (err) {
 			next(logErrorAndProceed(err, '[executor]: failed to index items'), user, saved);
@@ -83,6 +83,10 @@ function executor(state, connectors, callback) {
 		if (err) {
 			logger.error({message: message, err: err});
 		}
+	}
+
+	function formatLength(items) {
+		return items ? items.length : '[NOT COLLECTED]';
 	}
 }
 
