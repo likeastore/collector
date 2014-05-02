@@ -29,7 +29,7 @@ module.exports = {
 
 	insert: function (items, state, callback) {
 		if (!items || items.length === 0) {
-			return callback(null);
+			return callback(null, items);
 		}
 
 		items = items.map(function (item) {
@@ -40,12 +40,16 @@ module.exports = {
 	},
 
 	index: function (items, state, callback) {
+		if (!items || items.length === 0) {
+			return callback(null, items);
+		}
+
 		var commands = [];
 		items.forEach(function (item) {
 			commands.push({'index': {'_index': 'items', '_type': 'item', '_id': item._id.toString()}});
 			commands.push(item);
 		});
 
-		elastic.bulk(commands, callback);
+		elastic.bulk({body: commands}, callback);
 	}
 };
