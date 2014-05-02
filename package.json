@@ -23,7 +23,8 @@
     "memwatch": "~0.2.2",
     "respawn": "~0.1.8",
     "newrelic": "~1.2.0",
-    "mocha": "~1.11.0"
+    "mocha": "~1.11.0",
+    "elasticsearch": "~2.1.4"
   },
   "engines": {
     "node": "~0.10.x"

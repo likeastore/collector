@@ -38,28 +38,32 @@ function executor(state, connectors, callback) {
 
 	function executeConnector(user, callback) {
 		var connector = connectors[state.service];
-		connector(state, user, function (err, state, results) {
-			callback(err, user, results);
+		connector(state, user, function (err, state, collected) {
+			callback(err, user, collected);
 		});
 	}
 
-	function detectNewItems(user, results, callback) {
-		callback(null, user, results);
-	}
-
-	function saveToMongo(user, results, callback) {
-		items.insert(results, state, function(err) {
-			callback(err, user, results);
+	function detectNewItems(user, collected, callback) {
+		items.detectNew(user, state, collected, function (err, detected) {
+			callback(err, user, detected);
 		});
 	}
 
-	function saveToEleastic(user, results) {
-		callback(null, user, results);
+	function saveToMongo(user, detected, callback) {
+		items.insert(detected, state, function(err, saved) {
+			callback(err, user, saved);
+		});
 	}
 
-	function saveState(user, results, callback) {
+	function saveToEleastic(user, saved) {
+		items.index(saved, state, function (err) {
+			callback(null, user, saved);
+		});
+	}
+
+	function saveState(user, saved, callback) {
 		networks.update(state, user, function (err) {
-			callback(err, results);
+			callback(err, saved);
 		});
 	}
 }
