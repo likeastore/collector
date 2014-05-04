@@ -12,9 +12,10 @@ module.exports = {
 			return callback(null, items);
 		}
 
-		if (state.mode === 'initial') {
-			return callback(null, items);
-		}
+		// apply check for all modes (there is a trouble in tubmblr connector)
+		// if (state.mode === 'initial') {
+		// 	return callback(null, items);
+		// }
 
 		var check = function (item, callback) {
 			db.items.findOne({user: state.user, itemId: item.itemId}, function(err, found) {
