@@ -52,7 +52,7 @@ function connector(state, user, callback) {
 
 	function formatRequestUri(state) {
 		var pageSize = 20;
-		var base = util.format('%s/user/likes?limit=%pageSize', API);
+		var base = util.format('%s/user/likes?limit=%s', API, pageSize);
 		return state.mode === 'initial' ? util.format('%s&offset=%s', base, state.page * pageSize) : base;
 	}
 
@@ -79,7 +79,7 @@ function connector(state, user, callback) {
 
 		if (!Array.isArray(list)) {
 			return handleUnexpected(response, body, state, 'unexpected response', function (err) {
-				callback(err, scheduleTo(updateState(state, [], 9999, true)));
+				callback(err, scheduleTo(updateState(state, body.response, [], 9999, true)));
 			});
 		}
 
@@ -100,10 +100,10 @@ function connector(state, user, callback) {
 
 		log.info('retrieved ' + likes.length + ' likes for user: ' + state.user);
 
-		return callback(null, scheduleTo(updateState(state, likes, 9999, false)), likes);
+		return callback(null, scheduleTo(updateState(state, body.response, likes, 9999, false)), likes);
 	}
 
-	function updateState(state, data, rateLimit, failed) {
+	function updateState(state, response, data, rateLimit, failed) {
 		state.lastExecution = moment().toDate();
 
 		if (!failed) {
@@ -111,7 +111,7 @@ function connector(state, user, callback) {
 				state.page += 1;
 			}
 
-			if (state.mode === 'initial' && data.length === 0) {
+			if (state.mode === 'initial' && (data.length === 0 || state.page * 20 >  response.liked_count)) {
 				state.mode = 'normal';
 				delete state.page;
 			}
