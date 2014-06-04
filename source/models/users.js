@@ -12,6 +12,10 @@ function findByEmail(email, callback) {
 			return callback(err);
 		}
 
+		if (!user) {
+			return callback({message: 'user not found', email: email});
+		}
+
 		callback(null, _.pick(user, userPickFields));
 	});
 }
