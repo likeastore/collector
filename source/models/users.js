@@ -1,27 +1,18 @@
+var _ = require('underscore');
 var moment = require('moment');
 
 var config = require('../../config');
 var db = require('../db')(config);
 
-var usersCache = {};
+var userPickFields = ['_id', 'avatar', 'bio', 'displayName', 'email', 'location', 'username', 'website'];
 
 function findByEmail(email, callback) {
-	db.users.findOne({email: email}, callback);
-}
-
-function findAndCache(email, callback) {
-	if (usersCache[email]) {
-		return callback (null, usersCache[email]);
-	}
-
 	db.users.findOne({email: email}, function (err, user) {
 		if (err) {
 			return callback(err);
 		}
 
-		usersCache[email] = user;
-
-		return callback (null, usersCache[email]);
+		callback(null, _.pick(user, userPickFields));
 	});
 }
 
@@ -32,6 +23,5 @@ function findNonActive(callback) {
 
 module.exports = {
 	findByEmail: findByEmail,
-	findAndCache: findAndCache,
 	findNonActive: findNonActive
 };
