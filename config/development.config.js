@@ -6,7 +6,12 @@ var config = {
 	siteUrl: 'http://localhost:3000',
 
 	elastic: {
-		connection: 'http://localhost:9200'
+		host: {
+			host: 'localhost',
+			port: 9200
+		},
+
+		requestTimeout: 5000
 	},
 
 	// api keys

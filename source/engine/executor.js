@@ -14,7 +14,7 @@ function executor(state, connectors, callback) {
 		executeConnector,
 		findNew,
 		saveToMongo,
-		//saveToEleastic,
+		saveToEleastic,
 		saveState
 	], function (err, results) {
 		var executorFinished = moment();

@@ -6,7 +6,16 @@ var config = {
 	siteUrl: 'https://stage.likeastore.com',
 
 	elastic: {
-		connection: 'http://stage.likeastore.com:9200'
+		host: {
+			protocol: 'https',
+			host: 'stage.likeastore.com',
+			port: 443,
+			query: {
+				access_token: process.env.ELASTIC_ACCESS_TOKEN
+			}
+		},
+
+		requestTimeout: 5000
 	},
 
 	// api keys
