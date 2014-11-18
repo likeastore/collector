@@ -1,11 +1,14 @@
 var mongo = require('mongojs');
 
+var connection;
+
 module.exports = function (config) {
-	var connection = config.connection || 'mongodb://localhost:27017/seismodb';
-	var db = mongo.connect(connection, ['users', 'networks', 'items', 'subscribers', 'tests']);
-	if (!db) {
-		throw new Error('could not connect to ' + connection);
+	if (!connection) {
+		connection = mongo.connect(config.connection, ['users', 'networks', 'items', 'subscribers', 'tests']);
+		if (!connection) {
+			throw new Error('could not connect to ' + config.connection);
+		}
 	}
 
-	return db;
+	return connection;
 };
